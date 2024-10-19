@@ -1,5 +1,7 @@
-*/**/data/*
-!*/**/data/.gitkeep
-!data/.gitkeep
+# Ignore everything in data directories
+**/data/**
+# Don't ignore .gitkeep files
+!**/
+!.gitkeep
 
 .env
