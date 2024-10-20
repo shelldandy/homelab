@@ -1,8 +1,12 @@
 services:
   caddy:
-    image: caddy:latest
+    image: caddy:2
     container_name: caddy
     restart: unless-stopped
+    cap_add:
+      # The NET_ADMIN capability allows it to override the low default limits
+      # of the operating system without having to change kernel parameters via sysctl
+      - NET_ADMIN
     ports:
       - "80:80"
       - "443:443"
@@ -12,6 +16,19 @@ services:
       - $PWD/data:/srv
       - caddy_data:/data
       - caddy_config:/config
+    networks:
+      - caddy-network
 volumes:
   caddy_data:
+    # Defining the data volume as external makes sure docker-compose down does not delete the volume.
+    # You may need to create it manually using
+    # docker volume create caddy_caddy_data
+    external: true
+    name: caddy_caddy_data
   caddy_config:
+
+networks:
+  caddy-network:
+    # Needs to run the first time:
+    # docker network create caddy-network
+    external: true
