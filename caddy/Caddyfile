@@ -1,5 +1,6 @@
 {
   email hola@mpz.im
+  acme_dns duckdns {env.$DUCKDNS_TOKEN}
 }
 
 localhost {
