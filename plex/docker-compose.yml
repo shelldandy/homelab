@@ -1,0 +1,14 @@
+services:
+  plex:
+    image: plexinc/pms-docker:latest
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PLEX_CLAIM=${PLEX_CLAIM}
+    network_mode: host
+    volumes:
+      - ./data/config:/config
+      - ./data/transcode:/transcode
+      - ${PLEX_MEDIA_DIR:-./data/media}:/data
+    devices:
+      - /dev/dri:/dev/dri
