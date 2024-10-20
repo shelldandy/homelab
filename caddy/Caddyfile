@@ -2,10 +2,10 @@
   email hola@mpz.im
 }
 
-:80 {
-  respond "Hello, World!"
+localhost {
+  respond "Hello, localhost!"
 }
 
-:443 {
-  respond "Hello secure world"
+bowlinehome.duckdns.org, bowline.im {
+  respond "Hello, Duck!"
 }
