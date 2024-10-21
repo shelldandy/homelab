@@ -9,11 +9,15 @@ services:
       - "4444:3000/tcp"
       - "9001:80/tcp"
     volumes:
-      - ./data/work:/opt/adguardhome/work
-      - ./data/conf:/opt/adguardhome/conf
+      - adguard_work:/opt/adguardhome/work
+      - adguard_conf:/opt/adguardhome/conf
     networks:
       - adguard_net
 
 networks:
   adguard_net:
     driver: bridge
+
+volumes:
+  adguard_work:
+  adguard_conf:
