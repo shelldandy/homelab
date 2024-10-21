@@ -1,12 +1,14 @@
 {
   email hola@mpz.im
-  acme_dns duckdns {env.$DUCKDNS_TOKEN}
+  acme_dns duckdns {$DUCKDNS_TOKEN}
 }
 
 localhost {
+  bind 0.0.0.0
+  tls internal
   respond "Hello, localhost!"
 }
 
-bowlinehome.duckdns.org, bowline.im {
+bowlinehome.duckdns.org {
   respond "Hello, Duck!"
 }

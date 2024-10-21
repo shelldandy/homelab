@@ -20,6 +20,9 @@ services:
       - caddy_config:/config
     networks:
       - caddy-network
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 volumes:
   caddy_data:
     # Defining the data volume as external makes sure docker-compose down does not delete the volume.
