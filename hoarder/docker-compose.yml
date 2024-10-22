@@ -26,6 +26,9 @@ services:
       - --remote-debugging-address=0.0.0.0
       - --remote-debugging-port=9222
       - --hide-scrollbars
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
   meilisearch:
     image: getmeili/meilisearch:v1.6
     restart: unless-stopped
