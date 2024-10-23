@@ -1,0 +1,24 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    network_mode: host # Same network mode as your Plex setup
+    volumes:
+      - jellyfin_config:/config
+      - jellyfin_cache:/cache
+      - /mnt/plexiglass:/media # Using same media location
+    devices:
+      - /dev/dri:/dev/dri # For Intel/AMD GPU transcoding
+      - /dev/bus/usb:/dev/bus/usb
+    # Optional but recommended security/resource limits
+    security_opt:
+      - no-new-privileges:true
+    # Optional: you can add these if you want to limit resources
+    # mem_limit: 4gb
+    # cpus: 4
+
+volumes:
+  jellyfin_config:
+  jellyfin_cache:
