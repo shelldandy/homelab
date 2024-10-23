@@ -7,9 +7,13 @@ services:
       - PLEX_CLAIM=${PLEX_CLAIM}
     network_mode: host
     volumes:
-      - ./data/config:/config
-      - ./data/transcode:/transcode
+      - plex_config:/config
+      - plex_transcode:/transcode
       - /mnt/plexiglass:/data
     devices:
       - /dev/dri:/dev/dri
       - /dev/bus/usb:/dev/bus/usb
+
+volumes:
+  plex_config:
+  plex_transcode:
