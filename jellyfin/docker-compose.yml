@@ -12,12 +12,6 @@ services:
     devices:
       - /dev/dri:/dev/dri # For Intel/AMD GPU transcoding
       - /dev/bus/usb:/dev/bus/usb
-    # Optional but recommended security/resource limits
-    security_opt:
-      - no-new-privileges:true
-    # Optional: you can add these if you want to limit resources
-    # mem_limit: 4gb
-    # cpus: 4
 
 volumes:
   jellyfin_config:
