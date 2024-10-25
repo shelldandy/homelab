@@ -34,6 +34,4 @@ volumes:
 
 networks:
   caddy-network:
-    # Needs to run the first time:
-    # docker network create caddy-network
-    external: true
+    driver: bridge

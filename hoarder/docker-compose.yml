@@ -42,3 +42,7 @@ services:
 volumes:
   meilisearch:
   data:
+
+networks:
+  caddy-network:
+    external: true
