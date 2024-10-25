@@ -1,7 +1,0 @@
-services:
-  duckdns:
-    image: lscr.io/linuxserver/duckdns:latest
-    container_name: duckdns
-    env_file:
-      - .env
-    restart: unless-stopped
