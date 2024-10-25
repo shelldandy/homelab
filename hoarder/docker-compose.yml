@@ -15,7 +15,8 @@ services:
       DATA_DIR: /data
     container_name: hoarder
     networks:
-      - caddy-network
+      - caddy_caddy-network
+      - hoarder
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:123
     restart: unless-stopped
@@ -26,9 +27,8 @@ services:
       - --remote-debugging-address=0.0.0.0
       - --remote-debugging-port=9222
       - --hide-scrollbars
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
+    networks:
+      - hoarder
   meilisearch:
     image: getmeili/meilisearch:v1.6
     restart: unless-stopped
@@ -38,11 +38,14 @@ services:
       MEILI_NO_ANALYTICS: "true"
     volumes:
       - meilisearch:/meili_data
+    networks:
+      - hoarder
 
 volumes:
   meilisearch:
   data:
 
 networks:
-  caddy-network:
+  caddy_caddy-network:
     external: true
+  hoarder:
