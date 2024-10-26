@@ -9,21 +9,31 @@ services:
       # The NET_ADMIN capability allows it to override the low default limits
       # of the operating system without having to change kernel parameters via sysctl
       - NET_ADMIN
+    environment:
+      TZ: "America/Mexico_City"
     ports:
       - "80:80"
       - "443:443"
       - "443:443/udp"
+      - "2019:2019" # Admin API port
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./data:/srv
+      - "/var/run/docker.sock:/var/run/docker.sock"
       - caddy_data:/data
       - caddy_config:/config
     networks:
       - caddy-network
+    # The group_add configuration in the Caddy docker-compose.yml
+    # is needed because Caddy needs access to the Docker socket
+    group_add:
+      - "1002" # Docker group ID (verify with: getent group docker | cut -d: -f3)
+    labels:
+      caddy.email: ${ACME_EMAIL}
+      # Global staging configuration
+      caddy.tls.ca: "https://acme-staging-v02.api.letsencrypt.org/directory"
 volumes:
   caddy_data:
   caddy_config:
 
 networks:
   caddy-network:
-    driver: bridge
+    name: caddy_network
