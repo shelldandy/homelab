@@ -4,17 +4,34 @@ services:
     container_name: adguard
     restart: unless-stopped
     ports:
-      - "53:53/tcp"
-      - "53:53/udp"
-      - "4444:3000/tcp"
-      - "9001:80/tcp"
+      - "53:53/tcp" # DNS needs to remain exposed
+      - "53:53/udp" # DNS needs to remain exposed
+    expose:
+      - 3000 # Admin interface
+      - 80 # HTTP interface
     volumes:
       - adguard_work:/opt/adguardhome/work
       - adguard_conf:/opt/adguardhome/conf
     networks:
+      - caddy_network
       - adguard_net
+    labels:
+      caddy: adguard.bowline.im
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+      caddy.tls.protocols: "tls1.3"
+      caddy.tls.dns: "cloudflare ${CLOUDFLARE_API_TOKEN}"
+      # These headers tell browsers this is internal only
+      caddy.header: |
+        X-Frame-Options "SAMEORIGIN"
+        X-Robots-Tag "noindex, nofollow"
+      # This makes it only accessible from local networks
+      caddy.handle: |
+        @blocked not remote_ip private_ranges
+        respond @blocked "Access denied" 403
 
 networks:
+  caddy_network:
+    external: true
   adguard_net:
     driver: bridge
 
