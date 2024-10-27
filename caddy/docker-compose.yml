@@ -28,19 +28,28 @@ services:
       - "1002" # Docker group ID (verify with: getent group docker | cut -d: -f3)
     labels:
       caddy.email: ${ACME_EMAIL}
-      # Global staging configuration
-      caddy.tls.ca: "https://acme-staging-v02.api.letsencrypt.org/directory"
-      # Dynamic DNS configuration
-      caddy.global: |
-        dynamic_dns {
-          provider cloudflare {CLOUDFLARE_API_TOKEN}
-          domains {
-            bowline.im {
-              a hoard adguard # List all subdomains you want to keep updated
+      caddy: |
+        {
+          admin localhost:2019
+          email {$ACME_EMAIL}
+        }
+        (dynamic_dns) {
+          dynamic_dns {
+            provider cloudflare {$CLOUDFLARE_API_TOKEN}
+            domains {
+              bowline.im {
+                a hoard adguard
+              }
             }
+            check_interval 5m
+            ip_source https://api.ipify.org
           }
-          check_interval 5m # Check every 5 minutes
-          ip_source https://api.ipify.org # Service to check your public IP
+        }
+        (tls_config) {
+          tls {
+            dns cloudflare {$CLOUDFLARE_API_TOKEN}
+            protocols tls1.3
+          }
         }
 volumes:
   caddy_data:

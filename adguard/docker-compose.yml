@@ -25,9 +25,14 @@ services:
         X-Frame-Options "SAMEORIGIN"
         X-Robots-Tag "noindex, nofollow"
       # This makes it only accessible from local networks
-      caddy.handle: |
-        @blocked not remote_ip private_ranges
-        respond @blocked "Access denied" 403
+      caddy.access: |
+        @local_only {
+          remote_ip private_ranges
+        }
+        handle {
+          respond @local_only "Access denied" 403
+        }
+      caddy.import: tls_config
 
 networks:
   caddy_network:
