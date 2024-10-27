@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   web:
     image: ghcr.io/hoarder-app/hoarder:${HOARDER_VERSION:-release}
@@ -15,13 +14,14 @@ services:
       DATA_DIR: /data
     container_name: hoarder
     networks:
-      - caddy_caddy-network
+      - caddy_network
       - hoarder
     labels:
       caddy: hoard.bowline.im
       caddy.reverse_proxy: "{{upstreams 3000}}"
       caddy.tls.protocols: "tls1.3"
       caddy.tls.dns: "cloudflare ${CLOUDFLARE_API_TOKEN}"
+
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:123
     restart: unless-stopped
@@ -34,6 +34,7 @@ services:
       - --hide-scrollbars
     networks:
       - hoarder
+
   meilisearch:
     image: getmeili/meilisearch:v1.6
     restart: unless-stopped
@@ -51,6 +52,6 @@ volumes:
   data:
 
 networks:
-  caddy_caddy-network:
+  caddy_network:
     external: true
   hoarder:
