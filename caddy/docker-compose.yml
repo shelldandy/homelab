@@ -30,6 +30,18 @@ services:
       caddy.email: ${ACME_EMAIL}
       # Global staging configuration
       caddy.tls.ca: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      # Dynamic DNS configuration
+      caddy.global: |
+        dynamic_dns {
+          provider cloudflare {CLOUDFLARE_API_TOKEN}
+          domains {
+            bowline.im {
+              a hoard adguard # List all subdomains you want to keep updated
+            }
+          }
+          check_interval 5m # Check every 5 minutes
+          ip_source https://api.ipify.org # Service to check your public IP
+        }
 volumes:
   caddy_data:
   caddy_config:
