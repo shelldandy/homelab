@@ -29,4 +29,3 @@ networks:
   caddy_network:
     external: true
   adguard_net:
-    name: adguard_network
