@@ -27,9 +27,7 @@ services:
 
 volumes:
   adguard_work:
-    name: adguard_work
   adguard_conf:
-    name: adguard_conf
 
 networks:
   caddy_network:

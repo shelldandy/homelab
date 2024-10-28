@@ -1,5 +1,5 @@
 services:
-  web:
+  jweb:
     image: ghcr.io/hoarder-app/hoarder:${HOARDER_VERSION:-release}
     container_name: hoarder
     restart: unless-stopped
@@ -18,7 +18,9 @@ services:
       - hoarder
     labels:
       caddy: hoard.bowline.im
-      caddy.reverse_proxy: "{{upstreams 3000}}"
+      # Added handle directive to manage root path
+      caddy.handle: "/*"
+      caddy.handle.reverse_proxy: "{{upstreams 3000}}"
       caddy.tls.protocols: tls1.3
 
   chrome:
