@@ -30,8 +30,8 @@ services:
       caddy: |
         {
           admin localhost:2019
-          email hola@mpz.im
-          acme_dns cloudflare {$CLOUDFLARE_API_TOKEN}
+          email $ACME_EMAIL
+          acme_dns cloudflare $CLOUDFLARE_API_TOKEN
         }
 volumes:
   caddy_data:
