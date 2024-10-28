@@ -16,18 +16,24 @@ services:
       - caddy_network
       - adguard_net
     labels:
-      caddy: adguard.bowline.im
-      caddy.reverse_proxy: "{{upstreams 3000}}"
-      caddy.tls.dns: cloudflare $CLOUDFLARE_API_TOKEN
-      caddy.tls.protocols: "tls1.3"
-      caddy.headers: |
-        X-Frame-Options "SAMEORIGIN"
-        X-Robots-Tag "noindex, nofollow"
-      caddy.handle_path: |
-        @not_local not {
-          remote_ip private_ranges
+      caddy: |
+        adguard.bowline.im {
+          @local_only {
+            remote_ip private_ranges
+          }
+          handle {
+            header {
+              X-Frame-Options "SAMEORIGIN"
+              X-Robots-Tag "noindex, nofollow"
+            }
+          }
+          reverse_proxy {{upstreams 3000}}
+          respond @local_only "Access denied" 403
+          tls {
+            dns cloudflare $CLOUDFLARE_API_TOKEN
+            protocols tls1.3
+          }
         }
-        respond @not_local 403 "Access denied"
 networks:
   caddy_network:
     external: true

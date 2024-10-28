@@ -20,6 +20,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - caddy_data:/data
       - caddy_config:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
     networks:
       - caddy-network
     # The group_add configuration in the Caddy docker-compose.yml
@@ -29,22 +30,18 @@ services:
     labels:
       caddy: |
         {
-          email $ACME_EMAIL
           admin localhost:2019
-          dynamic_dns {
-            provider cloudflare $CLOUDFLARE_API_TOKEN
-            domains {
-              bowline.im {
-                a hoard adguard
-              }
-            }
-            check_interval 5m
-            ip_source https://api.ipify.org
+          acme_dns cloudflare $CLOUDFLARE_API_TOKEN
+          email $ACME_EMAIL
+          servers {
+            metrics
           }
         }
 volumes:
   caddy_data:
+    name: caddy_data
   caddy_config:
+    name: caddy_config
 
 networks:
   caddy-network:
