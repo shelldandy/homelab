@@ -6,6 +6,9 @@ services:
     ports:
       - "53:53/tcp"
       - "53:53/udp"
+    expose:
+      - 3000
+      - 80
     volumes:
       - adguard_work:/opt/adguardhome/work
       - adguard_conf:/opt/adguardhome/conf
@@ -26,3 +29,4 @@ networks:
   caddy_network:
     external: true
   adguard_net:
+    name: adguard_network
