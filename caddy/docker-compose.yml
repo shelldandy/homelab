@@ -29,11 +29,10 @@ services:
     labels:
       caddy: |
         {
-          email {$ACME_EMAIL}
+          email $ACME_EMAIL
           admin localhost:2019
-
           dynamic_dns {
-            provider cloudflare {$CLOUDFLARE_API_TOKEN}
+            provider cloudflare $CLOUDFLARE_API_TOKEN
             domains {
               bowline.im {
                 a hoard adguard
