@@ -27,13 +27,11 @@ services:
     group_add:
       - "1002" # Docker group ID (verify with: getent group docker | cut -d: -f3)
     labels:
-      caddy.email: ${ACME_EMAIL}
       caddy: |
         {
-          admin localhost:2019
           email {$ACME_EMAIL}
-        }
-        (dynamic_dns) {
+          admin localhost:2019
+
           dynamic_dns {
             provider cloudflare {$CLOUDFLARE_API_TOKEN}
             domains {
@@ -43,12 +41,6 @@ services:
             }
             check_interval 5m
             ip_source https://api.ipify.org
-          }
-        }
-        (tls_config) {
-          tls {
-            dns cloudflare {$CLOUDFLARE_API_TOKEN}
-            protocols tls1.3
           }
         }
 volumes:
