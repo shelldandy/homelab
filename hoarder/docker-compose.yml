@@ -19,9 +19,7 @@ services:
     labels:
       caddy: hoard.bowline.im
       caddy.reverse_proxy: "{{upstreams 3000}}"
-      caddy.tls: |
-        dns cloudflare $CLOUDFLARE_API_TOKEN
-        protocols tls1.3
+      caddy.tls.protocols: tls1.3
 
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:123

@@ -19,13 +19,10 @@ services:
       caddy: adguard.bowline.im
       caddy.@not_local: "not remote_ip private_ranges"
       caddy.respond: '@not_local "Access denied" 403'
-      caddy.header: |
-        X-Frame-Options "SAMEORIGIN"
-        X-Robots-Tag "noindex, nofollow"
+      caddy.header: 'X-Frame-Options "SAMEORIGIN"'
+      caddy.header.1: 'X-Robots-Tag "noindex, nofollow"'
       caddy.reverse_proxy: "{{upstreams 3000}}"
-      caddy.tls: |
-        dns cloudflare $CLOUDFLARE_API_TOKEN
-        protocols tls1.3
+      caddy.tls.protocols: tls1.3
 networks:
   caddy_network:
     external: true

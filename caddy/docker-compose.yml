@@ -29,9 +29,11 @@ services:
     labels:
       caddy: |
         {
+          email {$ACME_EMAIL}
           admin localhost:2019
-          email $ACME_EMAIL
-          acme_dns cloudflare $CLOUDFLARE_API_TOKEN
+          tls {
+            dns cloudflare {$CLOUDFLARE_API_TOKEN}
+          }
         }
 volumes:
   caddy_data:
