@@ -11,16 +11,15 @@ services:
       - NET_ADMIN
     environment:
       TZ: "America/Mexico_City"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - caddy_data:/data
+      - caddy_config:/config
     ports:
       - "80:80"
       - "443:443"
       - "443:443/udp"
       - "2019:2019" # Admin API port
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - caddy_data:/data
-      - caddy_config:/config
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
     networks:
       - caddy-network
     # The group_add configuration in the Caddy docker-compose.yml
@@ -31,11 +30,8 @@ services:
       caddy: |
         {
           admin localhost:2019
-          acme_dns cloudflare $CLOUDFLARE_API_TOKEN
-          email $ACME_EMAIL
-          servers {
-            metrics
-          }
+          email hola@mpz.im
+          acme_dns cloudflare {$CLOUDFLARE_API_TOKEN}
         }
 volumes:
   caddy_data:
