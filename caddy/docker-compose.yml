@@ -6,6 +6,7 @@ services:
     environment:
       - CADDY_INGRESS_NETWORKS=caddy_network
       - TZ=America/Mexico_City
+      - DEBUG=1
     env_file:
       - .env
     ports:
@@ -24,8 +25,6 @@ services:
       - 1.0.0.1
     labels:
       caddy.email: ${ACME_EMAIL}
-      caddy.admin: localhost:2019
-      # Changed this to use environment variable
       caddy.acme_dns: cloudflare ${CLOUDFLARE_API_TOKEN}
 
 volumes:
