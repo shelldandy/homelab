@@ -17,6 +17,9 @@ services:
       - caddy_config:/config
     networks:
       - caddy_network
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     labels:
       caddy.email: hola@mpz.im
       caddy.admin: localhost:2019
