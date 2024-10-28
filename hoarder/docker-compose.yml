@@ -17,31 +17,13 @@ services:
       - caddy_network
       - hoarder
     labels:
-      # Basic site config
       caddy: hoard.bowline.im
-
-      # Handle root path explicitly
-      caddy.handle.0_route: "/"
-      caddy.handle.0_route.reverse_proxy: "hoarder:3000"
-
-      # Handle Next.js routes
-      caddy.handle.1_route: "/_next/*"
-      caddy.handle.1_route.reverse_proxy: "hoarder:3000"
-
-      # Handle API routes
-      caddy.handle.2_route: "/api/*"
-      caddy.handle.2_route.reverse_proxy: "hoarder:3000"
-
-      # Handle all other paths
-      caddy.handle.3_route: "*"
-      caddy.handle.3_route.reverse_proxy: "hoarder:3000"
-
-      # Set common headers
-      caddy.handle.3_route.reverse_proxy.header_up.0: "Host {http.request.host}"
-      caddy.handle.3_route.reverse_proxy.header_up.1: "X-Real-IP {http.request.remote}"
-      caddy.handle.3_route.reverse_proxy.header_up.2: "X-Forwarded-For {http.request.remote}"
-      caddy.handle.3_route.reverse_proxy.header_up.3: "X-Forwarded-Proto {http.request.scheme}"
-
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+      # Global security headers
+      caddy.header.Strict-Transport-Security: "max-age=31536000;"
+      caddy.header.X-Content-Type-Options: "nosniff"
+      caddy.header.X-Frame-Options: "DENY"
+      caddy.header.Referrer-Policy: "strict-origin-when-cross-origin"
       # TLS configuration
       caddy.tls.protocols: tls1.3
 
