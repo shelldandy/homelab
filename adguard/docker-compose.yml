@@ -18,10 +18,6 @@ services:
     labels:
       caddy: adguard.bowline.im
       caddy.@not_local: "not remote_ip private_ranges"
-      caddy.respond: "@not_local \"Access denied\" 403"
-      # Fixed header configuration
-      caddy.header.0: "X-Frame-Options \"SAMEORIGIN\""
-      caddy.header.1: "X-Robots-Tag \"noindex, nofollow\""
       caddy.reverse_proxy: "{{upstreams 3000}}"
       caddy.tls.protocols: tls1.3
 
