@@ -1,6 +1,7 @@
 services:
   web:
     image: ghcr.io/hoarder-app/hoarder:${HOARDER_VERSION:-release}
+    container_name: hoarder
     restart: unless-stopped
     volumes:
       - data:/data
@@ -12,7 +13,6 @@ services:
       MEILI_ADDR: http://meilisearch:7700
       BROWSER_WEB_URL: http://chrome:9222
       DATA_DIR: /data
-    container_name: hoarder
     networks:
       - caddy_network
       - hoarder
@@ -54,3 +54,4 @@ networks:
   caddy_network:
     external: true
   hoarder:
+    name: hoarder_network

@@ -4,11 +4,11 @@ services:
     container_name: adguard
     restart: unless-stopped
     ports:
-      - "53:53/tcp" # DNS needs to remain exposed
-      - "53:53/udp" # DNS needs to remain exposed
+      - "53:53/tcp"
+      - "53:53/udp"
     expose:
-      - 3000 # Admin interface
-      - 80 # HTTP interface
+      - 3000
+      - 80
     volumes:
       - adguard_work:/opt/adguardhome/work
       - adguard_conf:/opt/adguardhome/conf
@@ -23,12 +23,15 @@ services:
       caddy.header.1: 'X-Robots-Tag "noindex, nofollow"'
       caddy.reverse_proxy: "{{upstreams 3000}}"
       caddy.tls.protocols: tls1.3
+
+volumes:
+  adguard_work:
+    name: adguard_work
+  adguard_conf:
+    name: adguard_conf
+
 networks:
   caddy_network:
     external: true
   adguard_net:
-    driver: bridge
-
-volumes:
-  adguard_work:
-  adguard_conf:
+    name: adguard_network
