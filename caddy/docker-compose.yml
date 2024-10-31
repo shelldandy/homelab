@@ -30,11 +30,12 @@ services:
       # Dynamic DNS configuration
       caddy.dynamic_dns: ""
       caddy.dynamic_dns.provider: "cloudflare ${CLOUDFLARE_API_TOKEN}"
-      caddy.dynamic_dns.domains.": bowline.im"
+      caddy.dynamic_dns.domains: "@"
+      caddy.dynamic_dns.zone: "bowline.im"
       caddy.dynamic_dns.check_interval: "5m"
-      caddy.dynamic_dns.ip_source.1: "interface eth0"
-      caddy.dynamic_dns.ip_source.2: "simple_http https://icanhazip.com"
-      caddy.dynamic_dns.ip_source.3: "simple_http https://api64.ipify.org"
+      caddy.dynamic_dns.ip_source: "interface eth0"
+      caddy.dynamic_dns.ip_source_1: "simple_http https://icanhazip.com"
+      caddy.dynamic_dns.ip_source_2: "simple_http https://api64.ipify.org"
       caddy.dynamic_dns.dynamic_domains: ""
 
 volumes:
