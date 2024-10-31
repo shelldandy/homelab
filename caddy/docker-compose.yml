@@ -23,27 +23,19 @@ services:
       - 1.1.1.1
       - 1.0.0.1
     labels:
-      # Global options block
-      caddy: ""
-      # Admin API configuration
-      caddy.admin: localhost:2019
-      # ACME configuration
-      caddy.email: ${ACME_EMAIL}
-      caddy.acme_dns: "cloudflare ${CLOUDFLARE_API_TOKEN}"
-      # Dynamic DNS configuration
-      caddy.dynamic_dns: ""
-      caddy.dynamic_dns.provider: "cloudflare ${CLOUDFLARE_API_TOKEN}"
-      caddy.dynamic_dns.domains: |
+      # Global block for dynamic DNS
+      caddy: |
         {
-          bowline.im @ *.bowline.im
+            dynamic_dns {
+                provider cloudflare {$CLOUDFLARE_API_TOKEN}
+                domains {
+                    bowline.im
+                }
+            }
+            admin localhost:2019
+            email {$ACME_EMAIL}
+            acme_dns cloudflare {$CLOUDFLARE_API_TOKEN}
         }
-      caddy.dynamic_dns.check_interval: 5m
-      caddy.dynamic_dns.ip_source_0: "interface eth0"
-      caddy.dynamic_dns.ip_source_1: "simple_http https://icanhazip.com"
-      caddy.dynamic_dns.ip_source_2: "simple_http https://api64.ipify.org"
-      caddy.dynamic_dns.dynamic_domains: "true"
-      caddy.dynamic_dns.versions.ipv4: "true"
-      caddy.dynamic_dns.versions.ipv6: "true"
 
 volumes:
   caddy_data:
