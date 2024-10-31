@@ -11,6 +11,5 @@
 		ip_source simple_http https://api64.ipify.org
 		ip_source interface eth0
 		check_interval 5m
-    versions ipv4
   }
 }
