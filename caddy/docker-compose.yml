@@ -6,6 +6,7 @@ services:
     environment:
       - CADDY_INGRESS_NETWORKS=caddy_network
       - TZ=America/Mexico_City
+      - CADDY_DOCKER_CADDYFILE_PATH=/etc/caddy/Caddyfile
     env_file:
       - .env
     ports:
@@ -17,30 +18,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - caddy_data:/data
       - caddy_config:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile
     networks:
       - caddy_network
     dns:
       - 1.1.1.1
       - 1.0.0.1
-    labels:
-      # Global options
-      caddy: |
-        {
-          admin localhost:2019
-          email ${ACME_EMAIL}
-          dynamic_dns {
-            provider cloudflare ${CLOUDFLARE_API_TOKEN}
-            domains {
-              "bowline.im" @
-            }
-            check_interval 5m
-            ip_source upnp
-            ip_source simple_http https://icanhazip.com
-            ip_source simple_http https://api64.ipify.org
-            ip_source interface eth0
-            dynamic_domains
-          }
-        }
 
 volumes:
   caddy_data:
