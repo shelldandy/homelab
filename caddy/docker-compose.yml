@@ -25,15 +25,21 @@ services:
     labels:
       caddy: |
         {
-            dynamic_dns {
-                provider cloudflare env.CLOUDFLARE_API_TOKEN
-                domains {
-                    bowline.im
-                }
-            }
+            acme_dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+            email {env.ACME_EMAIL}
             admin localhost:2019
-            email env.ACME_EMAIL
-            acme_dns cloudflare env.CLOUDFLARE_API_TOKEN
+        }
+      caddy.dynamic_dns: |
+        {
+            provider cloudflare {env.CLOUDFLARE_API_TOKEN}
+            domains {
+                bowline.im
+            }
+            check_interval 5m
+            ip_source interface eth0
+            ip_source simple_http https://icanhazip.com
+            ip_source simple_http https://api64.ipify.org
+            dynamic_domains true
         }
 
 volumes:
