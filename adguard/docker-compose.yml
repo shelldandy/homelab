@@ -6,18 +6,26 @@ services:
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-      - "4444:3000/tcp"
-      - "9001:80/tcp"
+    expose:
+      - 3000
+      - 80
     volumes:
       - adguard_work:/opt/adguardhome/work
       - adguard_conf:/opt/adguardhome/conf
     networks:
+      - caddy_network
       - adguard_net
-
-networks:
-  adguard_net:
-    driver: bridge
+    labels:
+      caddy: adguard.bowline.im
+      caddy.@not_local: "not remote_ip private_ranges"
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+      caddy.tls.protocols: tls1.3
 
 volumes:
   adguard_work:
   adguard_conf:
+
+networks:
+  caddy_network:
+    external: true
+  adguard_net:

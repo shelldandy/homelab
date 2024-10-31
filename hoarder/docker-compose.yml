@@ -1,22 +1,32 @@
-version: "3.8"
 services:
   web:
     image: ghcr.io/hoarder-app/hoarder:${HOARDER_VERSION:-release}
+    container_name: hoarder
     restart: unless-stopped
     volumes:
       - data:/data
-    ports:
-      - ${HOARDER_PORT:-5555}:3000
+    expose:
+      - 3000
     env_file:
       - .env
     environment:
       MEILI_ADDR: http://meilisearch:7700
       BROWSER_WEB_URL: http://chrome:9222
       DATA_DIR: /data
-    container_name: hoarder
     networks:
-      - caddy_caddy-network
+      - caddy_network
       - hoarder
+    labels:
+      caddy: hoard.bowline.im
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+      # Global security headers
+      caddy.header.Strict-Transport-Security: "max-age=31536000;"
+      caddy.header.X-Content-Type-Options: "nosniff"
+      caddy.header.X-Frame-Options: "DENY"
+      caddy.header.Referrer-Policy: "strict-origin-when-cross-origin"
+      # TLS configuration
+      caddy.tls.protocols: tls1.3
+
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:123
     restart: unless-stopped
@@ -29,6 +39,7 @@ services:
       - --hide-scrollbars
     networks:
       - hoarder
+
   meilisearch:
     image: getmeili/meilisearch:v1.6
     restart: unless-stopped
@@ -46,6 +57,7 @@ volumes:
   data:
 
 networks:
-  caddy_caddy-network:
+  caddy_network:
     external: true
   hoarder:
+    name: hoarder_network

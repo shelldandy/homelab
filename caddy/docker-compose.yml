@@ -3,27 +3,35 @@ services:
     build: .
     container_name: caddy
     restart: unless-stopped
+    environment:
+      - CADDY_INGRESS_NETWORKS=caddy_network
+      - TZ=America/Mexico_City
+      - CADDY_DOCKER_CADDYFILE_PATH=/etc/caddy/Caddyfile
     env_file:
       - .env
-    cap_add:
-      # The NET_ADMIN capability allows it to override the low default limits
-      # of the operating system without having to change kernel parameters via sysctl
-      - NET_ADMIN
     ports:
       - "80:80"
       - "443:443"
       - "443:443/udp"
+      - "2019:2019"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./data:/srv
+      - /var/run/docker.sock:/var/run/docker.sock
       - caddy_data:/data
       - caddy_config:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile
     networks:
-      - caddy-network
+      - caddy_network
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+
 volumes:
   caddy_data:
+    name: caddy_data
   caddy_config:
+    name: caddy_config
 
 networks:
-  caddy-network:
-    driver: bridge
+  caddy_network:
+    name: caddy_network
+    external: true
