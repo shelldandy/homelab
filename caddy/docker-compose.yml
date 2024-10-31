@@ -23,27 +23,24 @@ services:
       - 1.1.1.1
       - 1.0.0.1
     labels:
-      # Global options for dynamic DNS
+      # Global options block
       caddy: ""
-      caddy.dynamic_dns: ""
-      caddy.dynamic_dns.provider: cloudflare {$CLOUDFLARE_API_TOKEN}
-      caddy.dynamic_dns.domains: |
-        {
-          bowline.im @ *.bowline.im
-        }
-      # Check every 5 minutes instead of default 30
-      caddy.dynamic_dns.check_interval: 5m
-      # Use interface eth0 as primary source, fallback to external services
-      caddy.dynamic_dns.ip_source: interface eth0
-      caddy.dynamic_dns.ip_source_1: simple_http https://icanhazip.com
-      caddy.dynamic_dns.ip_source_2: simple_http https://api64.ipify.org
-      # Enable dynamic domain discovery
-      caddy.dynamic_dns.dynamic_domains: true
-      # Global email for ACME
-      caddy.email: ${ACME_EMAIL}
-      caddy.acme_dns: cloudflare ${CLOUDFLARE_API_TOKEN}
       # Admin API configuration
       caddy.admin: localhost:2019
+      # ACME configuration
+      caddy.email: ${ACME_EMAIL}
+      caddy.acme_dns: cloudflare ${CLOUDFLARE_API_TOKEN}
+      # Dynamic DNS configuration start
+      caddy.dynamic_dns: |
+        provider cloudflare {$CLOUDFLARE_API_TOKEN}
+        domains {
+          bowline.im @ *.bowline.im
+        }
+        check_interval 5m
+        ip_source interface eth0
+        ip_source simple_http https://icanhazip.com
+        ip_source simple_http https://api64.ipify.org
+        dynamic_domains
 
 volumes:
   caddy_data:
