@@ -17,8 +17,10 @@ services:
       - adguard_net
     labels:
       caddy: adguard.bowline.im
-      caddy.@not_local: "not remote_ip private_ranges"
-      caddy.reverse_proxy: "{{upstreams 3000}}"
+      caddy.@local: "remote_ip private_ranges"
+      caddy.handle: "@local"
+      caddy.handle.reverse_proxy: "{{upstreams 3000}}"
+      caddy.handle_2: "respond 403"
       caddy.tls.protocols: tls1.3
 
 volumes:
