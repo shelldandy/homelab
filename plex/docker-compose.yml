@@ -13,6 +13,9 @@ services:
     devices:
       - /dev/dri:/dev/dri
       - /dev/bus/usb:/dev/bus/usb
+    labels:
+      caddy: plex.bowline.im
+      caddy.route.reverse_proxy: "{{upstreams 32400}}"
 
 volumes:
   plex_config:
