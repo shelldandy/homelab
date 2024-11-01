@@ -4,7 +4,6 @@ services:
     restart: unless-stopped
     environment:
       - TZ=${TZ}
-    network_mode: host # Same network mode as your Plex setup
     volumes:
       - jellyfin_config:/config
       - jellyfin_cache:/cache
@@ -12,7 +11,30 @@ services:
     devices:
       - /dev/dri:/dev/dri # For Intel/AMD GPU transcoding
       - /dev/bus/usb:/dev/bus/usb
+    networks:
+      - caddy_network
+      - jellyfin_net
+    ports:
+      - "8096:8096"
+      - "8920:8920"
+      - "7359:7359/udp"
+      - "1900:1900/udp"
+    labels:
+      caddy: flix.bowline.im
+      caddy.route.reverse_proxy: "{{upstreams 8096}}"
+      # Global security headers
+      caddy.header.Strict-Transport-Security: "max-age=31536000;"
+      caddy.header.X-Content-Type-Options: "nosniff"
+      caddy.header.X-Frame-Options: "DENY"
+      caddy.header.Referrer-Policy: "strict-origin-when-cross-origin"
+      # TLS configuration
+      caddy.tls.protocols: tls1.3
 
 volumes:
   jellyfin_config:
   jellyfin_cache:
+
+networks:
+  caddy_network:
+    external: true
+  jellyfin_net:
