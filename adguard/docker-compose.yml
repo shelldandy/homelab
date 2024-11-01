@@ -6,21 +6,21 @@ services:
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-    expose:
-      - 3000
-      - 80
+      # Comment or remove after fixing
+      # - "4444:3000/tcp" # Setup
+      - "9001:80/tcp" # Admin panel
     volumes:
       - adguard_work:/opt/adguardhome/work
       - adguard_conf:/opt/adguardhome/conf
     networks:
       - caddy_network
       - adguard_net
-    labels:
-      caddy: adguard.bowline.im
-      caddy.@local: "remote_ip private_ranges"
-      caddy.route: "@local"
-      caddy.route.reverse_proxy: "{{upstreams 80}}"
-      caddy.tls.protocols: tls1.3
+    # labels:
+      # caddy: adguard.bowline.im
+      # caddy.@local: "remote_ip private_ranges"
+      # caddy.route: "@local"
+      # caddy.route.reverse_proxy: "{{upstreams 80}}"
+      # caddy.tls.protocols: tls1.3
 
 volumes:
   adguard_work:
