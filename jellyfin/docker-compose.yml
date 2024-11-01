@@ -18,7 +18,7 @@ services:
       - "8096:8096"
       - "8920:8920"
       - "7359:7359/udp"
-      - "1900:1900/udp"
+      #- "1900:1900/udp"
     labels:
       caddy: flix.bowline.im
       caddy.route.reverse_proxy: "{{upstreams 8096}}"
