@@ -29,6 +29,8 @@ services:
       caddy.header.Referrer-Policy: "strict-origin-when-cross-origin"
       # TLS configuration
       caddy.tls.protocols: tls1.3
+      # Comment out on prod
+      caddy.tls.ca: "https://acme-staging-v02.api.letsencrypt.org/directory"
 
 volumes:
   jellyfin_config:
