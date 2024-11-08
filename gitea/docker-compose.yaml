@@ -25,7 +25,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "${HTTP_PORT}:3000"
-      - "${SSH_PORT}:22"
+      - "${SSH_PORT}:222"
     depends_on:
       db:
         condition: service_healthy
