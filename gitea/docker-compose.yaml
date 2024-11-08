@@ -3,8 +3,8 @@ services:
     image: gitea/gitea:latest
     container_name: gitea
     environment:
-      - USER_UID=${USER_UID}
-      - USER_GID=${USER_GID}
+      - USER_UID=${USER_UID:-1000}
+      - USER_GID=${USER_GID:-1000}
       - GITEA__database__DB_TYPE=postgres
       - GITEA__database__HOST=db:5432
       - GITEA__database__NAME=${DB_NAME}
@@ -14,6 +14,8 @@ services:
       - GITEA__server__HTTP_PORT=${HTTP_PORT}
       - GITEA__server__ROOT_URL=${ROOT_URL}
       - GITEA__server__DOMAIN=${DOMAIN}
+      # Enable Gitea Actions
+      - GITEA__actions__ENABLED=true
     restart: unless-stopped
     networks:
       - gitea
@@ -39,6 +41,25 @@ services:
       - gitea
     volumes:
       - ${DATA_PATH}/postgres:/var/lib/postgresql/data
+
+  runner:
+    image: gitea/act_runner:latest
+    container_name: gitea-runner
+    restart: unless-stopped
+    depends_on:
+      - gitea
+    networks:
+      - gitea
+    volumes:
+      - ${DATA_PATH}/runner:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config.yaml:/config.yaml
+    environment:
+      - GITEA_INSTANCE_URL=${ROOT_URL}
+      # The registration token needs to be added after initial Gitea setup
+      - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN}
+      - GITEA_RUNNER_NAME=${RUNNER_NAME:-gitea-runner}
+      - CONFIG_FILE=/config.yaml
 
 networks:
   gitea:
