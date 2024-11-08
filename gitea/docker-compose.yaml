@@ -27,7 +27,8 @@ services:
       - "${HTTP_PORT}:3000"
       - "${SSH_PORT}:22"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:14
@@ -41,21 +42,27 @@ services:
       - gitea
     volumes:
       - ${DATA_PATH}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   runner:
     image: gitea/act_runner:latest
     container_name: gitea-runner
     restart: unless-stopped
     depends_on:
-      - gitea
+      gitea:
+        condition: service_started
     networks:
       - gitea
     volumes:
       - ${DATA_PATH}/runner:/data
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./config.yaml:/config.yaml
+      - ./config.yaml:/config.yaml:ro
     environment:
-      - GITEA_INSTANCE_URL=${GITEA_INTERNAL_URL:-http://gitea:3000/}
+      - GITEA_INSTANCE_URL=${GITEA_INTERNAL_URL}
       - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN}
       - GITEA_RUNNER_NAME=${RUNNER_NAME:-gitea-runner}
       - CONFIG_FILE=/config.yaml
