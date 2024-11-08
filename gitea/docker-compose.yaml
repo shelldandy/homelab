@@ -3,8 +3,8 @@ services:
     image: gitea/gitea:latest
     container_name: gitea
     environment:
-      - USER_UID=1000
-      - USER_GID=1000
+      - USER_UID=${USER_UID}
+      - USER_GID=${USER_GID}
       - GITEA__database__DB_TYPE=postgres
       - GITEA__database__HOST=db:5432
       - GITEA__database__NAME=${DB_NAME}
