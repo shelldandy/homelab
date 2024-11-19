@@ -1,52 +1,94 @@
 services:
   traefik:
-    image: traefik:latest
-    container_name: traefik
-    restart: unless-stopped
-    environment:
-      - TZ=America/Mexico_City
+    image: traefik:v2.10
+    env_file:
+      - ../.env
+    command:
+      # API & Dashboard
+      - "--api=true"
+      - "--api.dashboard=true"
+      # Docker provider
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      # Entrypoints
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # ACME (Let's Encrypt) configuration
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      # Logging
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      # Timeouts
+      - "--serversTransport.forwardingTimeouts.dialTimeout=5s"
+      - "--serversTransport.forwardingTimeouts.idleConnTimeout=1m"
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080" # Traefik dashboard (optional)
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      # Dashboard configuration
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
+      
+      # Global Security Headers Middleware
+      - "traefik.http.middlewares.security-headers.headers.sslRedirect=true"
+      - "traefik.http.middlewares.security-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.security-headers.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.security-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.security-headers.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.security-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.security-headers.headers.stsPreload=true"
+      
+      # Global HTTPS Redirect Middleware
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+      
+      # Global Rate Limiting Middleware
+      - "traefik.http.middlewares.rate-limit.ratelimit.average=100"
+      - "traefik.http.middlewares.rate-limit.ratelimit.burst=50"
+      
+      # Chain all middlewares together
+      - "traefik.http.middlewares.global-chain.chain.middlewares=https-redirect,security-headers,rate-limit"
+      
+      # Apply global middleware chain to dashboard
+      - "traefik.http.routers.dashboard.middlewares=global-chain"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - traefik_certs:/etc/traefik/acme
+      - letsencrypt:/letsencrypt
     networks:
-      - frontend
-    dns:
-      - 1.1.1.1
-      - 1.0.0.1
-    command:
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
-      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}
-      # Disable on prod
-      - --certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
-      - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json
+      - web
+    restart: unless-stopped
 
   whoami:
-    # A container that exposes an API to show its IP address
     image: traefik/whoami
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.bowline.im`)"
+      # HTTPS router
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls=true"
       - "traefik.http.routers.whoami.tls.certresolver=myresolver"
-      # Redirect HTTP to HTTPS
-      - "traefik.http.routers.whoami-http.rule=Host(`whoami.bowline.im`)"
+      - "traefik.http.routers.whoami.middlewares=global-chain"
+      # HTTP router (will be redirected to HTTPS)
+      - "traefik.http.routers.whoami-http.rule=Host(`whoami.${DOMAIN}`)"
       - "traefik.http.routers.whoami-http.entrypoints=web"
-      - "traefik.http.routers.whoami-http.middlewares=redirect-to-https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.whoami-http.middlewares=global-chain"
+    networks:
+      - web
+    restart: unless-stopped
 
 volumes:
-  traefik_certs:
+  letsencrypt:
 
 networks:
-  frontend:
-    name: frontend
+  web:
     external: true
