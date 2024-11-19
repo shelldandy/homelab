@@ -3,7 +3,8 @@ services:
     image: traefik:latest
     environment:
       - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
-      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - CLOUDFLARE_ZONE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
     command:
       # API & Dashboard
       - "--api=true"
@@ -17,7 +18,8 @@ services:
       # ACME (Let's Encrypt) configuration
       - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory" # Staging
+      # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-v02.api.letsencrypt.org/directory" # Prod
       - "--certificatesresolvers.myresolver.acme.dnschallenge=true"
       - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare"
       - "--certificatesresolvers.myresolver.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
@@ -73,7 +75,7 @@ services:
     image: oznu/cloudflare-ddns:latest
     restart: unless-stopped
     environment:
-      - API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - API_KEY=${CLOUDFLARE_API_TOKEN}
       - ZONE=${DOMAIN}
       - SUBDOMAIN=*
       - PROXIED=true
@@ -90,10 +92,6 @@ services:
       - "traefik.http.routers.whoami.tls=true"
       - "traefik.http.routers.whoami.tls.certresolver=myresolver"
       - "traefik.http.routers.whoami.middlewares=global-chain"
-      # HTTP router (will be redirected to HTTPS)
-      - "traefik.http.routers.whoami-http.rule=Host(`whoami.${DOMAIN}`)"
-      - "traefik.http.routers.whoami-http.entrypoints=web"
-      - "traefik.http.routers.whoami-http.middlewares=global-chain"
     networks:
       - frontend
     restart: unless-stopped
