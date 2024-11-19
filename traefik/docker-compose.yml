@@ -38,7 +38,7 @@ services:
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.tls=true"
       - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
-      
+
       # Global Security Headers Middleware
       - "traefik.http.middlewares.security-headers.headers.sslRedirect=true"
       - "traefik.http.middlewares.security-headers.headers.stsSeconds=31536000"
@@ -47,18 +47,18 @@ services:
       - "traefik.http.middlewares.security-headers.headers.forceSTSHeader=true"
       - "traefik.http.middlewares.security-headers.headers.stsIncludeSubdomains=true"
       - "traefik.http.middlewares.security-headers.headers.stsPreload=true"
-      
+
       # Global HTTPS Redirect Middleware
       - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
-      
+
       # Global Rate Limiting Middleware
       - "traefik.http.middlewares.rate-limit.ratelimit.average=100"
       - "traefik.http.middlewares.rate-limit.ratelimit.burst=50"
-      
+
       # Chain all middlewares together
       - "traefik.http.middlewares.global-chain.chain.middlewares=https-redirect,security-headers,rate-limit"
-      
+
       # Apply global middleware chain to dashboard
       - "traefik.http.routers.dashboard.middlewares=global-chain"
     volumes:
