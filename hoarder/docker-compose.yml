@@ -23,6 +23,8 @@ services:
       - "traefik.http.routers.hoard.entrypoints=websecure"
       - "traefik.http.routers.hoard.tls.certresolver=myresolver"
       - "traefik.http.routers.hoard.middlewares=global-chain"
+      - "traefik.http.services.hoard.loadbalancer.server.port=3000"
+      - "traefik.docker.network=frontend"
 
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:123
