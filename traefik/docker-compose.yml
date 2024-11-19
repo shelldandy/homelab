@@ -3,6 +3,8 @@ services:
     image: traefik:v2.10
     env_file:
       - ../.env
+    environment:
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
     command:
       # API & Dashboard
       - "--api=true"
@@ -17,8 +19,14 @@ services:
       - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.myresolver.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
+      # Cloudflare DNS provider
+      - "--providers.dns.cloudflare=true"
+      - "--providers.dns.cloudflare.apitoken=${CLOUDFLARE_API_TOKEN}"
+      - "--providers.dns.cloudflare.zonename=${DOMAIN}"
+      - "--providers.dns.cloudflare.pollinginterval=2m"
       # Logging
       - "--log.level=INFO"
       - "--accesslog=true"
@@ -67,6 +75,18 @@ services:
     networks:
       - web
     restart: unless-stopped
+
+  # Dynamic DNS updater for Cloudflare
+  cloudflare-ddns:
+    image: oznu/cloudflare-ddns:latest
+    restart: unless-stopped
+    environment:
+      - API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      - ZONE=${DOMAIN}
+      - SUBDOMAIN=*
+      - PROXIED=true
+    networks:
+      - web
 
   whoami:
     image: traefik/whoami
