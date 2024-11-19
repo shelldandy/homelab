@@ -1,8 +1,6 @@
 services:
   traefik:
     image: traefik:v2.10
-    env_file:
-      - ../.env
     environment:
       - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
     command:
@@ -73,7 +71,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - letsencrypt:/letsencrypt
     networks:
-      - web
+      - frontend
     restart: unless-stopped
 
   # Dynamic DNS updater for Cloudflare
@@ -86,7 +84,7 @@ services:
       - SUBDOMAIN=*
       - PROXIED=true
     networks:
-      - web
+      - frontend
 
   whoami:
     image: traefik/whoami
@@ -103,12 +101,12 @@ services:
       - "traefik.http.routers.whoami-http.entrypoints=web"
       - "traefik.http.routers.whoami-http.middlewares=global-chain"
     networks:
-      - web
+      - frontend
     restart: unless-stopped
 
 volumes:
   letsencrypt:
 
 networks:
-  web:
+  frontend:
     external: true
