@@ -15,7 +15,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.adguard.rule=Host(`adguard.bowline.im`)"
-      - "traefik.http.routers.adguard.service=api@internal"
+      - "traefik.http.services.adguard.loadbalancer.server.port=80"  # Add this line (AdGuard's default web UI port)
       - "traefik.http.routers.adguard.entrypoints=websecure"
       - "traefik.http.routers.adguard.tls=true"
       - "traefik.http.routers.adguard.tls.certresolver=myresolver"
