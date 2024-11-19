@@ -32,8 +32,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    security_opt:
-      - no-new-privileges:true
     labels:
       # Dashboard configuration
       - "traefik.enable=true"
@@ -71,8 +69,6 @@ services:
     networks:
       - frontend
     restart: unless-stopped
-    env_file:
-      - ./.env
 
   # Dynamic DNS updater for Cloudflare
   cloudflare-ddns:
@@ -83,8 +79,6 @@ services:
       - ZONE=${DOMAIN}
       - SUBDOMAIN=*
       - PROXIED=true
-    env_file:
-      - ./.env
     networks:
       - frontend
 
@@ -105,8 +99,6 @@ services:
     networks:
       - frontend
     restart: unless-stopped
-    env_file:
-      - ./.env
 
 volumes:
   letsencrypt:
