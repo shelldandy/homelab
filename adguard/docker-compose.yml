@@ -10,17 +10,23 @@ services:
       - adguard_work:/opt/adguardhome/work
       - adguard_conf:/opt/adguardhome/conf
     networks:
-      - caddy_network
+      - frontend
       - adguard_net
     labels:
-      caddy: adguard.bowline.im
-      caddy.route.reverse_proxy: "{{upstreams 80}}"
+      - "traefik.enable=true"
+      - "traefik.http.routers.adguard.rule=Host(`adguard.bowline.im`)"
+      - "traefik.http.routers.adguard.service=api@internal"
+      - "traefik.http.routers.adguard.entrypoints=websecure"
+      - "traefik.http.routers.adguard.tls=true"
+      - "traefik.http.routers.adguard.tls.certresolver=myresolver"
+      - "traefik.http.routers.adguard.middlewares=global-chain"
+      - "traefik.docker.network=frontend"
 
 volumes:
   adguard_work:
   adguard_conf:
 
 networks:
-  caddy_network:
+  frontend:
     external: true
   adguard_net:
