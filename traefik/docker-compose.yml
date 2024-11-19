@@ -1,6 +1,9 @@
 services:
   traefik:
     image: traefik:latest
+    environment:
+      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
     command:
       # API & Dashboard
       - "--api=true"
@@ -70,7 +73,7 @@ services:
     image: oznu/cloudflare-ddns:latest
     restart: unless-stopped
     environment:
-      - API_TOKEN=${CLOUDFLARE_API_KEY}
+      - API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - ZONE=${DOMAIN}
       - SUBDOMAIN=*
       - PROXIED=true
