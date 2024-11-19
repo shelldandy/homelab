@@ -1,8 +1,6 @@
 services:
   traefik:
-    image: traefik:v2.10
-    environment:
-      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+    image: traefik:latest
     command:
       # API & Dashboard
       - "--api=true"
@@ -73,6 +71,8 @@ services:
     networks:
       - frontend
     restart: unless-stopped
+    env_file:
+      - ./.env
 
   # Dynamic DNS updater for Cloudflare
   cloudflare-ddns:
@@ -83,6 +83,8 @@ services:
       - ZONE=${DOMAIN}
       - SUBDOMAIN=*
       - PROXIED=true
+    env_file:
+      - ./.env
     networks:
       - frontend
 
@@ -103,6 +105,8 @@ services:
     networks:
       - frontend
     restart: unless-stopped
+    env_file:
+      - ./.env
 
 volumes:
   letsencrypt:
