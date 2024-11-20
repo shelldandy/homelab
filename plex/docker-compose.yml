@@ -3,8 +3,8 @@ services:
     image: plexinc/pms-docker:latest
     restart: unless-stopped
     environment:
-      - TZ=${TZ}
-      - PLEX_CLAIM=${PLEX_CLAIM}
+      TZ: ${TZ}
+      PLEX_CLAIM: ${PLEX_CLAIM}
     networks:
       - frontend
       - plex_net

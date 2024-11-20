@@ -3,7 +3,7 @@ services:
     image: jellyfin/jellyfin:latest
     restart: unless-stopped
     environment:
-      - TZ=${TZ}
+      TZ: ${TZ}
     env_file:
       - ./.env
     volumes:

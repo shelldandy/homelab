@@ -2,9 +2,9 @@ services:
   traefik:
     image: traefik:latest
     environment:
-      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
-      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
-      - CLOUDFLARE_ZONE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      CLOUDFLARE_EMAIL: ${CLOUDFLARE_EMAIL}
+      CLOUDFLARE_DNS_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
+      CLOUDFLARE_ZONE_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
     ports:
       - "80:80"
       - "443:443"
@@ -28,10 +28,10 @@ services:
     image: oznu/cloudflare-ddns:latest
     restart: unless-stopped
     environment:
-      - API_KEY=${CLOUDFLARE_API_TOKEN}
-      - ZONE=${DOMAIN}
-      - SUBDOMAIN=*
-      - PROXIED=true
+      API_KEY: ${CLOUDFLARE_API_TOKEN}
+      ZONE: ${DOMAIN}
+      SUBDOMAIN: "*"
+      PROXIED: true
     networks:
       - frontend
 
