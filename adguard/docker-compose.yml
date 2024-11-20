@@ -18,10 +18,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=80"  # Add this line (AdGuard's default web UI port)
-      - "traefik.http.routers.${SUBDOMAIN}.entrypoints=websecure"
-      - "traefik.http.routers.${SUBDOMAIN}.tls.certresolver=myresolver"
       - "traefik.http.routers.${SUBDOMAIN}.middlewares=global-chain"
-      - "traefik.docker.network=frontend"
 
 volumes:
   adguard_work:
