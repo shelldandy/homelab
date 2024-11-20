@@ -3,6 +3,8 @@ services:
     image: adguard/adguardhome:latest
     container_name: adguard
     restart: unless-stopped
+    env_file:
+      - ./.env
     ports:
       - "53:53/tcp"
       - "53:53/udp"
@@ -10,17 +12,19 @@ services:
       - adguard_work:/opt/adguardhome/work
       - adguard_conf:/opt/adguardhome/conf
     networks:
-      - caddy_network
+      - frontend
       - adguard_net
     labels:
-      caddy: adguard.bowline.im
-      caddy.route.reverse_proxy: "{{upstreams 80}}"
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=80"  # Add this line (AdGuard's default web UI port)
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=global-chain"
 
 volumes:
   adguard_work:
   adguard_conf:
 
 networks:
-  caddy_network:
+  frontend:
     external: true
   adguard_net:
