@@ -20,7 +20,7 @@ api:
 
 providers:
   docker:
-    exposedBydefault: false
+    exposedByDefault: false
     network: frontend
   file:
     directory: /etc/traefik
