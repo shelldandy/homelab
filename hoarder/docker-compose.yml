@@ -18,13 +18,12 @@ services:
       - hoarder
     labels:
       - "traefik.enable=true"
-      # HTTPS router
-      - "traefik.http.routers.hoard.rule=Host(`hoard.bowline.im`)"
-      - "traefik.http.routers.hoard.entrypoints=websecure"
-      - "traefik.http.routers.hoard.tls.certresolver=myresolver"
-      - "traefik.http.routers.hoard.middlewares=global-chain"
-      - "traefik.http.services.hoard.loadbalancer.server.port=3000"
       - "traefik.docker.network=frontend"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.routers.${SUBDOMAIN}.entrypoints=websecure"
+      - "traefik.http.routers.${SUBDOMAIN}.tls.certresolver=myresolver"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=global-chain"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
 
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:123
