@@ -1,0 +1,67 @@
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: myresolver
+      middlewares:
+        - global-chain@file
+
+api:
+  dashboard: true
+
+providers:
+  docker:
+    exposedBydefault: false
+    network: frontend
+  file:
+    directory: /etc/traefik
+
+log:
+  level: INFO
+accessLog: {}
+
+certificatesResolvers:
+  myresolver:
+    acme:
+      email: ${ACME_EMAIL}
+      storage: /letsencrypt/acme.json
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
+
+http:
+  middlewares:
+    security-headers:
+      headers:
+        sslRedirect: true
+        stsSeconds: 31536000
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+    https-redirect:
+      redirectscheme:
+        scheme: https
+        permanent: true
+    rate-limit:
+      ratelimit:
+        average: 100
+        burst: 50
+    global-chain:
+      chain:
+        middlewares:
+          - https-redirect
+          - security-headers
+          - rate-limit

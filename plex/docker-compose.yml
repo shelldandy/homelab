@@ -28,7 +28,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=32400"
-      - "traefik.http.routers.${SUBDOMAIN}.middlewares=global-chain"
 
 volumes:
   plex_config:

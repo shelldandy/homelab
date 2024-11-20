@@ -20,7 +20,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
-      - "traefik.http.routers.${SUBDOMAIN}.middlewares=global-chain"
 
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:123

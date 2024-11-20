@@ -5,72 +5,19 @@ services:
       - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
       - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_API_TOKEN}
       - CLOUDFLARE_ZONE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
-    command:
-      # API & Dashboard
-      - "--api=true"
-      - "--api.dashboard=true"
-      # Docker provider
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=frontend"
-      # Entrypoints
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      # Add global redirect from HTTP to HTTPS
-      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
-      # ACME (Let's Encrypt) configuration
-      - "--entrypoints.websecure.http.tls.certresolver=myresolver"
-      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory" # Staging
-      - "--certificatesresolvers.myresolver.acme.caserver=https://acme-v02.api.letsencrypt.org/directory" # Prod
-      - "--certificatesresolvers.myresolver.acme.dnschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare"
-      - "--certificatesresolvers.myresolver.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53"
-      # Logging
-      - "--log.level=INFO"
-      - "--accesslog=true"
-      # Timeouts
-      - "--serversTransport.forwardingTimeouts.dialTimeout=5s"
-      - "--serversTransport.forwardingTimeouts.idleConnTimeout=1m"
     ports:
       - "80:80"
       - "443:443"
     labels:
-      # Dashboard configuration
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.tls=true"
       - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
-
-      # Global Security Headers Middleware
-      - "traefik.http.middlewares.security-headers.headers.sslRedirect=true"
-      - "traefik.http.middlewares.security-headers.headers.stsSeconds=31536000"
-      - "traefik.http.middlewares.security-headers.headers.browserXssFilter=true"
-      - "traefik.http.middlewares.security-headers.headers.contentTypeNosniff=true"
-      - "traefik.http.middlewares.security-headers.headers.forceSTSHeader=true"
-      - "traefik.http.middlewares.security-headers.headers.stsIncludeSubdomains=true"
-      - "traefik.http.middlewares.security-headers.headers.stsPreload=true"
-
-      # Global HTTPS Redirect Middleware
-      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
-
-      # Global Rate Limiting Middleware
-      - "traefik.http.middlewares.rate-limit.ratelimit.average=100"
-      - "traefik.http.middlewares.rate-limit.ratelimit.burst=50"
-
-      # Chain all middlewares together
-      - "traefik.http.middlewares.global-chain.chain.middlewares=https-redirect,security-headers,rate-limit"
-
-      # Apply global middleware chain to dashboard
-      - "traefik.http.routers.dashboard.middlewares=global-chain"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
       - letsencrypt:/letsencrypt
     networks:
       - frontend
@@ -96,7 +43,6 @@ services:
       - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls.certresolver=myresolver"
-      - "traefik.http.routers.whoami.middlewares=global-chain"
     networks:
       - frontend
     restart: unless-stopped
