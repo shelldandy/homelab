@@ -1,0 +1,18 @@
+services:
+  icloudpd:
+    container_name: icloudpd
+    env_file:
+      - ./.env
+    environment:
+      - TZ=${TZ}
+    image: boredazfcuk/icloudpd:latest
+    healthcheck:
+      test: /usr/local/bin/healthcheck.sh
+      start_period: 30s
+    restart: unless-stopped
+    volumes:
+      - icloudpd:/config
+      - ${DATA_PATH}:${download_path}
+
+volumes:
+  icloudpd:
