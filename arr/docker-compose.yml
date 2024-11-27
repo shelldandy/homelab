@@ -1,4 +1,5 @@
 services:
+  #Radarr - used to find movies automatically
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
@@ -12,6 +13,8 @@ services:
     networks:
       - frontend
       - arr_network
+    ports:
+      - 7878:7878
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.radarr.rule=Host(`radarr.bowline.im`)"
@@ -32,6 +35,8 @@ services:
     networks:
       - frontend
       - arr_network
+    ports:
+      - 8989:8989
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.bowline.im`)"
@@ -176,6 +181,9 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.bazarr.rule=Host(`bazarr.bowline.im`)"
       - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
+    networks:
+      - frontend
+      - arr_network
 
 networks:
   arr_network:
