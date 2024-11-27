@@ -166,8 +166,8 @@ services:
     image: lscr.io/linuxserver/bazarr:latest
     restart: unless-stopped
     environment:
-      - PUID=${GUID}
-      - PGID=${GUID}
+      - PUID=${PUID}
+      - PGID=${PGID}
       - TZ=${TZ}
     volumes:
       - ${BASE_PATH}/bazarr/config:/config
