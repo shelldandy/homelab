@@ -1,5 +1,6 @@
 services:
   traefik:
+    container_name: traefik
     image: traefik:latest
     environment:
       CLOUDFLARE_EMAIL: ${CLOUDFLARE_EMAIL}
@@ -34,6 +35,7 @@ services:
       PROXIED: true
 
   whoami:
+    container_name: whoami
     image: traefik/whoami
     labels:
       - "traefik.enable=true"

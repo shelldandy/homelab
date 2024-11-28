@@ -1,5 +1,6 @@
 services:
   postgresql:
+    container_name: authentik_postgresql
     image: docker.io/library/postgres:16-alpine
     restart: unless-stopped
     healthcheck:
@@ -17,6 +18,7 @@ services:
     networks:
       - backend
   redis:
+    container_name: authentik_redis
     image: docker.io/library/redis:alpine
     command: --save 60 1 --loglevel warning
     restart: unless-stopped
@@ -31,6 +33,7 @@ services:
     networks:
       - backend
   server:
+    container_name: authentik
     image: ghcr.io/goauthentik/server:2024.10.4
     restart: unless-stopped
     command: server
@@ -56,6 +59,7 @@ services:
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=9000"
   worker:
+    container_name: authentik_worker
     image: ghcr.io/goauthentik/server:2024.10.4
     restart: unless-stopped
     command: worker
