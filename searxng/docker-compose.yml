@@ -29,13 +29,17 @@ services:
     networks:
       - searxng
     ports:
-      - "127.0.0.1:8080:8080"
+      - "8080:8080"
     volumes:
       - ./config:/etc/searxng:rw
     environment:
-      - SEARXNG_BASE_URL=https://${SEARXNG_HOSTNAME:-localhost}/
-      - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS:-4}
-      - UWSGI_THREADS=${SEARXNG_UWSGI_THREADS:-4}
+      - SEARXNG_BASE_URL=https://${SUBDOMAIN}.bowline.im/
+      - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS}
+      - UWSGI_THREADS=${SEARXNG_UWSGI_THREADS}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
     # cap_drop:
     # - ALL
     cap_add:
