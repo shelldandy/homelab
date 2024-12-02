@@ -46,8 +46,8 @@ services:
       AUTHENTIK_SECRET_KEY: ${SECRET_KEY}
       AUTHENTIK_ERROR_REPORTING__ENABLED: true
     volumes:
-      - ./media:/media
-      - ./custom-templates:/templates
+      - ${CONFIG_PATH}/media:/media
+      - ${CONFIG_PATH}/custom-templates:/templates
     depends_on:
       - postgresql
       - redis
@@ -74,9 +74,9 @@ services:
     user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./media:/media
-      - ./certs:/certs
-      - ./custom-templates:/templates
+      - ${CONFIG_PATH}/media:/media
+      - ${CONFIG_PATH}/certs:/certs
+      - ${CONFIG_PATH}/custom-templates:/templates
     depends_on:
       - postgresql
       - redis

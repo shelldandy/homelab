@@ -147,14 +147,17 @@ services:
 
   #Overseer - allows users to request media on their own
   overseerr:
-    image: lscr.io/linuxserver/overseerr:latest
+    # Uncomment once this gets merged
+    # https://github.com/sct/overseerr/pull/3746
+    #image: lscr.io/linuxserver/overseerr:latest
+    image: ghcr.io/lenaxia/overseerr-oidc:oidc-support
     container_name: overseerr
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-      - ${BASE_PATH}/overseer/config:/config
+      - ${BASE_PATH}/overseer/config:/app/config
       - ${MEDIA_SHARE}:/share #Access to the entire share
     networks:
       - frontend
