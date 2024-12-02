@@ -26,18 +26,17 @@ services:
     restart: unless-stopped
     networks:
       - searxng
-    ports:
-      - "8080:8080"
     volumes:
       - ./config:/etc/searxng:rw
     environment:
       - SEARXNG_BASE_URL=https://${SUBDOMAIN}.bowline.im/
       - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS}
       - UWSGI_THREADS=${SEARXNG_UWSGI_THREADS}
-    #labels:
-    # - "traefik.enable=true"
-    # - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
-    # - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
+    # Uncomment after first run
     # cap_drop:
     # - ALL
     cap_add:
