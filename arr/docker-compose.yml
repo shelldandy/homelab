@@ -83,6 +83,7 @@ services:
       - frontend
       - arr_network
 
+  #qBittorent - Torrent client to actually download the things
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
@@ -90,22 +91,55 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - WEBUI_PORT=8080
+      - WEBUI_PORT=${QBT_UI_PORT}
       - TORRENTING_PORT=${TORRENTING_PORT}
+      # Use vuetorrent UI
+      - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest
+    # Uncomment to test qbittorent without gluetun
+    # ports:
+    #   - ${QBT_UI_PORT}:${QBT_UI_PORT} # This is for the qBittorrent WebUI Port
+    #   - ${TORRENTING_PORT}:6881
+    #   - ${TORRENTING_PORT}:6881/udp
     volumes:
       - ${BASE_PATH}/qbittorent/config:/config
       - ${MEDIA_SHARE}:/share
     restart: unless-stopped
+    network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_healthy
+
+  # Gluetun works as a vpn to use with qbittorent
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
     ports:
+      - ${QBT_UI_PORT}:${QBT_UI_PORT} # This is for the qBittorrent WebUI Port
       - ${TORRENTING_PORT}:6881
       - ${TORRENTING_PORT}:6881/udp
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
-      - "traefik.http.services.qbt.loadbalancer.server.port=8080"
+    environment:
+      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
+      - VPN_TYPE=${VPN_TYPE}
+      - OPENVPN_USER=${OPENVPN_USER}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
+      - VPN_PORT_FORWARDING=${VPN_PORT_FORWARDING}
+      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+    volumes:
+      - ${BASE_PATH}/gluetun/config:/gluetun
+    restart: unless-stopped
     networks:
       - frontend
       - arr_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
+      - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
 
   #Prowlarr - manages your Sonarr, Radarr and download client
   prowlarr:
