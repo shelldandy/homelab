@@ -1,0 +1,228 @@
+services:
+  #Radarr - used to find movies automatically
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/radarr/config:/config
+      - ${MEDIA_SHARE}:/share #Access to the entire share
+    networks:
+      - frontend
+      - arr_network
+    ports:
+      - 7878:7878
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.bowline.im`)"
+      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
+    restart: unless-stopped
+
+  #Sonarr - used to find tv shows automatically
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/sonarr/config:/config
+      - ${MEDIA_SHARE}:/share #Access to the entire share
+    networks:
+      - frontend
+      - arr_network
+    ports:
+      - 8989:8989
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.bowline.im`)"
+      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
+    restart: unless-stopped
+
+  #Readarr - Used to download books
+  readarr:
+    image: lscr.io/linuxserver/readarr:develop
+    container_name: readarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/readarr/config:/config
+      - ${MEDIA_SHARE}:/share
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.readarr.rule=Host(`readarr.bowline.im`)"
+      - "traefik.http.services.readarr.loadbalancer.server.port=8787"
+    networks:
+      - frontend
+      - arr_network
+
+  #Lidarr - Used to download music
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/lidarr/config:/config
+      - ${MEDIA_SHARE}:/share
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lidarr.rule=Host(`lidarr.bowline.im`)"
+      - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
+    networks:
+      - frontend
+      - arr_network
+
+  #qBittorent - Torrent client to actually download the things
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - WEBUI_PORT=${QBT_UI_PORT}
+      - TORRENTING_PORT=${TORRENTING_PORT}
+      # Use vuetorrent UI
+      - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest
+    # Uncomment to test qbittorent without gluetun
+    # ports:
+    #   - ${QBT_UI_PORT}:${QBT_UI_PORT} # This is for the qBittorrent WebUI Port
+    #   - ${TORRENTING_PORT}:6881
+    #   - ${TORRENTING_PORT}:6881/udp
+    volumes:
+      - ${BASE_PATH}/qbittorent/config:/config
+      - ${MEDIA_SHARE}:/share
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_healthy
+
+  # Gluetun works as a vpn to use with qbittorent
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - ${QBT_UI_PORT}:${QBT_UI_PORT} # This is for the qBittorrent WebUI Port
+      - ${TORRENTING_PORT}:6881
+      - ${TORRENTING_PORT}:6881/udp
+    environment:
+      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
+      - VPN_TYPE=${VPN_TYPE}
+      - OPENVPN_USER=${OPENVPN_USER}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
+      - VPN_PORT_FORWARDING=${VPN_PORT_FORWARDING}
+      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+    volumes:
+      - ${BASE_PATH}/gluetun/config:/gluetun
+    restart: unless-stopped
+    networks:
+      - frontend
+      - arr_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
+      - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
+
+  #Prowlarr - manages your Sonarr, Radarr and download client
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/prowlarr/config:/config
+    networks:
+      - frontend
+      - arr_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.bowline.im`)"
+      - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
+    restart: unless-stopped
+    #
+  #Flaresolerr - Used as a proxy server to bypass Cloudflare and DDoS-GUARD protection.
+  flaresolverr:
+    # DockerHub mirror flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=info
+      - LOG_HTML=false
+      - CAPTCHA_SOLVER=none
+      - TZ=${TZ}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flaresolverr.rule=Host(`flaresolverr.bowline.im`)"
+      - "traefik.http.services.flaresolverr.loadbalancer.server.port=8191"
+    restart: unless-stopped
+    networks:
+      - frontend
+      - arr_network
+
+  #Overseer - allows users to request media on their own
+  overseerr:
+    # Uncomment once this gets merged
+    # https://github.com/sct/overseerr/pull/3746
+    #image: lscr.io/linuxserver/overseerr:latest
+    image: ghcr.io/lenaxia/overseerr-oidc:oidc-support
+    container_name: overseerr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/overseer/config:/app/config
+      - ${MEDIA_SHARE}:/share #Access to the entire share
+    networks:
+      - frontend
+      - arr_network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.overseerr.rule=Host(`overseerr.bowline.im`)"
+      - "traefik.http.services.overseerr.loadbalancer.server.port=5055"
+
+  #Bazarr - for subtitles. Try to use SRT format if you can rather than PGS due to performance issues
+  bazarr:
+    container_name: bazarr
+    image: lscr.io/linuxserver/bazarr:latest
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/bazarr/config:/config
+      - ${MEDIA_SHARE}:/share
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bazarr.rule=Host(`bazarr.bowline.im`)"
+      - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
+    networks:
+      - frontend
+      - arr_network
+
+networks:
+  arr_network:
+  frontend:
+    external: true

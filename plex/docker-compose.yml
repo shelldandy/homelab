@@ -1,40 +1,34 @@
 services:
   plex:
+    container_name: plex
     image: plexinc/pms-docker:latest
     restart: unless-stopped
     environment:
-      - TZ=${TZ}
-      - PLEX_CLAIM=${PLEX_CLAIM}
+      TZ: ${TZ}
+      PLEX_CLAIM: ${PLEX_CLAIM}
     networks:
-      - caddy_network
+      - frontend
       - plex_net
     ports:
-      - "32400:32400/tcp"
-      - "8324:8324/tcp"
-      - "32469:32469/tcp"
-      - "1900:1900/udp"
-      - "32410:32410/udp"
-      - "32412:32412/udp"
-      - "32413:32413/udp"
-      - "32414:32414/udp"
+      - "32400:32400" # Open this port on your router for external connection
     volumes:
       - plex_config:/config
       - plex_transcode:/transcode
-      - /mnt/plexiglass:/data
+      - ${MEDIA_SHARE}/media/tv:/media/tv
+      - ${MEDIA_SHARE}/media/movies:/media/movies
     devices:
       - /dev/dri:/dev/dri
       - /dev/bus/usb:/dev/bus/usb
     labels:
-      caddy: plex.bowline.im
-      caddy.route.reverse_proxy: "{{upstreams 32400}}"
-      caddy.encode: gzip
-      caddy.tls.ca: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=32400"
 
 volumes:
   plex_config:
   plex_transcode:
 
 networks:
-  caddy_network:
+  frontend:
     external: true
   plex_net:

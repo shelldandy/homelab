@@ -14,18 +14,12 @@ services:
       BROWSER_WEB_URL: http://chrome:9222
       DATA_DIR: /data
     networks:
-      - caddy_network
+      - frontend
       - hoarder
     labels:
-      caddy: hoard.bowline.im
-      caddy.reverse_proxy: "{{upstreams 3000}}"
-      # Global security headers
-      caddy.header.Strict-Transport-Security: "max-age=31536000;"
-      caddy.header.X-Content-Type-Options: "nosniff"
-      caddy.header.X-Frame-Options: "DENY"
-      caddy.header.Referrer-Policy: "strict-origin-when-cross-origin"
-      # TLS configuration
-      caddy.tls.protocols: tls1.3
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
 
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:123
@@ -57,7 +51,7 @@ volumes:
   data:
 
 networks:
-  caddy_network:
+  frontend:
     external: true
   hoarder:
     name: hoarder_network

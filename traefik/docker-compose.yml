@@ -1,0 +1,52 @@
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:latest
+    environment:
+      CLOUDFLARE_EMAIL: ${CLOUDFLARE_EMAIL}
+      CLOUDFLARE_DNS_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
+      CLOUDFLARE_ZONE_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
+    ports:
+      - "80:80"
+      - "443:443"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - letsencrypt:/letsencrypt
+    networks:
+      - frontend
+    restart: unless-stopped
+
+  # Dynamic DNS updater for Cloudflare
+  cloudflare-ddns:
+    image: oznu/cloudflare-ddns:latest
+    restart: unless-stopped
+    environment:
+      API_KEY: ${CLOUDFLARE_API_TOKEN}
+      ZONE: ${DOMAIN}
+      SUBDOMAIN: "*"
+      PROXIED: true
+
+  whoami:
+    container_name: whoami
+    image: traefik/whoami
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
+    networks:
+      - frontend
+    restart: unless-stopped
+
+volumes:
+  letsencrypt:
+
+networks:
+  frontend:
+    external: true
