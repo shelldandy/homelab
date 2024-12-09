@@ -3,8 +3,8 @@ services:
     image: gitea/gitea:latest
     container_name: gitea
     environment:
-      - USER_UID=${USER_UID:-1000}
-      - USER_GID=${USER_GID:-1000}
+      - USER_UID=${USER_UID}
+      - USER_GID=${USER_GID}
       - GITEA__database__DB_TYPE=postgres
       - GITEA__database__HOST=db:5432
       - GITEA__database__NAME=${DB_NAME}
@@ -19,16 +19,20 @@ services:
     restart: unless-stopped
     networks:
       - gitea
+      - frontend
     volumes:
       - ${DATA_PATH}/gitea:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - "${HTTP_PORT}:3000"
       - "${SSH_PORT}:222"
     depends_on:
       db:
         condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=${HTTP_PORT}"
 
   db:
     image: postgres:14
@@ -72,3 +76,5 @@ services:
 networks:
   gitea:
     external: false
+  frontend:
+    external: true
