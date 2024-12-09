@@ -7,7 +7,7 @@ services:
       - ./.env
     environment:
       TZ: ${TZ}
-      ND_BASEURL: ${SUBDOMAIN}.bowline.im
+      ND_BASEURL: https://${SUBDOMAIN}.bowline.im
     volumes:
       - ${BASE_PATH}/navidrome/data:/data
       - ${MEDIA_SHARE}/media/music:/music:ro
