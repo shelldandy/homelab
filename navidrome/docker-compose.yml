@@ -1,0 +1,23 @@
+services:
+  navidrome:
+    container_name: navidrome
+    image: deluan/navidrome:latest
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      TZ: ${TZ}
+      ND_BASEURL: https://${SUBDOMAIN}.bowline.im
+    volumes:
+      - ${BASE_PATH}/navidrome/data:/data
+      - ${MEDIA_SHARE}/media/music:/music:ro
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=4533"
+
+networks:
+  frontend:
+    external: true
