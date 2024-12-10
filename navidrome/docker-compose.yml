@@ -6,10 +6,7 @@ services:
     env_file:
       - ./.env
     environment:
-      TZ: ${TZ}
       ND_BASEURL: https://${SUBDOMAIN}.bowline.im
-      ND_SPOTIFY_ID: ${ND_SPOTIFY_ID}
-      ND_SPOTIFY_SECRET: ${ND_SPOTIFY_SECRET}
     volumes:
       - ${BASE_PATH}/navidrome/data:/data
       - ${MEDIA_SHARE}/media/music:/music:ro
