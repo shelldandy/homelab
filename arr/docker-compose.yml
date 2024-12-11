@@ -222,6 +222,28 @@ services:
       - frontend
       - arr_network
 
+  # Kapowarr is a software to build and manage a comic book library, fitting in the *arr suite of software.
+  kapowarr:
+    container_name: kapowarr
+    image: mrcas/kapowarr:latest
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/kapowarr/config:/app/db
+      - ${MEDIA_SHARE}:/share
+    ports:
+      - 5656:5656
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kapowarr.rule=Host(`kapowarr.bowline.im`)"
+      - "traefik.http.services.kapowarr.loadbalancer.server.port=5656"
+    networks:
+      - frontend
+      - arr_network
+
 networks:
   arr_network:
   frontend:
