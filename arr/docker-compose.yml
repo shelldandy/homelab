@@ -103,6 +103,7 @@ services:
     volumes:
       - ${BASE_PATH}/qbittorent/config:/config
       - ${MEDIA_SHARE}:/share
+      - ./scripts:/scripts
     restart: unless-stopped
     network_mode: "service:gluetun"
     depends_on:
