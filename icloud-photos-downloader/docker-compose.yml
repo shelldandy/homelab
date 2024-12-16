@@ -11,8 +11,5 @@ services:
       start_period: 30s
     restart: unless-stopped
     volumes:
-      - icloudpd:/config
-      - ${DATA_PATH}:${download_path}
-
-volumes:
-  icloudpd:
+      - ${CONFIG_PATH}:/config
+      - ${DATA_PATH}:/home/${user}/iCloud
