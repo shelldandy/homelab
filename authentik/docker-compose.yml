@@ -34,7 +34,7 @@ services:
       - backend
   server:
     container_name: authentik
-    image: ghcr.io/goauthentik/server:2024.10.4
+    image: ghcr.io/goauthentik/server:latest
     restart: unless-stopped
     command: server
     environment:
@@ -60,7 +60,7 @@ services:
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=9000"
   worker:
     container_name: authentik_worker
-    image: ghcr.io/goauthentik/server:2024.10.4
+    image: ghcr.io/goauthentik/server:latest
     restart: unless-stopped
     command: worker
     environment:
