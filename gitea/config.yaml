@@ -1,0 +1,21 @@
+log:
+  # The level of logging, can be trace, debug, info, warn, error, fatal
+  level: info
+
+runner:
+  labels:
+    - "ubuntu-latest:docker://gitea/runner-images:ubuntu-latest"
+    - "ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04"
+    - "ubuntu-20.04:docker://gitea/runner-images:ubuntu-20.04"
+
+container:
+  network: "gitea"
+  # Whether to use privileged mode or not when launching task containers (privileged mode is required for Docker-in-Docker).
+  privileged: false
+  # And other options to be used when the container is started (eg, --add-host=my.gitea.url:host-gateway).
+  options: --add-host=gitea:host-gateway
+  workdir_parent: data/workdir
+  # Pull docker image(s) even if already present
+  force_pull: true
+  # Rebuild docker image(s) even if already present
+  force_rebuild: false
