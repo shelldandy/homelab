@@ -23,6 +23,7 @@ services:
 
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:123
+    container_name: hoarder-chrome
     restart: unless-stopped
     command:
       - --no-sandbox
@@ -35,6 +36,7 @@ services:
       - hoarder
 
   meilisearch:
+    container_name: hoarder-meilisearch
     image: getmeili/meilisearch:v1.6
     restart: unless-stopped
     env_file:
