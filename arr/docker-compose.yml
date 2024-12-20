@@ -97,7 +97,6 @@ services:
       - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest
     # Uncomment to test qbittorent without gluetun
     ports:
-      - ${QBT_UI_PORT}:${QBT_UI_PORT} # This is for the qBittorrent WebUI Port
       - ${TORRENTING_PORT}:6881
       - ${TORRENTING_PORT}:6881/udp
     volumes:
@@ -128,7 +127,6 @@ services:
   #   devices:
   #     - /dev/net/tun:/dev/net/tun
   #   ports:
-  #     - ${QBT_UI_PORT}:${QBT_UI_PORT} # This is for the qBittorrent WebUI Port
   #     - ${TORRENTING_PORT}:6881
   #     - ${TORRENTING_PORT}:6881/udp
   #   environment:
