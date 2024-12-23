@@ -1,0 +1,80 @@
+services:
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    environment:
+      - USER_UID=${USER_UID}
+      - USER_GID=${USER_GID}
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=db:5432
+      - GITEA__database__NAME=${DB_NAME}
+      - GITEA__database__USER=${DB_USER}
+      - GITEA__database__PASSWD=${DB_PASSWORD}
+      - GITEA__server__SSH_PORT=${SSH_PORT}
+      - GITEA__server__HTTP_PORT=${HTTP_PORT}
+      - GITEA__server__ROOT_URL=${ROOT_URL}
+      - GITEA__server__DOMAIN=${DOMAIN}
+      # Enable Gitea Actions
+      - GITEA__actions__ENABLED=true
+    restart: unless-stopped
+    networks:
+      - gitea
+      - frontend
+    volumes:
+      - ${DATA_PATH}/gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "${SSH_PORT}:222"
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=${HTTP_PORT}"
+
+  db:
+    image: postgres:14
+    container_name: gitea-db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    restart: unless-stopped
+    networks:
+      - gitea
+    volumes:
+      - ${DATA_PATH}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  runner:
+    image: gitea/act_runner:latest
+    container_name: gitea-runner
+    restart: unless-stopped
+    depends_on:
+      gitea:
+        condition: service_started
+    networks:
+      - gitea
+    volumes:
+      - ${DATA_PATH}/runner:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config.yaml:/config.yaml:ro
+    environment:
+      - GITEA_INSTANCE_URL=${GITEA_INTERNAL_URL}
+      - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN}
+      - GITEA_RUNNER_NAME=${RUNNER_NAME:-gitea-runner}
+      - CONFIG_FILE=/config.yaml
+    extra_hosts:
+      - "gitea:host-gateway"
+
+networks:
+  gitea:
+    external: false
+  frontend:
+    external: true
