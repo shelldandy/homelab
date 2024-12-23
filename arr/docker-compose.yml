@@ -93,6 +93,7 @@ services:
       - TZ=${TZ}
       - WEBUI_PORT=${QBT_UI_PORT}
       - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest|ghcr.io/t-anc/gsp-qbittorent-gluetun-sync-port-mod:main # Use vuetorrent UI
+      - GSP_GTN_API_KEY=${GSP_GTN_API_KEY}
     volumes:
       - ${BASE_PATH}/qbittorent/config:/config
       - ${MEDIA_SHARE}:/share
@@ -129,6 +130,7 @@ services:
       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
     volumes:
       - ${BASE_PATH}/gluetun/config:/gluetun
+      - ./gluetun-config.toml:/gluetun/auth/config.toml
     restart: unless-stopped
     networks:
       - frontend
