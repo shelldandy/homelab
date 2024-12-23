@@ -94,6 +94,9 @@ services:
       - WEBUI_PORT=${QBT_UI_PORT}
       - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest #|ghcr.io/t-anc/gsp-qbittorent-gluetun-sync-port-mod:main
       # - GSP_GTN_API_KEY=${GSP_GTN_API_KEY}
+    ports:
+      - ${TORRENTING_PORT}:${TORRENTING_PORT}
+      - ${TORRENTING_PORT}:${TORRENTING_PORT}/udp
     volumes:
       - ${BASE_PATH}/qbittorent/config:/config
       - ${MEDIA_SHARE}:/share
