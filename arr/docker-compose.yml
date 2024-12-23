@@ -109,9 +109,9 @@ services:
       - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
     # End Comment out if gluetun is enabled
     #network_mode: "service:gluetun"
-    depends_on:
-      gluetun:
-        condition: service_healthy
+    # depends_on:
+    #   gluetun:
+    #     condition: service_healthy
 
   # Gluetun works as a vpn to use with qbittorent
   # gluetun:
