@@ -133,6 +133,9 @@ services:
     networks:
       - frontend
       - arr_network
+    # Uncomment when testing locally
+    # ports:
+    #   - ${QBT_UI_PORT}:${QBT_UI_PORT} # This is for the qBittorrent WebUI Port
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
