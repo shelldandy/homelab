@@ -93,6 +93,7 @@ services:
       - TZ=${TZ}
       - WEBUI_PORT=${QBT_UI_PORT}
       - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest #|ghcr.io/t-anc/gsp-qbittorent-gluetun-sync-port-mod:main
+      - TORRENTING_PORT=${TORRENTING_PORT}
       # - GSP_GTN_API_KEY=${GSP_GTN_API_KEY}
     ports:
       - ${TORRENTING_PORT}:${TORRENTING_PORT}
