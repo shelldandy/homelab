@@ -72,7 +72,8 @@ services:
       - TZ=${TZ}
     volumes:
       - ${BASE_PATH}/beets/config:/config
-      - ${MEDIA_SHARE}:/share
+      - ${MEDIA_SHARE}/media/music:/music
+      - ${MEDIA_SHARE}/downloads/music:/downloads
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.beets.rule=Host(`beets.bowline.im`)"
