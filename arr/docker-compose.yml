@@ -111,56 +111,60 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - WEBUI_PORT=${QBT_UI_PORT}
-      - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest|ghcr.io/t-anc/gsp-qbittorent-gluetun-sync-port-mod:main # Use vuetorrent UI
-      - GSP_GTN_API_KEY=${GSP_GTN_API_KEY}
+      - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest #|ghcr.io/t-anc/gsp-qbittorent-gluetun-sync-port-mod:main
+      - TORRENTING_PORT=${TORRENTING_PORT}
+      # - GSP_GTN_API_KEY=${GSP_GTN_API_KEY}
+    ports:
+      - ${TORRENTING_PORT}:${TORRENTING_PORT}
+      - ${TORRENTING_PORT}:${TORRENTING_PORT}/udp
     volumes:
       - ${BASE_PATH}/qbittorent/config:/config
       - ${MEDIA_SHARE}:/share
       - ./scripts:/scripts
     restart: unless-stopped
     # Comment out if gluetun is enabled
-    # networks:
-    #   - frontend
-    #   - arr_network
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
-    #   - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
-    # End Comment out if gluetun is enabled
-    network_mode: "service:gluetun"
-    depends_on:
-      gluetun:
-        condition: service_healthy
-
-  # Gluetun works as a vpn to use with qbittorent
-  gluetun:
-    image: qmcgaw/gluetun
-    container_name: gluetun
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    environment:
-      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
-      - VPN_TYPE=${VPN_TYPE}
-      - OPENVPN_USER=${OPENVPN_USER}
-      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
-      - VPN_PORT_FORWARDING=${VPN_PORT_FORWARDING}
-      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
-    volumes:
-      - ${BASE_PATH}/gluetun/config:/gluetun
-      - ./gluetun-config.toml:/gluetun/auth/config.toml
-    restart: unless-stopped
     networks:
       - frontend
       - arr_network
-    # Uncomment when testing locally
-    # ports:
-    #   - ${QBT_UI_PORT}:${QBT_UI_PORT} # This is for the qBittorrent WebUI Port
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
       - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
+    # End Comment out if gluetun is enabled
+    #network_mode: "service:gluetun"
+    # depends_on:
+    #   gluetun:
+    #     condition: service_healthy
+
+  # Gluetun works as a vpn to use with qbittorent
+  # gluetun:
+  # image: qmcgaw/gluetun
+  # container_name: gluetun
+  # cap_add:
+  #   - NET_ADMIN
+  # devices:
+  #   - /dev/net/tun:/dev/net/tun
+  # environment:
+  #   - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
+  #   - VPN_TYPE=${VPN_TYPE}
+  #   - OPENVPN_USER=${OPENVPN_USER}
+  #   - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+  #   - VPN_PORT_FORWARDING=${VPN_PORT_FORWARDING}
+  #   - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+  # volumes:
+  #   - ${BASE_PATH}/gluetun/config:/gluetun
+  #   - ./gluetun-config.toml:/gluetun/auth/config.toml
+  # restart: unless-stopped
+  # networks:
+  #   - frontend
+  #   - arr_network
+  # # Uncomment when testing locally
+  # # ports:
+  # #   - ${QBT_UI_PORT}:${QBT_UI_PORT} # This is for the qBittorrent WebUI Port
+  # labels:
+  #   - "traefik.enable=true"
+  #   - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
+  #   - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
 
   #Prowlarr - manages your Sonarr, Radarr and download client
   prowlarr:
