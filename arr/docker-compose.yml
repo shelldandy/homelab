@@ -63,26 +63,6 @@ services:
       - frontend
       - arr_network
 
-  beets:
-    image: lscr.io/linuxserver/beets:latest
-    container_name: beets
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${BASE_PATH}/beets/config:/config
-      - ${MEDIA_SHARE}/media/music:/music
-      - ${MEDIA_SHARE}/downloads/music:/downloads
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.beets.rule=Host(`beets.bowline.im`)"
-      - "traefik.http.services.beets.loadbalancer.server.port=8337"
-    restart: unless-stopped
-    networks:
-      - frontend
-      - arr_network
-
   #Lidarr - Used to download music
   lidarr:
     image: lscr.io/linuxserver/lidarr:latest
