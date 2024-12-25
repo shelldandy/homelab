@@ -46,31 +46,6 @@ services:
       - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
       - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
 
-  # qbittorrent:
-  #   image: lscr.io/linuxserver/qbittorrent:latest
-  #   container_name: qbittorrent
-  #   environment:
-  #     - PUID=${PUID}
-  #     - PGID=${PGID}
-  #     - TZ=${TZ}
-  #     - WEBUI_PORT=${QBT_UI_PORT}
-  #     - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest|ghcr.io/t-anc/gsp-qbittorent-gluetun-sync-port-mod:main
-  #     - TORRENTING_PORT=${TORRENTING_PORT}
-  #   ports:
-  #     - ${TORRENTING_PORT}:${TORRENTING_PORT}
-  #     - ${TORRENTING_PORT}:${TORRENTING_PORT}/udp
-  #   volumes:
-  #     - ${BASE_PATH}/qbittorent/config:/config
-  #     - ${MEDIA_SHARE}:/share
-  #     - ./scripts:/scripts
-  #   restart: unless-stopped
-  #   networks:
-  #     - frontend
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
-  #     - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
-
 networks:
   frontend:
     external: true
