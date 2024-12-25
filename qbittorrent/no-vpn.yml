@@ -7,7 +7,7 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - WEBUI_PORT=${QBT_UI_PORT}
-      - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest|ghcr.io/t-anc/gsp-qbittorent-gluetun-sync-port-mod:main
+      - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest
       - TORRENTING_PORT=${TORRENTING_PORT}
     ports:
       - ${TORRENTING_PORT}:${TORRENTING_PORT}
