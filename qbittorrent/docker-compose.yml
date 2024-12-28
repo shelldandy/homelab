@@ -35,8 +35,9 @@ services:
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
       - VPN_PORT_FORWARDING=${VPN_PORT_FORWARDING}
       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+      - UPDATER_PERIOD=${UPDATER_PERIOD}
     volumes:
-      - ${BASE_PATH}/gluetun/config:/gluetun
+      - ./data:/gluetun
       - ./gluetun-config.toml:/gluetun/auth/config.toml
     restart: unless-stopped
     networks:
