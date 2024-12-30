@@ -53,7 +53,6 @@ services:
     user: 1000:1000
     ports:
       - 5030:5030/tcp
-      - 5031:5031/tcp
       - 50300:50300/tcp
     environment:
       - SLSKD_REMOTE_CONFIGURATION=true
@@ -63,11 +62,12 @@ services:
       - SLSKD_PASSWORD=${SLSKD_PASSWORD}
       - SLSKD_REMOTE_FILE_MANAGEMENT=true
       - SLSKD_API_KEY=${SLSKD_API_KEY}
+      - SLSKD_DOWNLOADS_DIR=/share/downloads/slskd/downloads
+      - SLSKD_INCOMPLETE_DIR=/share/downloads/slskd/incomplete
     volumes:
       - ${BASE_PATH}/slskd/config:/app/data
       - ./slskd.yml:/app/slskd.yml
-      - ${MEDIA_SHARE}/downloads/slskd/downloads:/app/downloads
-      - ${MEDIA_SHARE}/downloads/slskd/incomplete:/app/incomplete
+      - ${MEDIA_SHARE}:/share
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
