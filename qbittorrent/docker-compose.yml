@@ -55,12 +55,10 @@ services:
       - 5030:5030/tcp
       - 50300:50300/tcp
     environment:
-      - SLSKD_REMOTE_CONFIGURATION=true
       - SLSKD_SLSK_USERNAME=${SLSKD_SLSK_USERNAME}
       - SLSKD_SLSK_PASSWORD=${SLSKD_SLSK_PASSWORD}
       - SLSKD_USERNAME=${SLSKD_USERNAME}
       - SLSKD_PASSWORD=${SLSKD_PASSWORD}
-      - SLSKD_REMOTE_FILE_MANAGEMENT=true
       - SLSKD_API_KEY=${SLSKD_API_KEY}
       - SLSKD_DOWNLOADS_DIR=/share/downloads/slskd/downloads
       - SLSKD_INCOMPLETE_DIR=/share/downloads/slskd/incomplete

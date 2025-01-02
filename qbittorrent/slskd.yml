@@ -1,3 +1,5 @@
+remote_configuration: true
+remote_file_management: true
 web:
   authentication:
     api_keys:
