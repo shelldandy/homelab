@@ -98,7 +98,7 @@ services:
       #Select where you are storing your config file.
       #Leave "/data" since thats where the script expects the config file to be
       - ${BASE_PATH}/soularr/config:/data
-      - ./data/soularr.ini:/data/soularr.ini
+      - ./data/soularr.ini:/data/config.ini
     image: mrusse08/soularr:latest
 
   #Prowlarr - manages your Sonarr, Radarr and download client
