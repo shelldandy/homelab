@@ -38,7 +38,7 @@ services:
       - UPDATER_PERIOD=${UPDATER_PERIOD}
       - PORT_FORWARD_ONLY=${PORT_FORWARD_ONLY}
     volumes:
-      - ./data:/gluetun
+      - ${BASE_PATH}/gluetun/config:/config
       - ./gluetun-config.toml:/gluetun/auth/config.toml
     restart: unless-stopped
     networks:

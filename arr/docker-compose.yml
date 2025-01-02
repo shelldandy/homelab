@@ -83,6 +83,7 @@ services:
       - frontend
       - arr_network
 
+  # Soularr -  A Python script that connects Lidarr with Soulseek!
   soularr:
     restart: unless-stopped
     container_name: soularr
