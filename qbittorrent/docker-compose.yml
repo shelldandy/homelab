@@ -60,8 +60,8 @@ services:
       - SLSKD_USERNAME=${SLSKD_USERNAME}
       - SLSKD_PASSWORD=${SLSKD_PASSWORD}
       - SLSKD_API_KEY=${SLSKD_API_KEY}
-      - SLSKD_DOWNLOADS_DIR=/share/downloads/slskd/downloads
-      - SLSKD_INCOMPLETE_DIR=/share/downloads/slskd/incomplete
+      - SLSKD_DOWNLOADS_DIR=${SLSKD_DOWNLOADS_DIR}
+      - SLSKD_INCOMPLETE_DIR=${SLSKD_INCOMPLETE_DIR}
     volumes:
       - ${BASE_PATH}/slskd/config:/app/data
       - ./slskd.yml:/app/slskd.yml
