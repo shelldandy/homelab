@@ -51,11 +51,12 @@ services:
   slskd:
     image: slskd/slskd:latest
     container_name: slskd
-    user: 1000:1000
     ports:
       - 5030:5030/tcp
       - 50300:50300/tcp
     environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
       - SLSKD_SLSK_USERNAME=${SLSKD_SLSK_USERNAME}
       - SLSKD_SLSK_PASSWORD=${SLSKD_SLSK_PASSWORD}
       - SLSKD_USERNAME=${SLSKD_USERNAME}
