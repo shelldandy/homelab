@@ -1,3 +1,4 @@
+# Copy this file to ./data/slskd.yml
 remote_configuration: true
 remote_file_management: true
 web:
