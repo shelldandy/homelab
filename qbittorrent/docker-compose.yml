@@ -66,7 +66,7 @@ services:
       - SLSKD_INCOMPLETE_DIR=${SLSKD_INCOMPLETE_DIR}
     volumes:
       - ${BASE_PATH}/slskd/config:/app/data
-      - ./slskd.yml:/app/slskd.yml
+      - ./data/slskd.yml:/app/slskd.yml
       - ${MEDIA_SHARE}:/share
     restart: unless-stopped
     labels:
