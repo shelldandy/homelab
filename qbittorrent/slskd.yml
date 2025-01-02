@@ -1,0 +1,31 @@
+# Copy this file to ./data/slskd.yml
+remote_configuration: true
+remote_file_management: true
+web:
+  authentication:
+    api_keys:
+      my_api_key:
+        key: # replace with the same key as SLSKD_API_KEY
+        cidr: 0.0.0.0/0,::/0
+retention:
+  search: 1440 # 1 day
+  transfers:
+    upload:
+      succeeded: 1440 # 1 day
+      errored: 30
+      cancelled: 5
+    download:
+      succeeded: 1440 # 1 day
+      errored: 20160 # 2 weeks
+      cancelled: 5
+  files:
+    complete: 20160 # 2 weeks
+    incomplete: 43200 # 30 days
+  logs: 259200 # 180 days
+shares:
+  directories:
+    - "/share/media/music"
+  filters:
+    - \.ini$
+    - Thumbs.db$
+    - \.DS_Store$
