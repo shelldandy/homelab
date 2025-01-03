@@ -54,6 +54,7 @@ services:
     ports:
       - 5030:5030/tcp
       - 50300:50300/tcp
+    user: 1000:1000
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
