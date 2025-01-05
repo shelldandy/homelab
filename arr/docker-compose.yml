@@ -83,6 +83,25 @@ services:
       - frontend
       - arr_network
 
+  # Soularr -  A Python script that connects Lidarr with Soulseek!
+  soularr:
+    restart: unless-stopped
+    container_name: soularr
+    hostname: soularr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - SCRIPT_INTERVAL=300
+    volumes:
+      #"You can set /downloads to whatever you want but will then need to change the Slskd download dir in your config file"
+      - ${MEDIA_SHARE}:/share
+      #Select where you are storing your config file.
+      #Leave "/data" since thats where the script expects the config file to be
+      - ${BASE_PATH}/soularr/config:/data
+      - ./data/soularr.ini:/data/config.ini
+    image: mrusse08/soularr:latest
+
   #Prowlarr - manages your Sonarr, Radarr and download client
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest

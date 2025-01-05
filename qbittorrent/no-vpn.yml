@@ -24,6 +24,36 @@ services:
       - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
       - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
 
+  slskd:
+    image: slskd/slskd:latest
+    container_name: slskd
+    ports:
+      - 5030:5030/tcp
+      - 50300:50300/tcp
+    user: 1000:1000
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - SLSKD_SLSK_USERNAME=${SLSKD_SLSK_USERNAME}
+      - SLSKD_SLSK_PASSWORD=${SLSKD_SLSK_PASSWORD}
+      - SLSKD_USERNAME=${SLSKD_USERNAME}
+      - SLSKD_PASSWORD=${SLSKD_PASSWORD}
+      - SLSKD_API_KEY=${SLSKD_API_KEY}
+      - SLSKD_DOWNLOADS_DIR=${SLSKD_DOWNLOADS_DIR}
+      - SLSKD_INCOMPLETE_DIR=${SLSKD_INCOMPLETE_DIR}
+    volumes:
+      - ${BASE_PATH}/slskd/config:/app/data
+      - ./data/slskd.yml:/app/slskd.yml
+      - ${MEDIA_SHARE}:/share
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.slskd.rule=Host(`slskd.bowline.im`)"
+      - "traefik.http.services.slskd.loadbalancer.server.port=5030"
+    networks:
+      - frontend
+
 networks:
   frontend:
     external: true
