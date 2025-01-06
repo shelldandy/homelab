@@ -1,0 +1,21 @@
+services:
+  wedding-share:
+    container_name: wedding-share
+    image: cirx08/wedding_share:latest
+    ports:
+      - "${HTTP_PORT:-8080}:5000/tcp"
+    environment:
+      TITLE: "WeddingShare"
+      LOGO: "Url"
+      GALLERY_COLUMNS: 4
+      ALLOWED_FILE_TYPES: ".jpg,.jpeg,.png"
+      MAX_FILE_SIZE_MB: 10
+      SECRET_KEY: "password"
+    volumes:
+      - data-volume-config:/app/config
+      - data-volume-thumbnails:/app/wwwroot/thumbnails
+      - data-volume-uploads:/app/wwwroot/uploads
+    hostname: wedding-share
+    restart: unless-stopped
+    networks:
+      - frontend
