@@ -5,8 +5,8 @@ services:
     restart: unless-stopped
     environment:
       TZ: ${TZ}
-      PUID: 1000  # Added for LinuxServer image
-      PGID: 1000  # Added for LinuxServer image
+      PUID: 1000 # Added for LinuxServer image
+      PGID: 1000 # Added for LinuxServer image
       JELLYFIN_PublishedServerUrl: https://${SUBDOMAIN}.bowline.im
       LIBVA_DRIVER_NAME: iHD
       LIBVA_DRIVERS_PATH: /usr/lib/x86_64-linux-gnu/dri
@@ -21,8 +21,8 @@ services:
       - /dev/dri:/dev/dri
       - /dev/bus/usb:/dev/bus/usb
     group_add:
-      - "109"  # render group
-      - "44"   # video group
+      - "109" # render group
+      - "44" # video group
     ports:
       - "8096:8096"
     networks:
