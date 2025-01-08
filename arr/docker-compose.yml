@@ -21,6 +21,25 @@ services:
       - "traefik.http.services.radarr.loadbalancer.server.port=7878"
     restart: unless-stopped
 
+  # Another instance of radarr for mma content, lmao
+  mmarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: mmarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/mmarr/config:/config
+      - ${MEDIA_SHARE}:/share #Access to the entire share
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mmarr.rule=Host(`mmarr.bowline.im`)"
+      - "traefik.http.services.mmarr.loadbalancer.server.port=7878"
+    restart: unless-stopped
+
   #Sonarr - used to find tv shows automatically
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
