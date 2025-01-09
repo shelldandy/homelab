@@ -3,19 +3,24 @@ services:
     container_name: wedding-share
     image: cirx08/wedding_share:latest
     ports:
-      - "${HTTP_PORT:-8080}:5000/tcp"
+      - "5000:5000/tcp"
     environment:
-      TITLE: "WeddingShare"
-      LOGO: "Url"
+      TITLE: ${TITLE}
       GALLERY_COLUMNS: 4
-      ALLOWED_FILE_TYPES: ".jpg,.jpeg,.png"
-      MAX_FILE_SIZE_MB: 10
-      SECRET_KEY: "password"
+      ALLOWED_FILE_TYPES: ".jpg,.jpeg,.png,.mp4,.mov"
+      SECRET_KEY: ${SECRET_KEY}
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB}
+      MAX_GALLERY_SIZE_MB: ${MAX_GALLERY_SIZE_MB}
+      ACCOUNT_ADMIN_USERNAME: ${ACCOUNT_ADMIN_USERNAME}
+      ACCOUNT_ADMIN_PASSWORD: ${ACCOUNT_ADMIN_PASSWORD}
     volumes:
-      - data-volume-config:/app/config
-      - data-volume-thumbnails:/app/wwwroot/thumbnails
-      - data-volume-uploads:/app/wwwroot/uploads
-    hostname: wedding-share
+      - ${CONFIG_PATH}:/app/config
+      - ${THUMBS_PATH}:/app/wwwroot/thumbnails
+      - ${UPLOADS_PATH}:/app/wwwroot/uploads
     restart: unless-stopped
     networks:
       - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
