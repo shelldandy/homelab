@@ -12,6 +12,7 @@ services:
       ACCOUNT_ADMIN_USERNAME: ${ACCOUNT_ADMIN_USERNAME}
       ACCOUNT_ADMIN_PASSWORD: ${ACCOUNT_ADMIN_PASSWORD}
       SINGLE_GALLERY_MODE: true
+      REQUIRE_REVIEW: false
     volumes:
       - ${CONFIG_PATH}:/app/config
       - ${THUMBS_PATH}:/app/wwwroot/thumbnails
