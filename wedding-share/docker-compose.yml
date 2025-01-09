@@ -1,0 +1,28 @@
+services:
+  wedding-share:
+    container_name: wedding-share
+    image: cirx08/wedding_share:latest
+    environment:
+      TITLE: ${TITLE}
+      GALLERY_COLUMNS: 4
+      ALLOWED_FILE_TYPES: ".jpg,.jpeg,.png,.mp4,.mov"
+      SECRET_KEY: ${SECRET_KEY}
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB}
+      MAX_GALLERY_SIZE_MB: ${MAX_GALLERY_SIZE_MB}
+      ACCOUNT_ADMIN_USERNAME: ${ACCOUNT_ADMIN_USERNAME}
+      ACCOUNT_ADMIN_PASSWORD: ${ACCOUNT_ADMIN_PASSWORD}
+      SINGLE_GALLERY_MODE: true
+    volumes:
+      - ${CONFIG_PATH}:/app/config
+      - ${THUMBS_PATH}:/app/wwwroot/thumbnails
+      - ${UPLOADS_PATH}:/app/wwwroot/uploads
+    restart: unless-stopped
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=5000"
+networks:
+  frontend:
+    external: true
