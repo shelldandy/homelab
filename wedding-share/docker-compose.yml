@@ -22,7 +22,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
-      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=5000"
 networks:
   frontend:
     external: true
