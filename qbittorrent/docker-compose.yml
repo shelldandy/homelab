@@ -37,8 +37,6 @@ services:
       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
       - UPDATER_PERIOD=${UPDATER_PERIOD}
       - PORT_FORWARD_ONLY=${PORT_FORWARD_ONLY}
-      - DOT=${DOT}
-      - DOT_PROVIDERS=${DOT_PROVIDERS}
     volumes:
       - ${BASE_PATH}/gluetun/config:/config
       - ./gluetun-config.toml:/gluetun/auth/config.toml
@@ -67,10 +65,7 @@ services:
       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
       - UPDATER_PERIOD=${UPDATER_PERIOD}
       - PORT_FORWARD_ONLY=${PORT_FORWARD_ONLY}
-      - DOT=${DOT}
-      - DOT_PROVIDERS=${DOT_PROVIDERS}
     ports:
-      # slskd
       - 5030:5030/tcp
       - 50300:50300/tcp
     volumes:
@@ -105,7 +100,7 @@ services:
     restart: unless-stopped
     network_mode: "service:gluetun-slskd"
     depends_on:
-      gluetun:
+      gluetun-slskd:
         condition: service_healthy
 
 networks:
