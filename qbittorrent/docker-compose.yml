@@ -103,7 +103,7 @@ services:
       - ./data/slskd.yml:/app/slskd.yml
       - ${MEDIA_SHARE}:/share
     restart: unless-stopped
-    network_mode: "service:gluetun"
+    network_mode: "service:gluetun-slskd"
     depends_on:
       gluetun:
         condition: service_healthy
