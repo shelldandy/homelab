@@ -8,7 +8,8 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - WEBUI_PORT=${QBT_UI_PORT}
-      - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest|ghcr.io/t-anc/gsp-qbittorent-gluetun-sync-port-mod:main
+      #- DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest|ghcr.io/t-anc/gsp-qbittorent-gluetun-sync-port-mod:main
+      - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest
       - GSP_GTN_API_KEY=${GSP_GTN_API_KEY}
     volumes:
       - ${BASE_PATH}/qbittorent/config:/config
@@ -37,6 +38,8 @@ services:
       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
       - UPDATER_PERIOD=${UPDATER_PERIOD}
       - PORT_FORWARD_ONLY=${PORT_FORWARD_ONLY}
+      - DOT=${DOT}
+      - DOT_PROVIDERS=${DOT_PROVIDERS}
     ports:
       # slskd
       - 5030:5030/tcp
