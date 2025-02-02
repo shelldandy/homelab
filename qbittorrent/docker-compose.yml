@@ -47,7 +47,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
       - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
-      - "traefik.http.routers.qbt.service=qbt"
 
   gluetun-slskd:
     image: qmcgaw/gluetun
@@ -74,9 +73,9 @@ services:
     networks:
       - frontend
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.slskd.rule=Host(`slskd.bowline.im`)"
       - "traefik.http.services.slskd.loadbalancer.server.port=5030"
-      - "traefik.http.routers.slskd.service=slskd"
 
   slskd:
     image: slskd/slskd:latest

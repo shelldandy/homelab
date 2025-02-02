@@ -16,7 +16,7 @@ services:
       POSTGRES_USER: ${PG_USER}
       POSTGRES_DB: ${PG_DB}
     networks:
-      - backend
+      - authentik_network
 
   redis:
     container_name: authentik_redis
@@ -32,7 +32,7 @@ services:
     volumes:
       - redis:/data
     networks:
-      - backend
+      - authentik_network
 
   server:
     container_name: authentik
@@ -63,7 +63,7 @@ services:
       - redis
     networks:
       - frontend
-      - backend
+      - authentik_network
     ports:
       - 9000:9000
     labels:
@@ -102,7 +102,7 @@ services:
       - postgresql
       - redis
     networks:
-      - backend
+      - authentik_network
 
   tinyauth:
     container_name: tinyauth
@@ -120,10 +120,10 @@ services:
       traefik.enable: true
       traefik.http.routers.tinyauth.rule: Host(`${TINYAUTH_URL}`)
       traefik.http.services.tinyauth.loadbalancer.server.port: 3000
-      traefik.http.middlewares.tinyauth.forwardauth.address: http://tinyauth:3000/api/auth
+      traefik.http.middlewares.tinyauth.forwardauth.address: https://${TINYAUTH_URL}/api/auth
     networks:
       - frontend
-      - backend
+      - authentik_network
 
 volumes:
   database:
@@ -134,5 +134,4 @@ volumes:
 networks:
   frontend:
     external: true
-  backend:
-    external: true
+  authentik_network:
