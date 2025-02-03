@@ -16,7 +16,8 @@ services:
       POSTGRES_USER: ${PG_USER}
       POSTGRES_DB: ${PG_DB}
     networks:
-      - backend
+      - authentik_network
+
   redis:
     container_name: authentik_redis
     image: docker.io/library/redis:alpine
@@ -31,7 +32,8 @@ services:
     volumes:
       - redis:/data
     networks:
-      - backend
+      - authentik_network
+
   server:
     container_name: authentik
     image: ghcr.io/goauthentik/server:latest
@@ -45,6 +47,14 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
       AUTHENTIK_SECRET_KEY: ${SECRET_KEY}
       AUTHENTIK_ERROR_REPORTING__ENABLED: true
+      AUTHENTIK_EMAIL__HOST: ${AUTHENTIK_EMAIL__HOST}
+      AUTHENTIK_EMAIL__PORT: ${AUTHENTIK_EMAIL__PORT}
+      AUTHENTIK_EMAIL__USERNAME: ${AUTHENTIK_EMAIL__USERNAME}
+      AUTHENTIK_EMAIL__PASSWORD: ${AUTHENTIK_EMAIL__PASSWORD}
+      AUTHENTIK_EMAIL__USE_TLS: ${AUTHENTIK_EMAIL__USE_TLS}
+      AUTHENTIK_EMAIL__USE_SSL: ${AUTHENTIK_EMAIL__USE_SSL}
+      AUTHENTIK_EMAIL__TIMEOUT: ${AUTHENTIK_EMAIL__TIMEOUT}
+      AUTHENTIK_EMAIL__FROM: ${AUTHENTIK_EMAIL__FROM}
     volumes:
       - ${CONFIG_PATH}/media:/media
       - ${CONFIG_PATH}/custom-templates:/templates
@@ -53,11 +63,14 @@ services:
       - redis
     networks:
       - frontend
-      - backend
+      - authentik_network
+    ports:
+      - 9000:9000
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
-      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=9000"
+      - traefik.enable=true
+      - traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)
+      - traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=9000
+
   worker:
     container_name: authentik_worker
     image: ghcr.io/goauthentik/server:latest
@@ -71,6 +84,14 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
       AUTHENTIK_SECRET_KEY: ${SECRET_KEY}
       AUTHENTIK_ERROR_REPORTING__ENABLED: true
+      AUTHENTIK_EMAIL__HOST: ${AUTHENTIK_EMAIL__HOST}
+      AUTHENTIK_EMAIL__PORT: ${AUTHENTIK_EMAIL__PORT}
+      AUTHENTIK_EMAIL__USERNAME: ${AUTHENTIK_EMAIL__USERNAME}
+      AUTHENTIK_EMAIL__PASSWORD: ${AUTHENTIK_EMAIL__PASSWORD}
+      AUTHENTIK_EMAIL__USE_TLS: ${AUTHENTIK_EMAIL__USE_TLS}
+      AUTHENTIK_EMAIL__USE_SSL: ${AUTHENTIK_EMAIL__USE_SSL}
+      AUTHENTIK_EMAIL__TIMEOUT: ${AUTHENTIK_EMAIL__TIMEOUT}
+      AUTHENTIK_EMAIL__FROM: ${AUTHENTIK_EMAIL__FROM}
     user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -81,7 +102,30 @@ services:
       - postgresql
       - redis
     networks:
-      - backend
+      - authentik_network
+
+  tinyauth:
+    container_name: tinyauth
+    image: ghcr.io/steveiliop56/tinyauth:latest
+    environment:
+      - SECRET=${TINYAUTH_SECRET}
+      - APP_URL=https://${TINYAUTH_URL}
+      - USERS=${TINYAUTH_USERS}
+      - GENERIC_CLIENT_ID=${GENERIC_CLIENT_ID}
+      - GENERIC_CLIENT_SECRET=${GENERIC_CLIENT_SECRET}
+      - GENERIC_AUTH_URL=${GENERIC_AUTH_URL}
+      - GENERIC_TOKEN_URL=${GENERIC_TOKEN_URL}
+      - GENERIC_SCOPES=${GENERIC_SCOPES}
+    labels:
+      traefik.enable: true
+      traefik.http.routers.tinyauth.rule: Host(`${TINYAUTH_URL}`)
+      traefik.http.services.tinyauth.loadbalancer.server.port: 3000
+      traefik.http.middlewares.tinyauth.forwardauth.address: https://${TINYAUTH_URL}/api/auth
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - frontend
+      - authentik_network
 
 volumes:
   database:
@@ -92,5 +136,4 @@ volumes:
 networks:
   frontend:
     external: true
-  backend:
-    external: true
+  authentik_network:

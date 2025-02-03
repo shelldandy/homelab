@@ -1,3 +1,3 @@
 # ARR Stack
 
-## Sonarr
+Depends on the qBittorrent container.

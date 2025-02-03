@@ -1,10 +1,16 @@
 services:
   jellyfin:
     container_name: jellyfin
-    image: jellyfin/jellyfin:latest
+    image: lscr.io/linuxserver/jellyfin:latest
     restart: unless-stopped
     environment:
       TZ: ${TZ}
+      PUID: 1000 # Added for LinuxServer image
+      PGID: 1000 # Added for LinuxServer image
+      JELLYFIN_PublishedServerUrl: https://${SUBDOMAIN}.bowline.im
+      LIBVA_DRIVER_NAME: iHD
+      LIBVA_DRIVERS_PATH: /usr/lib/x86_64-linux-gnu/dri
+      DOCKER_MODS: linuxserver/mods:jellyfin-opencl-intel
     env_file:
       - ./.env
     volumes:
@@ -12,13 +18,15 @@ services:
       - jellyfin_cache:/cache
       - ${MEDIA_SHARE}/media:/share/media
     devices:
-      - /dev/dri:/dev/dri # For Intel/AMD GPU transcoding
+      - /dev/dri:/dev/dri
       - /dev/bus/usb:/dev/bus/usb
-    networks:
-      - frontend
-      - jellyfin_net
+    group_add:
+      - "109" # render group
+      - "44" # video group
     ports:
       - "8096:8096"
+    networks:
+      - frontend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
@@ -31,4 +39,3 @@ volumes:
 networks:
   frontend:
     external: true
-  jellyfin_net:

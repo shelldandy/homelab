@@ -1,0 +1,24 @@
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    volumes:
+      - ${CONFIG_PATH}/filebrowser.db:/database.db
+      - ./settings.json:/.filebrowser.json
+      - ${MEDIA_SHARE}:/srv
+    user: 1000:1000
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fb.rule=Host(`fb.bowline.im`)"
+      - "traefik.http.services.fb.loadbalancer.server.port=80"
+    networks:
+      - frontend
+    restart: unless-stopped
+
+networks:
+  frontend:
+    external: true

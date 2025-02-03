@@ -1,0 +1,25 @@
+services:
+  searxng:
+    container_name: searxng
+    image: docker.io/searxng/searxng:latest
+    restart: unless-stopped
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - ${BASE_PATH}/config:/etc/searxng:rw
+    environment:
+      - SEARXNG_BASE_URL=https://${SUBDOMAIN}.bowline.im/
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true

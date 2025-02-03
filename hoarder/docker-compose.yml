@@ -1,5 +1,5 @@
 services:
-  web:
+  hoarder:
     image: ghcr.io/hoarder-app/hoarder:${HOARDER_VERSION:-release}
     container_name: hoarder
     restart: unless-stopped

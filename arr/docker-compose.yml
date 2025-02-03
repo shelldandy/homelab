@@ -21,6 +21,25 @@ services:
       - "traefik.http.services.radarr.loadbalancer.server.port=7878"
     restart: unless-stopped
 
+  # Another instance of radarr for mma content, lmao
+  mmarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: mmarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${BASE_PATH}/mmarr/config:/config
+      - ${MEDIA_SHARE}:/share #Access to the entire share
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mmarr.rule=Host(`mmarr.bowline.im`)"
+      - "traefik.http.services.mmarr.loadbalancer.server.port=7878"
+    restart: unless-stopped
+
   #Sonarr - used to find tv shows automatically
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -83,69 +102,24 @@ services:
       - frontend
       - arr_network
 
-  #qBittorent - Torrent client to actually download the things
-  qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
-    container_name: qbittorrent
+  # Soularr -  A Python script that connects Lidarr with Soulseek!
+  soularr:
+    restart: unless-stopped
+    container_name: soularr
+    hostname: soularr
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - WEBUI_PORT=${QBT_UI_PORT}
-      - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest #|ghcr.io/t-anc/gsp-qbittorent-gluetun-sync-port-mod:main
-      - TORRENTING_PORT=${TORRENTING_PORT}
-      # - GSP_GTN_API_KEY=${GSP_GTN_API_KEY}
-    ports:
-      - ${TORRENTING_PORT}:${TORRENTING_PORT}
-      - ${TORRENTING_PORT}:${TORRENTING_PORT}/udp
+      - SCRIPT_INTERVAL=300
     volumes:
-      - ${BASE_PATH}/qbittorent/config:/config
+      #"You can set /downloads to whatever you want but will then need to change the Slskd download dir in your config file"
       - ${MEDIA_SHARE}:/share
-      - ./scripts:/scripts
-    restart: unless-stopped
-    # Comment out if gluetun is enabled
-    networks:
-      - frontend
-      - arr_network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
-      - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
-    # End Comment out if gluetun is enabled
-    #network_mode: "service:gluetun"
-    # depends_on:
-    #   gluetun:
-    #     condition: service_healthy
-
-  # Gluetun works as a vpn to use with qbittorent
-  # gluetun:
-  # image: qmcgaw/gluetun
-  # container_name: gluetun
-  # cap_add:
-  #   - NET_ADMIN
-  # devices:
-  #   - /dev/net/tun:/dev/net/tun
-  # environment:
-  #   - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
-  #   - VPN_TYPE=${VPN_TYPE}
-  #   - OPENVPN_USER=${OPENVPN_USER}
-  #   - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
-  #   - VPN_PORT_FORWARDING=${VPN_PORT_FORWARDING}
-  #   - SERVER_COUNTRIES=${SERVER_COUNTRIES}
-  # volumes:
-  #   - ${BASE_PATH}/gluetun/config:/gluetun
-  #   - ./gluetun-config.toml:/gluetun/auth/config.toml
-  # restart: unless-stopped
-  # networks:
-  #   - frontend
-  #   - arr_network
-  # # Uncomment when testing locally
-  # # ports:
-  # #   - ${QBT_UI_PORT}:${QBT_UI_PORT} # This is for the qBittorrent WebUI Port
-  # labels:
-  #   - "traefik.enable=true"
-  #   - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
-  #   - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
+      #Select where you are storing your config file.
+      #Leave "/data" since thats where the script expects the config file to be
+      - ${BASE_PATH}/soularr/config:/data
+      - ./data/soularr.ini:/data/config.ini
+    image: mrusse08/soularr:latest
 
   #Prowlarr - manages your Sonarr, Radarr and download client
   prowlarr:
