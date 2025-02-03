@@ -1,7 +1,7 @@
 services:
   #qBittorent - Torrent client to actually download the things
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
+    image: lscr.io/linuxserver/qbittorrent:14.3.9
     container_name: qbittorrent
     environment:
       - PUID=${PUID}
