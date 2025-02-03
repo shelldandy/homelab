@@ -1,7 +1,7 @@
 services:
   qbittorrent:
-    #image: lscr.io/linuxserver/qbittorrent:latest
-    image: lscr.io/linuxserver/qbittorrent:14.3.9
+    #image: lscr.io/linuxserver/qbittorrent:14.3.9
+    image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
     environment:
       - PUID=${PUID}
