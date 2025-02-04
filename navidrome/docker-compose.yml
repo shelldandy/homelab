@@ -28,13 +28,19 @@ services:
       - ${BASE_PATH}/beets/config:/config
       - ${MEDIA_SHARE}/media/music:/music
       - ${MEDIA_SHARE}/downloads/music:/downloads
+      - ./beets.yaml:/config/config.yaml
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.beets.rule=Host(`beets.bowline.im`)"
       - "traefik.http.services.beets.loadbalancer.server.port=8337"
+      - "traefik.http.routers.beets.middlewares=tinyauth"
     restart: unless-stopped
     networks:
       - frontend
+    ulimits:
+      nofile:
+        soft: 4096
+        hard: 8192
 
 networks:
   frontend:
