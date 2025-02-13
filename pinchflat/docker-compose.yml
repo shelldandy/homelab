@@ -4,8 +4,6 @@ services:
     image: ghcr.io/kieraneglin/pinchflat:latest
     environment:
       TZ: ${TZ}
-    ports:
-      - "8945:8945"
     volumes:
       - ${CONFIG_PATH}:/config
       - ${DOWNLOADS_PATH}:/downloads
