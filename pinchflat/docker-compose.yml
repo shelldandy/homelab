@@ -1,0 +1,21 @@
+services:
+  pinchflat:
+    container_name: pinchflat
+    image: ghcr.io/kieraneglin/pinchflat:latest
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ${CONFIG_PATH}:/config
+      - ${DOWNLOADS_PATH}:/downloads
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8945"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=tinyauth"
+    networks:
+      - frontend
+    restart: unless-stopped
+
+networks:
+  frontend:
+    external: true
