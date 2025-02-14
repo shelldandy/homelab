@@ -116,6 +116,7 @@ services:
       - GENERIC_AUTH_URL=${GENERIC_AUTH_URL}
       - GENERIC_TOKEN_URL=${GENERIC_TOKEN_URL}
       - GENERIC_SCOPES=${GENERIC_SCOPES}
+      - GENERIC_USER_URL=${GENERIC_USER_URL}
     labels:
       traefik.enable: true
       traefik.http.routers.tinyauth.rule: Host(`${TINYAUTH_URL}`)
