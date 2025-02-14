@@ -159,29 +159,6 @@ services:
       - frontend
       - arr_network
 
-  #Overseer - allows users to request media on their own
-  overseerr:
-    # Uncomment once this gets merged
-    # https://github.com/sct/overseerr/pull/3746
-    #image: lscr.io/linuxserver/overseerr:latest
-    image: ghcr.io/lenaxia/overseerr-oidc:oidc-support
-    container_name: overseerr
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${BASE_PATH}/overseer/config:/app/config
-      - ${MEDIA_SHARE}:/share #Access to the entire share
-    networks:
-      - frontend
-      - arr_network
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.overseerr.rule=Host(`overseerr.bowline.im`)"
-      - "traefik.http.services.overseerr.loadbalancer.server.port=5055"
-
   #Bazarr - for subtitles. Try to use SRT format if you can rather than PGS due to performance issues
   bazarr:
     container_name: bazarr
