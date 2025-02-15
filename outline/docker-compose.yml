@@ -5,7 +5,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ${CONFIG_PATH}/outline:/var/lib/outline/data
+      - ${CONFIG_PATH}:/var/lib/outline/data
     environment:
       - TZ=${TZ}
     depends_on:
@@ -16,6 +16,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
+    networks:
+      - frontend
 
   redis:
     container_name: outline_redis
