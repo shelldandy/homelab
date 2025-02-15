@@ -1,0 +1,53 @@
+services:
+  outline:
+    image: docker.getoutline.com/outlinewiki/outline:latest
+    container_name: outline
+    ports:
+      - "3000:3000"
+    volumes:
+      - ${CONFIG_PATH}/outline:/var/lib/outline/data
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
+
+  redis:
+    image: redis
+    container_name: outline_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ${CONFIG_PATH}/redis/redis.conf:/redis.conf
+    command: ["redis-server", "/redis.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    restart: unless-stopped
+
+  postgres:
+    image: postgres
+    env_file: ./docker.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ${CONFIG_PATH}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "outline", "-U", "user"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    environment:
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "pass"
+      POSTGRES_DB: "outline"
+    restart: unless-stopped
+
+networks:
+  frontend:
+    external: true
