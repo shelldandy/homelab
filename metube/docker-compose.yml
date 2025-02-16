@@ -1,0 +1,22 @@
+services:
+  metube:
+    image: ghcr.io/alexta69/metube
+    container_name: ufc-tube
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    volumes:
+      - ${MEDIA_SHARE}/downloads/metube/mma:/downloads
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8081"
+      - "traefik.http.middlewares.${SUBDOMAIN}-websocket.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=${SUBDOMAIN}-websocket"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=tinyauth"
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true
