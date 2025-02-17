@@ -122,7 +122,7 @@ services:
       traefik.enable: true
       traefik.http.routers.tinyauth.rule: Host(`${TINYAUTH_URL}`)
       traefik.http.services.tinyauth.loadbalancer.server.port: 3000
-      traefik.http.middlewares.tinyauth.forwardauth.address: https://${TINYAUTH_URL}/api/auth/traefik
+      traefik.http.middlewares.tinyauth.forwardauth.address: http://tinyauth:3000/api/auth/traefik
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
