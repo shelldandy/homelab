@@ -20,9 +20,6 @@ services:
     devices:
       - /dev/dri:/dev/dri
       - /dev/bus/usb:/dev/bus/usb
-    group_add:
-      - "109" # render group
-      - "44" # video group
     networks:
       - frontend
     # Needed for in-home watching (100% local)
