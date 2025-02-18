@@ -14,10 +14,8 @@ services:
     env_file:
       - ./.env
     volumes:
-      # - ${BASE_PATH}/jellyfin_config:/config
-      # - ${BASE_PATH}/jellyfin_cache:/cache
-      - jellyfin_config:/config
-      - jellyfin_cache:/cache
+      - ${CONFIG_PATH}/jellyfin/config:/config
+      - ${CONFIG_PATH}/jellyfin/cache:/cache
       - ${MEDIA_SHARE}/media:/share/media
     devices:
       - /dev/dri:/dev/dri
@@ -41,7 +39,7 @@ services:
       PUID: ${PUID}
       PGID: ${PGID}
     volumes:
-      - ${BASE_PATH}/jellyseerr/config:/app/config
+      - ${CONFIG_PATH}/jellyseerr/config:/app/config
       - ${MEDIA_SHARE}:/share #Access to the entire share
     networks:
       - frontend
@@ -50,10 +48,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.bowline.im`)"
       - "traefik.http.services.jellyseerr.loadbalancer.server.port=5055"
-
-volumes:
-  jellyfin_config:
-  jellyfin_cache:
 
 networks:
   frontend:
