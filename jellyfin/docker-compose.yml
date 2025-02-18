@@ -23,10 +23,11 @@ services:
     group_add:
       - "109" # render group
       - "44" # video group
-    ports:
-      - "8096:8096"
     networks:
       - frontend
+    # Needed for in-home watching (100% local)
+    ports:
+      - "8096:8096"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
