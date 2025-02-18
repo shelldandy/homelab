@@ -14,6 +14,8 @@ services:
     env_file:
       - ./.env
     volumes:
+      # - ${BASE_PATH}/jellyfin_config:/config
+      # - ${BASE_PATH}/jellyfin_cache:/cache
       - jellyfin_config:/config
       - jellyfin_cache:/cache
       - ${MEDIA_SHARE}/media:/share/media
