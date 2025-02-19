@@ -4,9 +4,7 @@ services:
     container_name: hoarder
     restart: unless-stopped
     volumes:
-      - data:/data
-    expose:
-      - 3000
+      - ${CONFIG_PATH}/data:/data
     env_file:
       - .env
     environment:
@@ -44,13 +42,9 @@ services:
     environment:
       MEILI_NO_ANALYTICS: "true"
     volumes:
-      - meilisearch:/meili_data
+      - ${CONFIG_PATH}/meili_data:/data
     networks:
       - hoarder
-
-volumes:
-  meilisearch:
-  data:
 
 networks:
   frontend:
