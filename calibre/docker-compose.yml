@@ -30,16 +30,16 @@ services:
       DOCKER_MODS: linuxserver/mods:universal-calibre #optional
       OAUTHLIB_RELAX_TOKEN_SCOPE: 1 #optional
     volumes:
-      - ${CONFIG_PATH}/calibre-web:/config
-      - ${MEDIA_SHARE}/media/books/calibre:/books
-    ports:
-      - 8083:8083
+      - ${CONFIG_PATH}:/config
+      - ${MEDIA_SHARE}/media/books:/books
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${CALIBRE_WEB_SUBDOMAIN}.rule=Host(`${CALIBRE_WEB_SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${CALIBRE_WEB_SUBDOMAIN}.loadbalancer.server.port=8083"
-      - "traefik.http.routers.${CALIBRE_WEB_SUBDOMAIN}.middlewares=tinyauth"
+      # - "traefik.http.routers.${CALIBRE_WEB_SUBDOMAIN}.middlewares=tinyauth"
+    networks:
+      - frontend
 
 networks:
   frontend:
