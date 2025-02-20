@@ -107,6 +107,7 @@ services:
   tinyauth:
     container_name: tinyauth
     image: ghcr.io/steveiliop56/tinyauth:latest
+    restart: unless-stopped
     environment:
       - SECRET=${TINYAUTH_SECRET}
       - APP_URL=https://${TINYAUTH_URL}
