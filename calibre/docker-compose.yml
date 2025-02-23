@@ -1,24 +1,24 @@
 services:
-  calibre:
-    image: lscr.io/linuxserver/calibre:latest
-    container_name: calibre
-    security_opt:
-      - seccomp:unconfined #optional
-    environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
-    volumes:
-      - ${CONFIG_PATH}:/config
-      - ${MEDIA_SHARE}/media/books:/books
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
-      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
-      - "traefik.http.routers.${SUBDOMAIN}.middlewares=tinyauth"
-    networks:
-      - frontend
+  # calibre:
+  #   image: lscr.io/linuxserver/calibre:latest
+  #   container_name: calibre
+  #   security_opt:
+  #     - seccomp:unconfined #optional
+  #   environment:
+  #     PUID: ${PUID}
+  #     PGID: ${PGID}
+  #     TZ: ${TZ}
+  #   volumes:
+  #     - ${CONFIG_PATH}:/config
+  #     - ${MEDIA_SHARE}/media/books:/books
+  #   restart: unless-stopped
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+  #     - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
+  #     - "traefik.http.routers.${SUBDOMAIN}.middlewares=tinyauth"
+  #   networks:
+  #     - frontend
 
   calibre-web:
     image: lscr.io/linuxserver/calibre-web:latest
@@ -28,7 +28,6 @@ services:
       PGID: ${PGID}
       TZ: ${TZ}
       DOCKER_MODS: linuxserver/mods:universal-calibre #optional
-      OAUTHLIB_RELAX_TOKEN_SCOPE: 1 #optional
     volumes:
       - ${CONFIG_PATH}:/config
       - ${MEDIA_SHARE}/media/books:/books
@@ -37,7 +36,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${CALIBRE_WEB_SUBDOMAIN}.rule=Host(`${CALIBRE_WEB_SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${CALIBRE_WEB_SUBDOMAIN}.loadbalancer.server.port=8083"
-      # - "traefik.http.routers.${CALIBRE_WEB_SUBDOMAIN}.middlewares=tinyauth"
     networks:
       - frontend
 
