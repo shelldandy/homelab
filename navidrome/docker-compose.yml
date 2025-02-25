@@ -16,6 +16,24 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=4533"
+      #
+  soularr:
+    container_name: soularr
+    image: mrusse08/soularr:latest
+    hostname: soularr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - SCRIPT_INTERVAL=300
+    volumes:
+      #"You can set /downloads to whatever you want but will then need to change the Slskd download dir in your config file"
+      - ${MEDIA_SHARE}:/share
+      #Select where you are storing your config file.
+      #Leave "/data" since thats where the script expects the config file to be
+      - ${BASE_PATH}/soularr/config:/data
+      - ./data/soularr.ini:/data/config.ini
 
 networks:
   frontend:
