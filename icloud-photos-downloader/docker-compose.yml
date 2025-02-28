@@ -12,6 +12,7 @@ services:
     restart: unless-stopped
     volumes:
       - ${CONFIG_PATH}:/config
+      - ${DATA_PATH}:/home/${user}/iCloud
 
   susifluna:
     container_name: susifluna
