@@ -3,8 +3,6 @@ services:
     container_name: bowlinedandy
     env_file:
       - ./.env
-    environment:
-      - TZ=${TZ}
     image: boredazfcuk/icloudpd:latest
     healthcheck:
       test: /usr/local/bin/healthcheck.sh
@@ -18,8 +16,6 @@ services:
     container_name: susifluna
     env_file:
       - ./.env.ignore.susy
-    environment:
-      - TZ=${TZ}
     image: boredazfcuk/icloudpd:latest
     healthcheck:
       test: /usr/local/bin/healthcheck.sh
