@@ -2,25 +2,31 @@ services:
   bowlinedandy:
     container_name: bowlinedandy
     env_file:
-      - ./.env
+      - .env.ignore.bowlinedandy
     image: boredazfcuk/icloudpd:latest
     healthcheck:
       test: /usr/local/bin/healthcheck.sh
       start_period: 30s
     restart: unless-stopped
     volumes:
-      - ${CONFIG_PATH}:/config
-      - ${DATA_PATH}:/home/${user}/iCloud
+      # TODO: Why are these not working?
+      # - ${CONFIG_PATH}:/config
+      # - ${DATA_PATH}:/home/${user}/iCloud
+      - ./data/config/bowlinedandy:/config
+      - /mnt/cloud-backups/photos/bowlinedandy:/home/bowlinedandy/iCloud
 
   susifluna:
     container_name: susifluna
     env_file:
-      - ./.env.ignore.susy
+      - .env.ignore.susy
     image: boredazfcuk/icloudpd:latest
     healthcheck:
       test: /usr/local/bin/healthcheck.sh
       start_period: 30s
     restart: unless-stopped
     volumes:
-      - ${CONFIG_PATH}:/config
-      - ${DATA_PATH}:/home/${user}/iCloud
+      # TODO: Why are these not working?
+      # - ${CONFIG_PATH}:/config
+      # - ${DATA_PATH}:/home/${user}/iCloud
+      - ./data/config/susifluna:/config
+      - /mnt/cloud-backups/photos/susifluna:/home/susifluna/iCloud
