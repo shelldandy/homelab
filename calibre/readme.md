@@ -41,4 +41,4 @@ ports:
   - 8083:8083
 ```
 
-After that log in and go to `Admin > Edit Basic Configuration > Security Settings > Session Protection` and set it to `Basic`. Once you do that and save then you can stop the container, remove the exposed port and continue using normally.
+After that log in to `http://local_ip_address:8083` and go to `Admin > Edit Basic Configuration > Security Settings > Session Protection` and set it to `Basic`. Once you do that and save then you can stop the container, remove the exposed port and continue using normally.
