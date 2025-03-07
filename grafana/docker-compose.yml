@@ -9,20 +9,33 @@ services:
     restart: unless-stopped
     volumes:
       - ./prometheus:/etc/prometheus
-      - prom_data:/prometheus
+      - ${PROMETHEUS_CONFIG}:/prometheus
+    environment:
+      - TZ=${TZ}
+    networks:
+      - backend
+
   grafana:
     env_file:
-      - .env
       - .env.grafana
     image: grafana/grafana-enterprise:latest
     container_name: grafana
-    ports:
-      - 3000:3000
     restart: unless-stopped
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=grafana
+      - TZ=${TZ}
     volumes:
+      - ${GRAFANA_CONFIG}:/var/lib/grafana
       - ./provisioning:/etc/grafana/provisioning
-volumes:
-  prom_data:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
+    networks:
+      - frontend
+      - backend
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
