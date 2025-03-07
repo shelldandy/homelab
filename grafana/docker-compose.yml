@@ -4,8 +4,6 @@ services:
     container_name: prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
-    ports:
-      - 9090:9090
     restart: unless-stopped
     volumes:
       - ./prometheus:/etc/prometheus
@@ -34,6 +32,17 @@ services:
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
     networks:
       - frontend
+      - backend
+
+  qbittorent-exporter:
+    image: caseyscarborough/qbittorrent-exporter:latest
+    container_name: qbittorrent-exporter
+    restart: unless-stopped
+    environment:
+      QBITTORRENT_USERNAME: ${QBITTORRENT_USERNAME}
+      QBITTORRENT_PASSWORD: ${QBITTORRENT_PASSWORD}
+      QBITTORRENT_BASE_URL: ${QBITTORRENT_BASE_URL}
+    networks:
       - backend
 
 networks:
