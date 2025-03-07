@@ -1,0 +1,52 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    restart: unless-stopped
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - ${PROMETHEUS_CONFIG}:/prometheus
+    user: 1000:1000
+    environment:
+      - TZ=${TZ}
+    networks:
+      - backend
+
+  grafana:
+    env_file:
+      - .env.grafana
+    image: grafana/grafana-enterprise:latest
+    container_name: grafana
+    restart: unless-stopped
+    user: 1000:1000
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${GRAFANA_CONFIG}:/var/lib/grafana
+      - ./provisioning:/etc/grafana/provisioning
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
+    networks:
+      - frontend
+      - backend
+
+  qbittorent-exporter:
+    image: caseyscarborough/qbittorrent-exporter:latest
+    container_name: qbittorrent-exporter
+    restart: unless-stopped
+    environment:
+      QBITTORRENT_USERNAME: ${QBITTORRENT_USERNAME}
+      QBITTORRENT_PASSWORD: ${QBITTORRENT_PASSWORD}
+      QBITTORRENT_BASE_URL: ${QBITTORRENT_BASE_URL}
+    networks:
+      - backend
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
