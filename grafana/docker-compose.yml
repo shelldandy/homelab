@@ -10,6 +10,7 @@ services:
     volumes:
       - ./prometheus:/etc/prometheus
       - ${PROMETHEUS_CONFIG}:/prometheus
+    user: 1000:1000
     environment:
       - TZ=${TZ}
     networks:
@@ -21,6 +22,7 @@ services:
     image: grafana/grafana-enterprise:latest
     container_name: grafana
     restart: unless-stopped
+    user: 1000:1000
     environment:
       - TZ=${TZ}
     volumes:
