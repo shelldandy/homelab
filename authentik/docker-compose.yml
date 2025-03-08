@@ -119,6 +119,8 @@ services:
       - GENERIC_SCOPES=${GENERIC_SCOPES}
       - GENERIC_USER_URL=${GENERIC_USER_URL}
       - COOKIE_SECURE=${COOKIE_SECURE:-true}
+      - DISABLE_CONTINUE=${DISABLE_CONTINUE}
+      - SESSION_EXPIRY=${SESSION_EXPIRY}
     labels:
       traefik.enable: true
       traefik.http.routers.tinyauth.rule: Host(`${TINYAUTH_URL}`)
