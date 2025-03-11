@@ -86,6 +86,7 @@ services:
   lidarr:
     image: lscr.io/linuxserver/lidarr:latest
     container_name: lidarr
+    user: 1000:1000
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
