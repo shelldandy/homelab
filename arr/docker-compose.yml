@@ -100,6 +100,7 @@ services:
       - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
     networks:
       - frontend
+      - backend
       - arr_network
 
   #Prowlarr - manages your Sonarr, Radarr and download client
@@ -163,4 +164,6 @@ services:
 networks:
   arr_network:
   frontend:
+    external: true
+  backend:
     external: true

@@ -4,7 +4,7 @@ services:
     image: deluan/navidrome:latest
     restart: unless-stopped
     env_file:
-      - ./.env
+      - .env
     environment:
       ND_BASEURL: https://${SUBDOMAIN}.bowline.im
     volumes:
@@ -18,23 +18,28 @@ services:
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=4533"
 
-  soularr:
-    container_name: soularr
-    image: mrusse08/soularr:latest
-    hostname: soularr
-    restart: unless-stopped
+  soulmate:
+    image: banankungen/soulmate
+    container_name: soulmate
+    env_file:
+      - .env
+      - .env.soulmate
+    volumes:
+      - ${BASE_PATH}/soulmate:/config
+      - ${MEDIA_SHARE}:/share
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - SCRIPT_INTERVAL=300
-    volumes:
-      #"You can set /downloads to whatever you want but will then need to change the Slskd download dir in your config file"
-      - ${MEDIA_SHARE}:/share
-      #Select where you are storing your config file.
-      #Leave "/data" since thats where the script expects the config file to be
-      - ${BASE_PATH}/soularr/config:/data
-      - ./data/soularr.ini:/data/config.ini
+    restart: unless-stopped
+    networks:
+      - frontend
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.rule=Host(`${SOULMATE_SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SOULMATE_SUBDOMAIN}.loadbalancer.server.port=7373"
+      - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.middlewares=tinyauth"
 
 networks:
   frontend:
