@@ -21,7 +21,6 @@ services:
   soulmate:
     image: banankungen/soulmate
     container_name: soulmate
-    user: 1000:1000
     env_file:
       - .env
       - .env.soulmate
