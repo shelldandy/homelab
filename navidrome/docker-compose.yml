@@ -7,6 +7,7 @@ services:
       - .env
     environment:
       ND_BASEURL: https://${SUBDOMAIN}.bowline.im
+      TZ: ${TZ}
     volumes:
       - ${BASE_PATH}/navidrome/data:/data
       - ${MEDIA_SHARE}/media/music:/music:ro
@@ -28,8 +29,6 @@ services:
       - ${BASE_PATH}/soulmate:/config
       - ${MEDIA_SHARE}:/share
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
       - TZ=${TZ}
     restart: unless-stopped
     networks:
