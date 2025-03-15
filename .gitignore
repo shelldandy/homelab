@@ -5,3 +5,4 @@
 !.gitkeep
 
 .env
+.env.ignore.*

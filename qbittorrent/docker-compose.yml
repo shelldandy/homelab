@@ -48,36 +48,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.qbt.rule=Host(`qbt.bowline.im`)"
       - "traefik.http.services.qbt.loadbalancer.server.port=${QBT_UI_PORT}"
-
-  gluetun-slskd:
-    image: qmcgaw/gluetun
-    container_name: gluetun-slskd
-    cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    environment:
-      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
-      - VPN_TYPE=${VPN_TYPE}
-      - OPENVPN_USER=${OPENVPN_USER}
-      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
-      - VPN_PORT_FORWARDING=${VPN_PORT_FORWARDING}
-      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
-      - UPDATER_PERIOD=${UPDATER_PERIOD}
-      - PORT_FORWARD_ONLY=${PORT_FORWARD_ONLY}
-    ports:
-      - 5030:5030/tcp
-      - 50300:50300/tcp
-    volumes:
-      - ${BASE_PATH}/gluetun-slskd/config:/config
-    restart: unless-stopped
-    networks:
-      - frontend
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.slskd.rule=Host(`slskd.bowline.im`)"
-      - "traefik.http.services.slskd.loadbalancer.server.port=5030"
-
   slskd:
     image: slskd/slskd:latest
     container_name: slskd
@@ -98,11 +68,16 @@ services:
       - ./data/slskd.yml:/app/slskd.yml
       - ${MEDIA_SHARE}:/share
     restart: unless-stopped
-    network_mode: "service:gluetun-slskd"
-    depends_on:
-      gluetun-slskd:
-        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.slskd.rule=Host(`slskd.bowline.im`)"
+      - "traefik.http.services.slskd.loadbalancer.server.port=5030"
+    networks:
+      - frontend
+      - backend
 
 networks:
   frontend:
+    external: true
+  backend:
     external: true

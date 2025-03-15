@@ -1,0 +1,61 @@
+services:
+  docmost:
+    container_name: docmost
+    image: docmost/docmost:latest
+    depends_on:
+      - db
+      - redis
+    environment:
+      TZ: ${TZ}
+      APP_URL: "https://${SUBDOMAIN}.bowline.im"
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public"
+      REDIS_URL: "redis://redis:6379"
+      MAIL_DRIVER: ${MAIL_DRIVER}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_SECURE: ${SMTP_SECURE}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
+    restart: unless-stopped
+    volumes:
+      - ${CONFIG_PATH}/data:/app/data/storage
+    networks:
+      - docmost
+      - frontend
+
+  db:
+    image: postgres:16-alpine
+    container_name: docmost-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: ${TZ}
+    restart: unless-stopped
+    volumes:
+      - ${CONFIG_PATH}/db:/var/lib/postgresql/data
+    networks:
+      - docmost
+
+  redis:
+    container_name: docmost-redis
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    volumes:
+      - ${CONFIG_PATH}/redis:/data
+    networks:
+      - docmost
+    environment:
+      TZ: ${TZ}
+
+networks:
+  frontend:
+    external: true
+  docmost:

@@ -117,11 +117,15 @@ services:
       - GENERIC_AUTH_URL=${GENERIC_AUTH_URL}
       - GENERIC_TOKEN_URL=${GENERIC_TOKEN_URL}
       - GENERIC_SCOPES=${GENERIC_SCOPES}
+      - GENERIC_USER_URL=${GENERIC_USER_URL}
+      - COOKIE_SECURE=${COOKIE_SECURE:-true}
+      - DISABLE_CONTINUE=${DISABLE_CONTINUE}
+      - SESSION_EXPIRY=${SESSION_EXPIRY}
     labels:
       traefik.enable: true
       traefik.http.routers.tinyauth.rule: Host(`${TINYAUTH_URL}`)
       traefik.http.services.tinyauth.loadbalancer.server.port: 3000
-      traefik.http.middlewares.tinyauth.forwardauth.address: https://${TINYAUTH_URL}/api/auth
+      traefik.http.middlewares.tinyauth.forwardauth.address: http://tinyauth:3000/api/auth/traefik
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:

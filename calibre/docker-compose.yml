@@ -1,0 +1,42 @@
+services:
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-web
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      DOCKER_MODS: linuxserver/mods:universal-calibre #optional
+    volumes:
+      - ${CONFIG_PATH}:/config
+      - ${MEDIA_SHARE}/media/books:/books
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${CALIBRE_WEB_SUBDOMAIN}.rule=Host(`${CALIBRE_WEB_SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${CALIBRE_WEB_SUBDOMAIN}.loadbalancer.server.port=8083"
+    networks:
+      - frontend
+
+  calibre-wife:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-wife
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      DOCKER_MODS: linuxserver/mods:universal-calibre #optional
+    volumes:
+      - ${CONFIG_PATH_WIFE}:/config
+      - ${MEDIA_SHARE}/media/books:/books
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${CALIBRE_WEB_SUBDOMAIN_WIFE}.rule=Host(`${CALIBRE_WEB_SUBDOMAIN_WIFE}.bowline.im`)"
+      - "traefik.http.services.${CALIBRE_WEB_SUBDOMAIN_WIFE}.loadbalancer.server.port=8083"
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true

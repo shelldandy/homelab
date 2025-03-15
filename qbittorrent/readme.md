@@ -1,6 +1,10 @@
-# qBittorrent
+## qBittorrent
 
-Client used for torrenting stuff
+client used for p2p stuff
+
+## slskd
+
+client to navigate the soulseek p2p network.
 
 ## Gluetun
 
