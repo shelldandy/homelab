@@ -6,6 +6,9 @@ threaded: yes
 original_date: no
 per_disc_numbering: no
 
+ui:
+  color: yes
+
 convert:
   auto: no
   ffmpeg: /usr/bin/ffmpeg
@@ -23,7 +26,7 @@ import:
   write: yes
   copy: yes
   move: no
-  resume: ask
+  resume: yes
   incremental: yes
   quiet_fallback: skip
   timid: no
