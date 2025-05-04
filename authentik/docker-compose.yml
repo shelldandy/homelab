@@ -36,7 +36,7 @@ services:
 
   server:
     container_name: authentik
-    image: ghcr.io/goauthentik/server:latest
+    image: ghcr.io/goauthentik/server:2025.4
     restart: unless-stopped
     command: server
     environment:
@@ -73,7 +73,7 @@ services:
 
   worker:
     container_name: authentik_worker
-    image: ghcr.io/goauthentik/server:latest
+    image: ghcr.io/goauthentik/server:2025.4
     restart: unless-stopped
     command: worker
     environment:
@@ -106,7 +106,7 @@ services:
 
   tinyauth:
     container_name: tinyauth
-    image: ghcr.io/steveiliop56/tinyauth:latest
+    image: ghcr.io/steveiliop56/tinyauth:v3.2.0
     restart: unless-stopped
     environment:
       - SECRET=${TINYAUTH_SECRET}
@@ -118,6 +118,8 @@ services:
       - GENERIC_TOKEN_URL=${GENERIC_TOKEN_URL}
       - GENERIC_SCOPES=${GENERIC_SCOPES}
       - GENERIC_USER_URL=${GENERIC_USER_URL}
+      - GENERIC_NAME=${GENERIC_NAME}
+      #- LOG_LEVEL=${LOG_LEVEL}
       - COOKIE_SECURE=${COOKIE_SECURE:-true}
       - DISABLE_CONTINUE=${DISABLE_CONTINUE}
       - SESSION_EXPIRY=${SESSION_EXPIRY}
