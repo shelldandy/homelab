@@ -9,6 +9,10 @@ entryPoints:
           permanent: true
   websecure:
     address: ":443"
+    forwardedHeaders:
+      trustedIPs:
+        - "172.18.0.0/12"
+        - "172.16.0.0/12"
     http:
       tls:
         certResolver: myresolver
