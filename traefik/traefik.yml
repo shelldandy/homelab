@@ -18,6 +18,12 @@ entryPoints:
         certResolver: myresolver
       middlewares:
         - global-chain@file
+    # For Immich
+    transport:
+      respondingTimeouts:
+        readTimeout: 600s
+        idleTimeout: 600s
+        writeTimeout: 600s
 
 api:
   dashboard: true
