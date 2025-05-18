@@ -15,7 +15,7 @@ services:
       - forgejo
       - frontend
     volumes:
-      - ${CONFIG_PATH}/forgejo:/data
+      - ${CONFIG_PATH}/app:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
@@ -38,11 +38,7 @@ services:
     networks:
       - forgejo
     volumes:
-      #- ${CONFIG_PATH}/db:/var/lib/postgresql/data
-      - db:/var/lib/postgresql/data
-
-volumes:
-  db:
+      - ${CONFIG_PATH}/db:/var/lib/postgresql/data
 
 networks:
   forgejo:
