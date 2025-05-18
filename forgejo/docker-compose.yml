@@ -13,6 +13,7 @@ services:
     restart: unless-stopped
     networks:
       - forgejo
+      - frontend
     volumes:
       - ./data/forgejo:/data
       - /etc/timezone:/etc/timezone:ro
@@ -22,6 +23,10 @@ services:
       - "222:22"
     depends_on:
       - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
 
   db:
     image: postgres:14
@@ -41,3 +46,5 @@ volumes:
 
 networks:
   forgejo:
+  frontend:
+    external: true
