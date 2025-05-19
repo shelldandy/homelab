@@ -10,6 +10,8 @@ services:
       - FORGEJO__database__NAME=${DB_NAME}
       - FORGEJO__database__USER=${DB_USER}
       - FORGEJO__database__PASSWD=${DB_PWD}
+      - ENABLE_AUTO_REGISTRATION=${ENABLE_AUTO_REGISTRATION}
+      - ENABLE_OPENID_SIGNIN=${ENABLE_OPENID_SIGNIN}
     restart: unless-stopped
     networks:
       - forgejo
