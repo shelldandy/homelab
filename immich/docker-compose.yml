@@ -1,5 +1,6 @@
 services:
   immich-server:
+    user: 1000:1000
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION}
     # extends:
@@ -22,6 +23,8 @@ services:
     networks:
       - immich
       - frontend
+    ports:
+      - "2283:2283"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
@@ -29,6 +32,7 @@ services:
 
   immich-machine-learning:
     container_name: immich_machine_learning
+    user: 1000:1000
     # For hardware acceleration, add one of -[armnn, cuda, rocm, openvino, rknn] to the image tag.
     # Example tag: ${IMMICH_VERSION}-cuda
     image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION}
@@ -47,6 +51,7 @@ services:
 
   redis:
     container_name: immich_redis
+    user: 1000:1000
     image: docker.io/valkey/valkey:8-bookworm@sha256:42cba146593a5ea9a622002c1b7cba5da7be248650cbb64ecb9c6c33d29794b1
     healthcheck:
       test: redis-cli ping || exit 1
@@ -55,6 +60,7 @@ services:
       - immich
 
   database:
+    user: 1000:1000
     container_name: immich_postgres
     image: docker.io/tensorchord/pgvecto-rs:pg14-v0.2.0@sha256:739cdd626151ff1f796dc95a6591b55a714f341c737e27f045019ceabf8e8c52
     environment:
