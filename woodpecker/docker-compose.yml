@@ -2,6 +2,7 @@ services:
   woodpecker-server:
     container_name: woodpecker-server
     image: woodpeckerci/woodpecker-server:v3
+    user: 1000:1000
     ports:
       - 8000:8000
     environment:
@@ -19,9 +20,18 @@ services:
       - woodpecker
       - backend
       - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.woodpecker.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.woodpecker.loadbalancer.server.port=8000"
+      #  gRPC service
+      - traefik.http.services.woodpecker-grpc.loadbalancer.server.port=9000
+      - traefik.http.services.woodpecker-grpc.loadbalancer.server.scheme=h2c
+      - traefik.http.routers.woodpecker-grpc.rule=Host(`${SUBDOMAIN}-grpc.bowline.im`)
 
   woodpecker-agent:
     container_name: woodpecker-agent
+    user: 1000:1000
     image: woodpeckerci/woodpecker-agent:v3
     restart: unless-stopped
     command: agent
@@ -31,7 +41,7 @@ services:
       - ${CONFIG_PATH}/agent:/etc/woodpecker
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - WOODPECKER_SERVER=woodpecker-server:8000
+      - WOODPECKER_SERVER=woodpecker-server:9000
       - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
       - WOODPECKER_BACKEND_DOCKER_NETWORK=backend
     networks:
