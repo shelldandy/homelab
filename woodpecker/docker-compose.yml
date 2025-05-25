@@ -14,7 +14,7 @@ services:
       - WOODPECKER_FORGEJO_SECRET=${WOODPECKER_FORGEJO_SECRET}
     restart: unless-stopped
     volumes:
-      - woodpecker-server-data:/var/lib/woodpecker/
+      - ${CONFIG_PATH}/server:/var/lib/woodpecker/
     networks:
       - woodpecker
       - backend
@@ -28,7 +28,7 @@ services:
     depends_on:
       - woodpecker-server
     volumes:
-      - woodpecker-agent-config:/etc/woodpecker
+      - ${CONFIG_PATH}/agent:/etc/woodpecker
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - WOODPECKER_SERVER=woodpecker-server:8000
@@ -37,10 +37,6 @@ services:
     networks:
       - woodpecker
       - backend
-
-volumes:
-  woodpecker-server-data:
-  woodpecker-agent-config:
 
 networks:
   woodpecker:
