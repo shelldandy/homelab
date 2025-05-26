@@ -21,12 +21,20 @@ services:
       - frontend
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
-      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8000"
-      #  gRPC service
-      - traefik.http.routers.${SUBDOMAIN}-grpc.rule=Host(`${SUBDOMAIN}-grpc.bowline.im`)
-      - traefik.http.services.${SUBDOMAIN}-grpc.loadbalancer.server.port=9000
-      - traefik.http.services.${SUBDOMAIN}-grpc.loadbalancer.server.scheme=h2c
+      # HTTP service
+      - "traefik.http.routers.woodpecker-http.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.routers.woodpecker-http.service=woodpecker-http"
+      - "traefik.http.routers.woodpecker-http.tls=true"
+      - "traefik.http.routers.woodpecker-http.entrypoints=websecure"
+      - "traefik.http.services.woodpecker-http.loadbalancer.server.port=8000"
+
+      # gRPC service
+      - "traefik.http.routers.woodpecker-grpc.rule=Host(`${SUBDOMAIN}-grpc.bowline.im`)"
+      - "traefik.http.routers.woodpecker-grpc.service=woodpecker-grpc"
+      - "traefik.http.routers.woodpecker-grpc.tls=true"
+      - "traefik.http.routers.woodpecker-grpc.entrypoints=websecure"
+      - "traefik.http.services.woodpecker-grpc.loadbalancer.server.port=9000"
+      - "traefik.http.services.woodpecker-grpc.loadbalancer.server.scheme=h2c"
 
   woodpecker-agent:
     container_name: woodpecker-agent
