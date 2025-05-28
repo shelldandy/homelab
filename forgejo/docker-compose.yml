@@ -16,7 +16,6 @@ services:
     networks:
       - forgejo
       - frontend
-      - backend
     volumes:
       - ${CONFIG_PATH}/app:/data
       - /etc/timezone:/etc/timezone:ro
@@ -45,6 +44,4 @@ services:
 networks:
   forgejo:
   frontend:
-    external: true
-  backend:
     external: true
