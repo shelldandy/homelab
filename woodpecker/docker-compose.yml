@@ -18,6 +18,7 @@ services:
     networks:
       - woodpecker
       - frontend
+      - backend
     labels:
       - "traefik.enable=true"
       # HTTP service
