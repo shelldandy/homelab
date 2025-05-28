@@ -1,11 +1,10 @@
 services:
   immich-server:
-    user: 1000:1000
     container_name: immich_server
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION}
-    # extends:
-    #   file: hwaccel.transcoding.yml
-    #   service: cpu # set to one of [nvenc, quicksync, rkmpp, vaapi, vaapi-wsl] for accelerated transcoding
+    extends:
+      file: hwaccel.transcoding.yml
+      service: quicksync # set to one of [nvenc, quicksync, rkmpp, vaapi, vaapi-wsl] for accelerated transcoding
     volumes:
       # Do not edit the next line. If you want to change the media storage location on your system, edit the value of UPLOAD_LOCATION in the .env file
       - ${UPLOAD_LOCATION}:/usr/src/app/upload
@@ -32,7 +31,6 @@ services:
 
   immich-machine-learning:
     container_name: immich_machine_learning
-    user: 1000:1000
     # For hardware acceleration, add one of -[armnn, cuda, rocm, openvino, rknn] to the image tag.
     # Example tag: ${IMMICH_VERSION}-cuda
     image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION}
@@ -51,8 +49,7 @@ services:
 
   redis:
     container_name: immich_redis
-    user: 1000:1000
-    image: docker.io/valkey/valkey:8-bookworm@sha256:42cba146593a5ea9a622002c1b7cba5da7be248650cbb64ecb9c6c33d29794b1
+    image: docker.io/valkey/valkey:8-bookworm@sha256:ff21bc0f8194dc9c105b769aeabf9585fea6a8ed649c0781caeac5cb3c247884
     healthcheck:
       test: redis-cli ping || exit 1
     restart: unless-stopped
@@ -60,7 +57,6 @@ services:
       - immich
 
   database:
-    user: 1000:1000
     container_name: immich_postgres
     image: ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0
     environment:
