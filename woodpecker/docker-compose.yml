@@ -40,10 +40,14 @@ services:
     environment:
       - WOODPECKER_SERVER=woodpecker-server:9000
       - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      - WOODPECKER_BACKEND_DOCKER_NETWORK=backend
     networks:
       - woodpecker
+      - backend
 
 networks:
   woodpecker:
   frontend:
+    external: true
+  backend:
     external: true

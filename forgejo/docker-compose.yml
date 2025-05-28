@@ -12,10 +12,12 @@ services:
       - FORGEJO__database__PASSWD=${DB_PWD}
       - FORGEJO__oauth2_client__ENABLE_AUTO_REGISTRATION=${ENABLE_AUTO_REGISTRATION}
       - FORGEJO__openid__ENABLE_OPENID_SIGNIN=${ENABLE_OPENID_SIGNIN}
+      - FORGEJO__webhook__ALLOWED_HOST_LIST=${ALLOWED_HOST_LIST}
     restart: unless-stopped
     networks:
       - forgejo
       - frontend
+      - backend
     volumes:
       - ${CONFIG_PATH}/app:/data
       - /etc/timezone:/etc/timezone:ro
@@ -44,4 +46,6 @@ services:
 networks:
   forgejo:
   frontend:
+    external: true
+  backend:
     external: true
