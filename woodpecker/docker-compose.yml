@@ -12,21 +12,17 @@ services:
       - WOODPECKER_FORGEJO=true
       - WOODPECKER_FORGEJO_CLIENT=${WOODPECKER_FORGEJO_CLIENT}
       - WOODPECKER_FORGEJO_SECRET=${WOODPECKER_FORGEJO_SECRET}
+      - WOODPECKER_LOG_LEVEL=${WOODPECKER_LOG_LEVEL}
     restart: unless-stopped
     volumes:
       - ${CONFIG_PATH}/server:/var/lib/woodpecker/
     networks:
       - woodpecker
       - frontend
-      - backend
     labels:
       - "traefik.enable=true"
-      # HTTP service
-      - "traefik.http.routers.woodpecker-http.rule=Host(`${SUBDOMAIN}.bowline.im`)"
-      - "traefik.http.routers.woodpecker-http.service=woodpecker-http"
-      - "traefik.http.routers.woodpecker-http.tls=true"
-      - "traefik.http.routers.woodpecker-http.entrypoints=websecure"
-      - "traefik.http.services.woodpecker-http.loadbalancer.server.port=8000"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8000"
 
   woodpecker-agent:
     container_name: woodpecker-agent
@@ -41,14 +37,10 @@ services:
     environment:
       - WOODPECKER_SERVER=woodpecker-server:9000
       - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
-      - WOODPECKER_BACKEND_DOCKER_NETWORK=backend
     networks:
       - woodpecker
-      - backend
 
 networks:
   woodpecker:
   frontend:
-    external: true
-  backend:
     external: true
