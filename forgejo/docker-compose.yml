@@ -42,7 +42,40 @@ services:
     volumes:
       - ${CONFIG_PATH}/db:/var/lib/postgresql/data
 
+  # https://forgejo.org/docs/latest/admin/runner-installation/
+  docker-in-docker:
+    image: docker:dind
+    container_name: docker-in-docker
+    privileged: true
+    command: ["dockerd", "-H", "tcp://0.0.0.0:2375", "--tls=false"]
+    restart: unless-stopped
+    networks:
+      - runner
+
+  forgejo-runner:
+    image: "data.forgejo.org/forgejo/runner:4.0.0"
+    links:
+      - docker-in-docker
+    depends_on:
+      docker-in-docker:
+        condition: service_started
+    container_name: forgejo-runner
+    environment:
+      DOCKER_HOST: tcp://docker-in-docker:2375
+    # User without root privileges, but with access to `./data`.
+    user: 1000:1000
+    volumes:
+      - ${CONFIG_PATH}/runner:/data
+    restart: unless-stopped
+    # Use this one for the first time
+    #command: '/bin/sh -c "while : ; do sleep 1 ; done ;"'
+    # and this one going forwards
+    command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
+    networks:
+      - runner
+
 networks:
   forgejo:
+  runner:
   frontend:
     external: true
