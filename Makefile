@@ -4,20 +4,8 @@ UTILITIES_SERVICES = forgejo filebrowser pingvin-share hoarder woodpecker watcht
 
 ALL_SERVICES = $(CORE_SERVICES) $(MEDIA_SERVICES) $(UTILITIES_SERVICES)
 
-check:
-	@echo "Checking for missing service directories..."
-	@dirs=$$(find . -maxdepth 1 -type d ! -name "." ! -name ".*" | sed 's|^./||'); \
-	missing=0; \
-	for dir in $$dirs; do \
-		if ! echo "$(ALL_SERVICES)" | grep -qw "$$dir"; then \
-			echo "Directory '$$dir' is not listed in any service list"; \
-			missing=1; \
-		fi; \
-	done; \
-	if [ $$missing -eq 0 ]; then \
-		echo "No missing service directories found."; \
-	fi; \
-	echo "Checking for service names without corresponding directories..."; \
+check-missing-services:
+	@echo "Checking for service names without corresponding directories..."; \
 	extra=0; \
 	for service in $(ALL_SERVICES); do \
 		if [ ! -d "$$service" ]; then \
@@ -26,5 +14,21 @@ check:
 		fi; \
 	done; \
 	if [ $$extra -eq 0 ]; then \
-		echo "No extra services found without directories."; \
-	fi 
+		echo "No missing service directories found."; \
+	fi
+
+check-extra-services:
+	@echo "Checking for directories not listed in any service list..."; \
+	missing=0; \
+	dirs=$$(find . -maxdepth 1 -type d ! -name "." ! -name ".*" | sed 's|^./||'); \
+	for dir in $$dirs; do \
+		if ! echo "$(ALL_SERVICES)" | grep -qw "$$dir"; then \
+			echo "Directory '$$dir' is not listed in any service list"; \
+			missing=1; \
+		fi; \
+	done; \
+	if [ $$missing -eq 0 ]; then \
+		echo "No extra directories found."; \
+	fi
+
+check-services: check-missing-services check-extra-services
