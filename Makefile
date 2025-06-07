@@ -32,3 +32,20 @@ check-extra-services:
 	fi
 
 check-services: check-missing-services check-extra-services
+
+start-%:
+	@echo "Starting $*..."; \
+	cd $*/ && docker compose up -d; \
+
+stop-%:
+	@echo "Stopping $*..."; \
+	cd $*/ && docker compose down; \
+
+start-all:
+	@for service in $(ALL_SERVICES); do \
+		$(MAKE) start-$$service; \
+	done
+
+stop-all:
+	@echo "Stopping all services..."; \
+	cd $*/ && docker compose down; \
