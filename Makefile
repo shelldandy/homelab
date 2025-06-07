@@ -46,12 +46,28 @@ stop-utilities:
 	done
 
 start-%:
-	@echo "Starting $*..."
-	@cd $*/ && docker compose up -d
+	@if [ -d "$*" ]; then \
+	  if [ -f "$*/docker-compose.yml" ] || [ -f "$*/docker-compose.yaml" ]; then \
+	    echo "Starting $*..."; \
+	    cd $*/ && docker compose up -d; \
+	  else \
+	    echo "Skipping $*: no docker-compose.yml or docker-compose.yaml found in $*/"; \
+	  fi; \
+	else \
+	  echo "Skipping $*: directory $* does not exist."; \
+	fi
 
 stop-%:
-	@echo "Stopping $*..."
-	@cd $*/ && docker compose down
+	@if [ -d "$*" ]; then \
+	  if [ -f "$*/docker-compose.yml" ] || [ -f "$*/docker-compose.yaml" ]; then \
+	    echo "Stopping $*..."; \
+	    cd $*/ && docker compose down; \
+	  else \
+	    echo "Skipping $*: no docker-compose.yml or docker-compose.yaml found in $*/"; \
+	  fi; \
+	else \
+	  echo "Skipping $*: directory $* does not exist."; \
+	fi
 
 status:
 	@for service in $(ALL_SERVICES); do \
