@@ -2,6 +2,35 @@ services:
   traefik:
     container_name: traefik
     image: traefik:latest
+    command:
+      # Entry Points
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.forwardedHeaders.trustedIPs=172.18.0.0/12,172.16.0.0/12
+      - --entrypoints.websecure.transport.respondingTimeouts.readTimeout=600s
+      - --entrypoints.websecure.transport.respondingTimeouts.idleTimeout=600s
+      - --entrypoints.websecure.transport.respondingTimeouts.writeTimeout=600s
+
+      # API Dashboard
+      - --api.dashboard=true
+
+      # Providers
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=frontend
+
+      # Logging
+      - --log.level=INFO
+      - --accesslog=true
+
+      # Certificate Resolver
+      - --certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.myresolver.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
     environment:
       CLOUDFLARE_EMAIL: ${CLOUDFLARE_EMAIL}
       CLOUDFLARE_DNS_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
@@ -11,13 +40,29 @@ services:
       - "443:443"
     labels:
       - "traefik.enable=true"
+      # Dashboard configuration
       - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
       - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
+      - "traefik.http.routers.dashboard.middlewares=global-chain"
       - "traefik.http.routers.dashboard.middlewares=tinyauth"
+
+      # Middleware definitions (converted from file config)
+      - "traefik.http.middlewares.security-headers.headers.sslredirect=true"
+      - "traefik.http.middlewares.security-headers.headers.stsseconds=31536000"
+      - "traefik.http.middlewares.security-headers.headers.browserxssfilter=true"
+      - "traefik.http.middlewares.security-headers.headers.contenttypenosniff=true"
+      - "traefik.http.middlewares.security-headers.headers.forcestsheader=true"
+      - "traefik.http.middlewares.security-headers.headers.stsincludesubdomains=true"
+      - "traefik.http.middlewares.security-headers.headers.stspreload=true"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+      - "traefik.http.middlewares.rate-limit.ratelimit.average=100"
+      - "traefik.http.middlewares.rate-limit.ratelimit.burst=50"
+      - "traefik.http.middlewares.global-chain.chain.middlewares=https-redirect,security-headers,rate-limit"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik.yml:/etc/traefik/traefik.yml:ro
-      - letsencrypt:/letsencrypt
+      - ${CONFIG_PATH}/letsencrypt:/letsencrypt
     networks:
       - frontend
     restart: unless-stopped
@@ -42,9 +87,6 @@ services:
     networks:
       - frontend
     restart: unless-stopped
-
-volumes:
-  letsencrypt:
 
 networks:
   frontend:
