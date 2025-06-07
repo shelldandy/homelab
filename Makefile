@@ -47,5 +47,6 @@ start-all:
 	done
 
 stop-all:
-	@echo "Stopping all services..."; \
-	cd $*/ && docker compose down; \
+	@for service in $(ALL_SERVICES); do \
+		$(MAKE) stop-$$service; \
+	done
