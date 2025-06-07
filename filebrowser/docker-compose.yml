@@ -15,6 +15,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.fb.rule=Host(`fb.bowline.im`)"
       - "traefik.http.services.fb.loadbalancer.server.port=80"
+      - "traefik.http.routers.fb.middlewares=tinyauth"
     networks:
       - frontend
     restart: unless-stopped
