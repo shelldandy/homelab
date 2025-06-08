@@ -31,24 +31,24 @@ services:
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8096"
 
   #jellyseerr - allows users to request media on their own
-  jellyseerr:
-    image: fallenbagel/jellyseerr:preview-pr184
-    container_name: jellyseerr
-    environment:
-      TZ: ${TZ}
-      PUID: ${PUID}
-      PGID: ${PGID}
-    volumes:
-      - ${CONFIG_PATH}/jellyseerr/config:/app/config
-      - ${MEDIA_SHARE}:/share #Access to the entire share
-    networks:
-      - frontend
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.bowline.im`)"
-      - "traefik.http.services.jellyseerr.loadbalancer.server.port=5055"
-
+  #   jellyseerr:
+  #     image: fallenbagel/jellyseerr:preview-pr184
+  #     container_name: jellyseerr
+  #     environment:
+  #       TZ: ${TZ}
+  #       PUID: ${PUID}
+  #       PGID: ${PGID}
+  #     volumes:
+  #       - ${CONFIG_PATH}/jellyseerr/config:/app/config
+  #       - ${MEDIA_SHARE}:/share #Access to the entire share
+  #     networks:
+  #       - frontend
+  #     restart: unless-stopped
+  #     labels:
+  #       - "traefik.enable=true"
+  #       - "traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.bowline.im`)"
+  #       - "traefik.http.services.jellyseerr.loadbalancer.server.port=5055"
+  #
 networks:
   frontend:
     external: true

@@ -28,6 +28,12 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=2283"
+      # Immich-specific transport timeouts for large file uploads
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.responseForwarding.flushInterval=1s"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=immich-timeouts"
+      - "traefik.http.middlewares.immich-timeouts.timeout.readTimeout=600s"
+      - "traefik.http.middlewares.immich-timeouts.timeout.idleTimeout=600s"
+      - "traefik.http.middlewares.immich-timeouts.timeout.writeTimeout=600s"
 
   immich-machine-learning:
     container_name: immich_machine_learning
