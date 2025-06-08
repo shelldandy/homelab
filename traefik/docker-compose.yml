@@ -22,9 +22,17 @@ services:
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=frontend
 
+      # Metrics
+      - --metrics.prometheus=true
+      - --metrics.prometheus.addEntryPointsLabels=true
+      - --metrics.prometheus.addServicesLabels=true
+
       # Logging
       - --log.level=INFO
+      - --log.format=json
       - --accesslog=true
+      - --accesslog.format=json
+      - --accesslog.filepath=/var/log/traefik/access.log
 
       # Certificate Resolver
       - --certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}
@@ -45,7 +53,7 @@ services:
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
       - "traefik.http.routers.dashboard.middlewares=global-chain"
-      - "traefik.http.routers.dashboard.middlewares=tinyauth"
+      #- "traefik.http.routers.dashboard.middlewares=tinyauth"
 
       # Middleware definitions (converted from file config)
       - "traefik.http.middlewares.security-headers.headers.sslredirect=true"
@@ -55,11 +63,21 @@ services:
       - "traefik.http.middlewares.security-headers.headers.forcestsheader=true"
       - "traefik.http.middlewares.security-headers.headers.stsincludesubdomains=true"
       - "traefik.http.middlewares.security-headers.headers.stspreload=true"
+      - "traefik.http.middlewares.security-headers.headers.referrerpolicy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.security-headers.headers.permissionspolicy=camera=(), microphone=(), geolocation=()"
+      - "traefik.http.middlewares.security-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+
       - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+
       - "traefik.http.middlewares.rate-limit.ratelimit.average=100"
       - "traefik.http.middlewares.rate-limit.ratelimit.burst=50"
-      - "traefik.http.middlewares.global-chain.chain.middlewares=https-redirect,security-headers,rate-limit"
+
+      - "traefik.http.middlewares.error-pages.errors.status=400-599"
+      - "traefik.http.middlewares.error-pages.errors.service=error-pages"
+      - "traefik.http.middlewares.error-pages.errors.query=/{status}.html"
+
+      - "traefik.http.middlewares.global-chain.chain.middlewares=https-redirect,security-headers,rate-limit,error-pages"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${CONFIG_PATH}/letsencrypt:/letsencrypt
@@ -69,6 +87,7 @@ services:
 
   # Dynamic DNS updater for Cloudflare
   cloudflare-ddns:
+    container_name: cloudflare-ddns
     image: oznu/cloudflare-ddns:latest
     restart: unless-stopped
     environment:
@@ -83,7 +102,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
-      - "traefik.http.routers.whoami.middlewares=tinyauth"
+      #- "traefik.http.routers.whoami.middlewares=tinyauth"
     networks:
       - frontend
     restart: unless-stopped
