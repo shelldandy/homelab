@@ -3,23 +3,21 @@ services:
     image: adguard/adguardhome:latest
     container_name: adguard
     restart: unless-stopped
-    env_file:
-      - ./.env
     ports:
       - "53:53/tcp"
       - "53:53/udp"
+      - "4444:80" # Or use :3000 for first time setup
     volumes:
       - ${CONFIG_PATH}/work:/opt/adguardhome/work
       - ${CONFIG_PATH}/conf:/opt/adguardhome/conf
     networks:
       - frontend
-      - adguard_net
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
-      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=80" # Add this line (AdGuard's default web UI port)
+      # Uncomment for first time setup
+      # - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
 
 networks:
   frontend:
     external: true
-  adguard_net:
