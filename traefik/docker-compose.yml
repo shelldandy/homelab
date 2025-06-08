@@ -107,6 +107,22 @@ services:
       - frontend
     restart: unless-stopped
 
+  error-pages:
+    container_name: error-pages
+    image: tarampampam/error-pages:latest
+    environment:
+      TEMPLATE_NAME: ghost # You can use: ghost, l7-light, l7-dark, shuffle, noise, hacker-terminal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.error-pages.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.error-pages.priority=1"
+      - "traefik.http.routers.error-pages.entrypoints=websecure"
+      - "traefik.http.routers.error-pages.tls.certresolver=myresolver"
+      - "traefik.http.services.error-pages.loadbalancer.server.port=8080"
+    networks:
+      - frontend
+    restart: unless-stopped
+
 networks:
   frontend:
     external: true
