@@ -107,7 +107,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
-      - "traefik.http.routers.whoami.tls.certresolver=myresolver"
       #- "traefik.http.routers.whoami.middlewares=tinyauth"
     networks:
       - frontend
