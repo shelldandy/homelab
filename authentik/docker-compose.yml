@@ -10,7 +10,7 @@ services:
       retries: 5
       timeout: 5s
     volumes:
-      - database:/var/lib/postgresql/data
+      - ${CONFIG_PATH}/postgresql:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: ${PG_PASS}
       POSTGRES_USER: ${PG_USER}
@@ -30,7 +30,7 @@ services:
       retries: 5
       timeout: 3s
     volumes:
-      - redis:/data
+      - ${CONFIG_PATH}/redis:/data
     networks:
       - authentik_network
 
@@ -133,12 +133,6 @@ services:
     networks:
       - frontend
       - authentik_network
-
-volumes:
-  database:
-    driver: local
-  redis:
-    driver: local
 
 networks:
   frontend:
