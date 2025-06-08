@@ -13,6 +13,11 @@ services:
       - --entrypoints.websecure.transport.respondingTimeouts.readTimeout=600s
       - --entrypoints.websecure.transport.respondingTimeouts.idleTimeout=600s
       - --entrypoints.websecure.transport.respondingTimeouts.writeTimeout=600s
+      - --entrypoints.websecure.http.tls.certresolver=myresolver
+      - --entrypoints.websecure.http.middlewares=global-chain
+
+      # Domain magic
+      - --providers.docker.defaultRule=Host(`{{ normalize .Name }}.${DOMAIN}`)
 
       # API Dashboard
       - --api.dashboard=true
@@ -101,7 +106,7 @@ services:
     image: traefik/whoami
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
+      - "traefik.http.routers.whoami.tls.certresolver=myresolver"
       #- "traefik.http.routers.whoami.middlewares=tinyauth"
     networks:
       - frontend
