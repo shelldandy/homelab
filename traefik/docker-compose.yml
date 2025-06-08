@@ -28,20 +28,12 @@ services:
       - --metrics.prometheus.addEntryPointsLabels=true
       - --metrics.prometheus.addServicesLabels=true
 
-      # Tracing
-      - --tracing=true
-      - --tracing.otlp=true
-      - --tracing.otlp.http=true
-      - --tracing.otlp.http.endpoint=http://otel-collector:4318/v1/traces
-      - --tracing.otlp.grpc=false
-      - --tracing.otlp.sampleRate=1.0
-
       # Health Check
       - --ping=true
       - --ping.entryPoint=websecure
 
       # Logging
-      - --log.level=INFO
+      - --log.level=DEBUG
       - --log.format=json
       - --accesslog=true
       - --accesslog.format=json
@@ -101,7 +93,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${CONFIG_PATH}/letsencrypt:/letsencrypt
-      - ${CONFIG_PATH}/logs:/var/log/traefik
+      - ${CONFIG_PATH}/logs/access.log:/var/log/traefik/access.log
     networks:
       - frontend
     restart: unless-stopped

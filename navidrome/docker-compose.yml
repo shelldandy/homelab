@@ -19,27 +19,27 @@ services:
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=4533"
 
-  soulmate:
-    image: banankungen/soulmate
-    container_name: soulmate
-    env_file:
-      - .env
-      - .env.soulmate
-    volumes:
-      - ${BASE_PATH}/soulmate:/config
-      - ${MEDIA_SHARE}:/share
-    environment:
-      - TZ=${TZ}
-    restart: unless-stopped
-    networks:
-      - frontend
-      - backend
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.rule=Host(`${SOULMATE_SUBDOMAIN}.bowline.im`)"
-      - "traefik.http.services.${SOULMATE_SUBDOMAIN}.loadbalancer.server.port=7373"
-      - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.middlewares=tinyauth"
-
+  # soulmate:
+  #   image: banankungen/soulmate
+  #   container_name: soulmate
+  #   env_file:
+  #     - .env
+  #     - .env.soulmate
+  #   volumes:
+  #     - ${BASE_PATH}/soulmate:/config
+  #     - ${MEDIA_SHARE}:/share
+  #   environment:
+  #     - TZ=${TZ}
+  #   restart: unless-stopped
+  #   networks:
+  #     - frontend
+  #     - backend
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.rule=Host(`${SOULMATE_SUBDOMAIN}.bowline.im`)"
+  #     - "traefik.http.services.${SOULMATE_SUBDOMAIN}.loadbalancer.server.port=7373"
+  #     - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.middlewares=tinyauth"
+  #
   beets:
     image: lscr.io/linuxserver/beets:latest
     container_name: beets
