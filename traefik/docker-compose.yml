@@ -115,10 +115,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.error-pages.rule=HostRegexp(`{host:.+}`)"
-      - "traefik.http.routers.error-pages.priority=1"
-      - "traefik.http.routers.error-pages.entrypoints=websecure"
-      - "traefik.http.routers.error-pages.tls.certresolver=myresolver"
       - "traefik.http.services.error-pages.loadbalancer.server.port=8080"
+      - "traefik.http.routers.error-pages.priority=1"
     networks:
       - frontend
     restart: unless-stopped
