@@ -15,8 +15,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
-      # Uncomment for first time setup
-      # - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
+      # Or puse port 3000 for first time setup
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=80"
 
 networks:
   frontend:
