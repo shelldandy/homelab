@@ -16,9 +16,6 @@ services:
       - --entrypoints.websecure.http.tls.certresolver=myresolver
       - --entrypoints.websecure.http.middlewares=global-chain
 
-      # Domain magic
-      - --providers.docker.defaultRule=Host(`{{ normalize .Name }}.${DOMAIN}`)
-
       # API Dashboard
       - --api.dashboard=true
 
@@ -33,7 +30,7 @@ services:
       - --metrics.prometheus.addServicesLabels=true
 
       # Logging
-      - --log.level=DEBUG
+      - --log.level=INFO
       - --log.format=json
       - --accesslog=true
       - --accesslog.format=json
@@ -86,6 +83,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${CONFIG_PATH}/letsencrypt:/letsencrypt
+      - ${CONFIG_PATH}/logs:/var/log/traefik
     networks:
       - frontend
     restart: unless-stopped
