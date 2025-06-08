@@ -28,7 +28,7 @@ services:
       - --metrics.prometheus.addServicesLabels=true
 
       # Logging
-      - --log.level=INFO
+      - --log.level=DEBUG
       - --log.format=json
       - --accesslog=true
       - --accesslog.format=json
@@ -114,9 +114,7 @@ services:
       TEMPLATE_NAME: ghost # You can use: ghost, l7-light, l7-dark, shuffle, noise, hacker-terminal
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.error-pages.rule=HostRegexp(`{host:.+}`)"
       - "traefik.http.services.error-pages.loadbalancer.server.port=8080"
-      - "traefik.http.routers.error-pages.priority=1"
     networks:
       - frontend
     restart: unless-stopped
