@@ -10,9 +10,8 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.permanent=true
       - --entrypoints.websecure.address=:443
       - --entrypoints.websecure.forwardedHeaders.trustedIPs=172.18.0.0/12,172.16.0.0/12
-      - --entrypoints.websecure.transport.respondingTimeouts.readTimeout=600s
-      - --entrypoints.websecure.transport.respondingTimeouts.idleTimeout=600s
-      - --entrypoints.websecure.transport.respondingTimeouts.writeTimeout=600s
+      - --entrypoints.websecure.transport.lifeCycle.requestAcceptGraceTimeout=10s
+      - --entrypoints.websecure.transport.lifeCycle.graceTimeOut=30s
       - --entrypoints.websecure.http.tls.certresolver=myresolver
       - --entrypoints.websecure.http.middlewares=global-chain
 
@@ -29,12 +28,28 @@ services:
       - --metrics.prometheus.addEntryPointsLabels=true
       - --metrics.prometheus.addServicesLabels=true
 
+      # Tracing
+      - --tracing=true
+      - --tracing.otlp=true
+      - --tracing.otlp.http=true
+      - --tracing.otlp.http.endpoint=http://otel-collector:4318/v1/traces
+      - --tracing.otlp.grpc=false
+      - --tracing.otlp.sampleRate=1.0
+
+      # Health Check
+      - --ping=true
+      - --ping.entryPoint=websecure
+
       # Logging
       - --log.level=INFO
       - --log.format=json
       - --accesslog=true
       - --accesslog.format=json
       - --accesslog.filepath=/var/log/traefik/access.log
+      - --accesslog.bufferingsize=100
+      - --accesslog.filters.statuscodes=400-599
+      - --accesslog.fields.defaultmode=keep
+      - --accesslog.fields.names.ClientUsername=drop
 
       # Certificate Resolver
       - --certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}
@@ -68,12 +83,15 @@ services:
       - "traefik.http.middlewares.security-headers.headers.referrerpolicy=strict-origin-when-cross-origin"
       - "traefik.http.middlewares.security-headers.headers.permissionspolicy=camera=(), microphone=(), geolocation=()"
       - "traefik.http.middlewares.security-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.security-headers.headers.customrequestheaders.Cross-Origin-Embedder-Policy=require-corp"
+      - "traefik.http.middlewares.security-headers.headers.customrequestheaders.Cross-Origin-Opener-Policy=same-origin"
+      - "traefik.http.middlewares.security-headers.headers.customrequestheaders.Cross-Origin-Resource-Policy=cross-origin"
 
       - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
 
-      - "traefik.http.middlewares.rate-limit.ratelimit.average=100"
-      - "traefik.http.middlewares.rate-limit.ratelimit.burst=50"
+      - "traefik.http.middlewares.rate-limit.ratelimit.average=10"
+      - "traefik.http.middlewares.rate-limit.ratelimit.burst=20"
 
       - "traefik.http.middlewares.error-pages.errors.status=400-599"
       - "traefik.http.middlewares.error-pages.errors.service=error-pages"
