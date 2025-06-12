@@ -58,6 +58,7 @@ services:
     volumes:
       - ${CONFIG_PATH}/media:/media
       - ${CONFIG_PATH}/custom-templates:/templates
+      - ./blueprints:/blueprints/custom
     depends_on:
       - postgresql
       - redis

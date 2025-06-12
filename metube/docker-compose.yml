@@ -9,11 +9,11 @@ services:
       - ${MEDIA_SHARE}/downloads/metube/mma:/downloads
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.local.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8081"
       - "traefik.http.middlewares.${SUBDOMAIN}-websocket.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.${SUBDOMAIN}.middlewares=${SUBDOMAIN}-websocket"
-      - "traefik.http.routers.${SUBDOMAIN}.middlewares=tinyauth"
+      # - "traefik.http.routers.${SUBDOMAIN}.middlewares=tinyauth"
     networks:
       - frontend
 
