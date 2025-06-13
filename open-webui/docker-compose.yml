@@ -3,12 +3,8 @@ services:
     image: ghcr.io/open-webui/open-webui:main
     container_name: open-webui
     restart: unless-stopped
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
-      - DATA_DIR=/app/backend/data
+    env_file:
+      - ./.env
     volumes:
       - ${CONFIG_PATH}/data:/app/backend/data
     networks:
@@ -16,8 +12,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
-      - "traefik.http.routers.${SUBDOMAIN}.entrypoints=websecure"
-      - "traefik.http.routers.${SUBDOMAIN}.tls.certresolver=cloudflare"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
       - "traefik.http.routers.${SUBDOMAIN}.middlewares=tinyauth"
 
