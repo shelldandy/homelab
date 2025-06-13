@@ -13,7 +13,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
-      - "traefik.http.routers.${SUBDOMAIN}.middlewares=tinyauth"
 
 networks:
   frontend:
