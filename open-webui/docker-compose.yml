@@ -9,6 +9,7 @@ services:
       - ${CONFIG_PATH}/data:/app/backend/data
     networks:
       - frontend
+      - backend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
@@ -16,4 +17,6 @@ services:
 
 networks:
   frontend:
+    external: true
+  backend:
     external: true
