@@ -22,7 +22,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - "222:22"
+      - "222:222"
     depends_on:
       - db
     labels:
