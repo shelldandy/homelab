@@ -7,7 +7,8 @@ services:
       - frontend
       - backend
     volumes:
-      - ${BASE_PATH}/config:/etc/searxng:rw
+      - ./settings.yml:/etc/searxng/settings.yml:ro
+      - ./limiter.toml:/etc/searxng/limiter.toml:ro
     environment:
       - SEARXNG_BASE_URL=https://${SUBDOMAIN}.bowline.im/
       - PUID=${PUID}
