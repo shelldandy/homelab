@@ -1,0 +1,22 @@
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    volumes:
+      - ${CONFIG_PATH}/data:/app/backend/data
+    networks:
+      - frontend
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true

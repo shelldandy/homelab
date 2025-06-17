@@ -1,0 +1,15 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ${CONFIG_PATH}:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - backend
+
+networks:
+  backend:
+    external: true

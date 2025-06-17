@@ -22,13 +22,15 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - "222:22"
+      - "222:222"
     depends_on:
       - db
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
+      - "traefik.http.routers.${SUBDOMAIN}.tls=true"
+      - "traefik.http.routers.${SUBDOMAIN}.tls.certresolver=myresolver"
 
   db:
     image: postgres:14
