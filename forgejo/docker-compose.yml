@@ -86,9 +86,9 @@ services:
       - ${CONFIG_PATH}/runner:/data
     restart: unless-stopped
     # Use this one for the first time
-    command: '/bin/sh -c "while : ; do sleep 1 ; done ;"'
+    #command: '/bin/sh -c "while : ; do sleep 1 ; done ;"'
     # and this one going forwards
-    #command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
+    command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
     networks:
       - runner
       - forgejo
