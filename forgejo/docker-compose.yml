@@ -31,6 +31,20 @@ services:
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
       - "traefik.http.routers.${SUBDOMAIN}.tls=true"
       - "traefik.http.routers.${SUBDOMAIN}.tls.certresolver=myresolver"
+      # Container registry route for /v2 path
+      - "traefik.http.routers.${SUBDOMAIN}-registry.rule=Host(`${SUBDOMAIN}.bowline.im`) && PathPrefix(`/v2`)"
+      - "traefik.http.routers.${SUBDOMAIN}-registry.service=${SUBDOMAIN}"
+      - "traefik.http.routers.${SUBDOMAIN}-registry.tls=true"
+      - "traefik.http.routers.${SUBDOMAIN}-registry.tls.certresolver=myresolver"
+      # Proxy headers middleware
+      - "traefik.http.middlewares.${SUBDOMAIN}-headers.headers.customrequestheaders.X-Real-IP="
+      - "traefik.http.middlewares.${SUBDOMAIN}-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.${SUBDOMAIN}-headers.headers.customrequestheaders.X-Forwarded-For="
+      # Body size limit middleware
+      - "traefik.http.middlewares.${SUBDOMAIN}-bodysize.buffering.maxRequestBodyBytes=536870912"
+      # Apply middlewares
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=${SUBDOMAIN}-headers,${SUBDOMAIN}-bodysize"
+      - "traefik.http.routers.${SUBDOMAIN}-registry.middlewares=${SUBDOMAIN}-headers,${SUBDOMAIN}-bodysize"
 
   db:
     image: postgres:14
@@ -55,6 +69,7 @@ services:
     networks:
       - runner
 
+  # https://forgejo.org/docs/latest/admin/runner-installation/
   forgejo-runner:
     image: data.forgejo.org/forgejo/runner:4.0.0
     links:
