@@ -68,6 +68,7 @@ services:
     restart: unless-stopped
     networks:
       - runner
+      - forgejo
 
   # https://forgejo.org/docs/latest/admin/runner-installation/
   forgejo-runner:
