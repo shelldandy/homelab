@@ -70,17 +70,88 @@ services:
       - runner
 
   # https://forgejo.org/docs/latest/admin/runner-installation/
-  forgejo-runner:
+  # Fast runner for quick tasks (linting, security scans, formatting)
+  forgejo-runner-fast:
     image: data.forgejo.org/forgejo/runner:4.0.0
     links:
       - docker-in-docker
     depends_on:
       docker-in-docker:
         condition: service_started
-    container_name: forgejo-runner
+    container_name: forgejo-runner-fast
     environment:
       DOCKER_HOST: tcp://docker-in-docker:2375
-    # User without root privileges, but with access to `./data`.
+      # Increase parallel tasks for fast operations
+      FORGEJO_RUNNER_CONFIG_FILE: /data/config-fast.yaml
+    user: 1000:1000
+    volumes:
+      - ${CONFIG_PATH}/runner-fast:/data
+    restart: unless-stopped
+    # Use this one for the first time
+    #command: '/bin/sh -c "while : ; do sleep 1 ; done ;"'
+    # and this one going forwards
+    command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
+    networks:
+      - runner
+
+  # E2E/Integration test runner for longer tests
+  forgejo-runner-e2e:
+    image: data.forgejo.org/forgejo/runner:4.0.0
+    links:
+      - docker-in-docker
+    depends_on:
+      docker-in-docker:
+        condition: service_started
+    container_name: forgejo-runner-e2e
+    environment:
+      DOCKER_HOST: tcp://docker-in-docker:2375
+      FORGEJO_RUNNER_CONFIG_FILE: /data/config-e2e.yaml
+    user: 1000:1000
+    volumes:
+      - ${CONFIG_PATH}/runner-e2e:/data
+    restart: unless-stopped
+    # Use this one for the first time
+    #command: '/bin/sh -c "while : ; do sleep 1 ; done ;"'
+    # and this one going forwards
+    command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
+    networks:
+      - runner
+
+  # Build runner for compilation and build tasks
+  forgejo-runner-build:
+    image: data.forgejo.org/forgejo/runner:4.0.0
+    links:
+      - docker-in-docker
+    depends_on:
+      docker-in-docker:
+        condition: service_started
+    container_name: forgejo-runner-build
+    environment:
+      DOCKER_HOST: tcp://docker-in-docker:2375
+      FORGEJO_RUNNER_CONFIG_FILE: /data/config-build.yaml
+    user: 1000:1000
+    volumes:
+      - ${CONFIG_PATH}/runner-build:/data
+    restart: unless-stopped
+    # Use this one for the first time
+    #command: '/bin/sh -c "while : ; do sleep 1 ; done ;"'
+    # and this one going forwards
+    command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
+    networks:
+      - runner
+
+  # Keep original runner as general purpose (renamed for clarity)
+  forgejo-runner-general:
+    image: data.forgejo.org/forgejo/runner:4.0.0
+    links:
+      - docker-in-docker
+    depends_on:
+      docker-in-docker:
+        condition: service_started
+    container_name: forgejo-runner-general
+    environment:
+      DOCKER_HOST: tcp://docker-in-docker:2375
+      FORGEJO_RUNNER_CONFIG_FILE: /data/config-general.yaml
     user: 1000:1000
     volumes:
       - ${CONFIG_PATH}/runner:/data
