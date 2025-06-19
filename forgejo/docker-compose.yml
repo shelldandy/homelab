@@ -68,7 +68,6 @@ services:
     restart: unless-stopped
     networks:
       - runner
-      - forgejo
 
   # https://forgejo.org/docs/latest/admin/runner-installation/
   forgejo-runner:
@@ -92,7 +91,6 @@ services:
     command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
     networks:
       - runner
-      - forgejo
 
 networks:
   forgejo:
