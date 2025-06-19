@@ -87,11 +87,7 @@ services:
       - "traefik.http.middlewares.rate-limit.ratelimit.average=10"
       - "traefik.http.middlewares.rate-limit.ratelimit.burst=20"
 
-      - "traefik.http.middlewares.error-pages.errors.status=400-599"
-      - "traefik.http.middlewares.error-pages.errors.service=error-pages"
-      - "traefik.http.middlewares.error-pages.errors.query=/{status}.html"
-
-      - "traefik.http.middlewares.global-chain.chain.middlewares=https-redirect,security-headers,rate-limit,error-pages"
+      - "traefik.http.middlewares.global-chain.chain.middlewares=https-redirect,security-headers,rate-limit"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${CONFIG_PATH}/letsencrypt:/letsencrypt
@@ -118,18 +114,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
       #- "traefik.http.routers.whoami.middlewares=tinyauth"
-    networks:
-      - frontend
-    restart: unless-stopped
-
-  error-pages:
-    container_name: error-pages
-    image: tarampampam/error-pages:latest
-    environment:
-      TEMPLATE_NAME: ghost # You can use: ghost, l7-light, l7-dark, shuffle, noise, hacker-terminal
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.error-pages.loadbalancer.server.port=8080"
     networks:
       - frontend
     restart: unless-stopped
