@@ -1,0 +1,20 @@
+services:
+  comfy:
+    image: yanwk/comfyui-boot:rocm
+    container_name: comfy
+    ports:
+      - "8188:8188"
+    volumes:
+      - ${CONFIG_PATH}:/root
+    restart: unless-stopped
+    networks:
+      - backend
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+
+networks:
+  backend:
+    external: true
