@@ -1,6 +1,6 @@
 services:
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:rocm
     container_name: ollama
     ports:
       - "11434:11434"
@@ -9,6 +9,11 @@ services:
     restart: unless-stopped
     networks:
       - backend
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
 
 networks:
   backend:
