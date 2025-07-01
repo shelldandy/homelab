@@ -22,7 +22,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - "222:222"
+      - "222:22"
     depends_on:
       - db
     labels:
@@ -31,9 +31,24 @@ services:
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
       - "traefik.http.routers.${SUBDOMAIN}.tls=true"
       - "traefik.http.routers.${SUBDOMAIN}.tls.certresolver=myresolver"
+      # Container registry route for /v2 path
+      - "traefik.http.routers.${SUBDOMAIN}-registry.rule=Host(`${SUBDOMAIN}.bowline.im`) && PathPrefix(`/v2`)"
+      - "traefik.http.routers.${SUBDOMAIN}-registry.service=${SUBDOMAIN}"
+      - "traefik.http.routers.${SUBDOMAIN}-registry.tls=true"
+      - "traefik.http.routers.${SUBDOMAIN}-registry.tls.certresolver=myresolver"
+      # Proxy headers middleware
+      - "traefik.http.middlewares.${SUBDOMAIN}-headers.headers.customrequestheaders.X-Real-IP="
+      - "traefik.http.middlewares.${SUBDOMAIN}-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.${SUBDOMAIN}-headers.headers.customrequestheaders.X-Forwarded-For="
+      # Body size limit middleware
+      - "traefik.http.middlewares.${SUBDOMAIN}-bodysize.buffering.maxRequestBodyBytes=536870912"
+      # Apply middlewares
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=${SUBDOMAIN}-headers,${SUBDOMAIN}-bodysize"
+      - "traefik.http.routers.${SUBDOMAIN}-registry.middlewares=${SUBDOMAIN}-headers,${SUBDOMAIN}-bodysize"
 
   db:
     image: postgres:14
+    container_name: forgejo-db
     restart: unless-stopped
     environment:
       - POSTGRES_USER=${DB_USER}
@@ -54,17 +69,89 @@ services:
     networks:
       - runner
 
-  forgejo-runner:
-    image: "data.forgejo.org/forgejo/runner:4.0.0"
+  # https://forgejo.org/docs/latest/admin/runner-installation/
+  # Fast runner for quick tasks (linting, security scans, formatting)
+  forgejo-runner-fast:
+    image: data.forgejo.org/forgejo/runner:4.0.0
     links:
       - docker-in-docker
     depends_on:
       docker-in-docker:
         condition: service_started
-    container_name: forgejo-runner
+    container_name: forgejo-runner-fast
     environment:
       DOCKER_HOST: tcp://docker-in-docker:2375
-    # User without root privileges, but with access to `./data`.
+      # Increase parallel tasks for fast operations
+      FORGEJO_RUNNER_CONFIG_FILE: /data/config-fast.yaml
+    user: 1000:1000
+    volumes:
+      - ${CONFIG_PATH}/runner-fast:/data
+    restart: unless-stopped
+    # Use this one for the first time
+    #command: '/bin/sh -c "while : ; do sleep 1 ; done ;"'
+    # and this one going forwards
+    command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
+    networks:
+      - runner
+
+  # E2E/Integration test runner for longer tests
+  forgejo-runner-e2e:
+    image: data.forgejo.org/forgejo/runner:4.0.0
+    links:
+      - docker-in-docker
+    depends_on:
+      docker-in-docker:
+        condition: service_started
+    container_name: forgejo-runner-e2e
+    environment:
+      DOCKER_HOST: tcp://docker-in-docker:2375
+      FORGEJO_RUNNER_CONFIG_FILE: /data/config-e2e.yaml
+    user: 1000:1000
+    volumes:
+      - ${CONFIG_PATH}/runner-e2e:/data
+    restart: unless-stopped
+    # Use this one for the first time
+    #command: '/bin/sh -c "while : ; do sleep 1 ; done ;"'
+    # and this one going forwards
+    command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
+    networks:
+      - runner
+
+  # Build runner for compilation and build tasks
+  forgejo-runner-build:
+    image: data.forgejo.org/forgejo/runner:4.0.0
+    links:
+      - docker-in-docker
+    depends_on:
+      docker-in-docker:
+        condition: service_started
+    container_name: forgejo-runner-build
+    environment:
+      DOCKER_HOST: tcp://docker-in-docker:2375
+      FORGEJO_RUNNER_CONFIG_FILE: /data/config-build.yaml
+    user: 1000:1000
+    volumes:
+      - ${CONFIG_PATH}/runner-build:/data
+    restart: unless-stopped
+    # Use this one for the first time
+    #command: '/bin/sh -c "while : ; do sleep 1 ; done ;"'
+    # and this one going forwards
+    command: '/bin/sh -c "sleep 5; forgejo-runner daemon"'
+    networks:
+      - runner
+
+  # Keep original runner as general purpose (renamed for clarity)
+  forgejo-runner-general:
+    image: data.forgejo.org/forgejo/runner:4.0.0
+    links:
+      - docker-in-docker
+    depends_on:
+      docker-in-docker:
+        condition: service_started
+    container_name: forgejo-runner-general
+    environment:
+      DOCKER_HOST: tcp://docker-in-docker:2375
+      FORGEJO_RUNNER_CONFIG_FILE: /data/config-general.yaml
     user: 1000:1000
     volumes:
       - ${CONFIG_PATH}/runner:/data
