@@ -1,6 +1,6 @@
 CORE_SERVICES = traefik authentik adguard
-MEDIA_SERVICES = qbittorrent arr jellyfin immich navidrome icloud-photos-downloader metube grafana wedding-share pinchflat
-UTILITIES_SERVICES = forgejo filebrowser pingvin-share hoarder watchtower calibre searxng docmost open-webui
+MEDIA_SERVICES = qbittorrent arr jellyfin immich navidrome icloud-photos-downloader metube grafana pinchflat # wedding-share
+UTILITIES_SERVICES = forgejo hoarder watchtower calibre searxng docmost open-webui # filebrowser pingvin-share 
 
 ALL_SERVICES = $(CORE_SERVICES) $(MEDIA_SERVICES) $(UTILITIES_SERVICES)
 
