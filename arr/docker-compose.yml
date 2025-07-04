@@ -11,8 +11,8 @@ services:
       - ${BASE_PATH}/radarr/config:/config
       - ${MEDIA_SHARE}:/share #Access to the entire share
     networks:
+      - backend
       - frontend
-      - arr_network
     ports:
       - 7878:7878
     labels:
@@ -33,6 +33,7 @@ services:
       - ${BASE_PATH}/mmarr/config:/config
       - ${MEDIA_SHARE}:/share #Access to the entire share
     networks:
+      - backend
       - frontend
     labels:
       - "traefik.enable=true"
@@ -53,7 +54,7 @@ services:
       - ${MEDIA_SHARE}:/share #Access to the entire share
     networks:
       - frontend
-      - arr_network
+      - backend
     ports:
       - 8989:8989
     labels:
@@ -79,8 +80,8 @@ services:
       - "traefik.http.routers.readarr.rule=Host(`readarr.bowline.im`)"
       - "traefik.http.services.readarr.loadbalancer.server.port=8787"
     networks:
+      - backend
       - frontend
-      - arr_network
 
   #Lidarr - Used to download music
   lidarr:
@@ -102,7 +103,6 @@ services:
     networks:
       - frontend
       - backend
-      - arr_network
 
   #Prowlarr - manages your Sonarr, Radarr and download client
   prowlarr:
@@ -115,8 +115,8 @@ services:
     volumes:
       - ${BASE_PATH}/prowlarr/config:/config
     networks:
+      - backend
       - frontend
-      - arr_network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.bowline.im`)"
@@ -139,8 +139,8 @@ services:
       - "traefik.http.services.flaresolverr.loadbalancer.server.port=8191"
     restart: unless-stopped
     networks:
+      - backend
       - frontend
-      - arr_network
 
   #Bazarr - for subtitles. Try to use SRT format if you can rather than PGS due to performance issues
   bazarr:
@@ -160,10 +160,9 @@ services:
       - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
     networks:
       - frontend
-      - arr_network
+      - backend
 
 networks:
-  arr_network:
   frontend:
     external: true
   backend:

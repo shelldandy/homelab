@@ -42,6 +42,7 @@ services:
       - ${MEDIA_SHARE}:/share #Access to the entire share
     networks:
       - frontend
+      - backend
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -50,4 +51,6 @@ services:
 
 networks:
   frontend:
+    external: true
+  backend:
     external: true
