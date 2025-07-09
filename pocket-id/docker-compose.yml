@@ -1,0 +1,27 @@
+services:
+  pocketid:
+    container_name: pocketid
+    image: ghcr.io/pocket-id/pocket-id:v1
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - 1411:1411
+    volumes:
+      - "${CONFIG_PATH}:/app/data"
+    # Optional healthcheck
+    healthcheck:
+      test: ["CMD", "/app/pocket-id", "healthcheck"]
+      interval: 1m30s
+      timeout: 5s
+      retries: 2
+      start_period: 10s
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)
+      - traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=1411
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external: true

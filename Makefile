@@ -1,4 +1,4 @@
-CORE_SERVICES = traefik authentik adguard
+CORE_SERVICES = traefik pocket-id adguard
 MEDIA_SERVICES = qbittorrent arr jellyfin immich navidrome icloud-photos-downloader metube grafana pinchflat # wedding-share
 UTILITIES_SERVICES = forgejo hoarder watchtower calibre searxng docmost open-webui # filebrowser pingvin-share 
 
