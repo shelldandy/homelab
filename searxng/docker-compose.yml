@@ -18,7 +18,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
-      - "traefik.http.routers.${SUBDOMAIN}.middlewares=tinyauth"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
 
 networks:
   frontend:

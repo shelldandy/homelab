@@ -43,7 +43,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${CALIBRE_WEB_DL_SUBDOMAIN}.rule=Host(`${CALIBRE_WEB_DL_SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${CALIBRE_WEB_DL_SUBDOMAIN}.loadbalancer.server.port=8084"
-      - "traefik.http.routers.${CALIBRE_WEB_DL_SUBDOMAIN}.middlewares=tinyauth"
+      - "traefik.http.routers.${CALIBRE_WEB_DL_SUBDOMAIN}.middlewares=oidc-auth"
 
   cloudflarebypassforscraping:
     container_name: cloudflarebypassforscraping

@@ -13,7 +13,7 @@ services:
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8081"
       - "traefik.http.middlewares.${SUBDOMAIN}-websocket.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.${SUBDOMAIN}.middlewares=${SUBDOMAIN}-websocket"
-      - "traefik.http.routers.${SUBDOMAIN}.middlewares=tinyauth"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
     networks:
       - frontend
 

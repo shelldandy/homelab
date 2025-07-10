@@ -12,10 +12,9 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.fb.rule=Host(`fb.bowline.im`)"
-      - "traefik.http.services.fb.loadbalancer.server.port=80"
-      - "traefik.http.routers.fb.middlewares=tinyauth"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=80"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
     networks:
       - frontend
     restart: unless-stopped

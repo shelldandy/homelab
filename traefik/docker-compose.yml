@@ -30,7 +30,6 @@ services:
 
       # Health Check
       - --ping=true
-      - --ping.entryPoint=websecure
 
       # Logging
       - --log.level=DEBUG
@@ -48,6 +47,9 @@ services:
       - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare
       - --certificatesresolvers.myresolver.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+
+      - --experimental.plugins.traefik-oidc-auth.moduleName=github.com/sevensolutions/traefik-oidc-auth
+      - --experimental.plugins.traefik-oidc-auth.version=v0.13.0
     environment:
       CLOUDFLARE_EMAIL: ${CLOUDFLARE_EMAIL}
       CLOUDFLARE_DNS_API_TOKEN: ${CLOUDFLARE_API_TOKEN}
@@ -63,8 +65,7 @@ services:
       - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
       - "traefik.http.routers.dashboard.tls.domains[0].main=${DOMAIN}"
       - "traefik.http.routers.dashboard.tls.domains[0].sans=*.${DOMAIN}"
-      - "traefik.http.routers.dashboard.middlewares=global-chain"
-      #- "traefik.http.routers.dashboard.middlewares=tinyauth"
+      - "traefik.http.routers.dashboard.middlewares=oidc-auth"
 
       # Middleware definitions (converted from file config)
       - "traefik.http.middlewares.security-headers.headers.sslredirect=true"
@@ -86,6 +87,12 @@ services:
 
       - "traefik.http.middlewares.rate-limit.ratelimit.average=10"
       - "traefik.http.middlewares.rate-limit.ratelimit.burst=20"
+
+      - "traefik.http.middlewares.oidc-auth.plugin.traefik-oidc-auth.secret=${OIDC_SECRET}"
+      - "traefik.http.middlewares.oidc-auth.plugin.traefik-oidc-auth.provider.url=https://${OIDC_SUBDOMAIN}.${DOMAIN}/"
+      - "traefik.http.middlewares.oidc-auth.plugin.traefik-oidc-auth.provider.clientId=${OIDC_CLIENT_ID}"
+      - "traefik.http.middlewares.oidc-auth.plugin.traefik-oidc-auth.provider.clientSecret=${OIDC_CLIENT_SECRET}"
+      - "traefik.http.middlewares.oidc-auth.plugin.traefik-oidc-auth.scopes=${OIDC_SCOPES}"
 
       - "traefik.http.middlewares.global-chain.chain.middlewares=https-redirect,security-headers,rate-limit"
     volumes:
@@ -113,7 +120,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
-      #- "traefik.http.routers.whoami.middlewares=tinyauth"
+      - "traefik.http.routers.whoami.middlewares=oidc-auth"
     networks:
       - frontend
     restart: unless-stopped
