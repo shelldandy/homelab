@@ -1,0 +1,15 @@
+services:
+  comfy-frontend:
+    image: traefik/whoami
+    container_name: comfy-frontend
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.url=${EXTERNAL_URL}"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
+
+networks:
+  frontend:
+    external: true
