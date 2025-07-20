@@ -3,7 +3,7 @@ services:
     image: rocm/vllm:latest
     container_name: vllm
     ports:
-      - "8000:8000"
+      - "4444:8000"
     volumes:
       - ${CONFIG_PATH}:/root/.cache
     restart: unless-stopped
