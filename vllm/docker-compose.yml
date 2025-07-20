@@ -1,0 +1,35 @@
+services:
+  vllm:
+    image: rocm/vllm:latest
+    container_name: vllm
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${CONFIG_PATH}:/root/.cache
+    restart: unless-stopped
+    networks:
+      - backend
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+    environment:
+      - VLLM_HOST=0.0.0.0
+      - VLLM_PORT=8000
+      - VLLM_MODEL=${VLLM_MODEL:-microsoft/DialoGPT-medium}
+      - VLLM_GPU_MEMORY_UTILIZATION=${VLLM_GPU_MEMORY_UTILIZATION:-0.9}
+      - VLLM_MAX_MODEL_LEN=${VLLM_MAX_MODEL_LEN:-2048}
+      - VLLM_TENSOR_PARALLEL_SIZE=${VLLM_TENSOR_PARALLEL_SIZE:-1}
+    command: >
+      python -m vllm.entrypoints.openai.api_server
+      --host ${VLLM_HOST:-0.0.0.0}
+      --port ${VLLM_PORT:-8000}
+      --model ${VLLM_MODEL:-microsoft/DialoGPT-medium}
+      --gpu-memory-utilization ${VLLM_GPU_MEMORY_UTILIZATION:-0.9}
+      --max-model-len ${VLLM_MAX_MODEL_LEN:-2048}
+      --tensor-parallel-size ${VLLM_TENSOR_PARALLEL_SIZE:-1}
+
+networks:
+  backend:
+    external: true
