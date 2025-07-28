@@ -1,0 +1,43 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      DOMAIN: "https://${SUBDOMAIN}.bowline.im"
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+      SIGNUPS_ALLOWED: ${SIGNUPS_ALLOWED}
+      LOG_FILE: "/data/vaultwarden.log"
+      LOG_LEVEL: ${LOG_LEVEL}
+      TZ: ${TZ}
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
+    volumes:
+      - ${CONFIG_PATH}/data:/data
+    networks:
+      - vaultwarden
+      - frontend
+    depends_on:
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=80"
+
+  db:
+    image: postgres:16-alpine
+    container_name: vaultwarden-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: ${TZ}
+    volumes:
+      - ${CONFIG_PATH}/db:/var/lib/postgresql/data
+    networks:
+      - vaultwarden
+
+networks:
+  frontend:
+    external: true
+  vaultwarden:
