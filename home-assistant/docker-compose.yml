@@ -1,0 +1,43 @@
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: homeassistant/home-assistant:stable
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+    env_file:
+      - ./.env
+    volumes:
+      - ${CONFIG_PATH}/home-assistant/config:/config
+      - ${CONFIG_PATH}/home-assistant/backups:/config/backups
+      - ./configuration.yaml:/config/configuration.yaml
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    #devices:
+    # Uncomment for USB devices (Zigbee/Z-Wave sticks)
+    # - /dev/ttyUSB0:/dev/ttyUSB0
+    # - /dev/ttyACM0:/dev/ttyACM0
+    ports:
+      # Local access port for device discovery and setup
+      - "8123:8123"
+    networks:
+      - frontend
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8123"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true

@@ -12,6 +12,7 @@ services:
       - ${CONFIG_PATH}/conf:/opt/adguardhome/conf
     networks:
       - frontend
+      - backend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
@@ -20,4 +21,6 @@ services:
 
 networks:
   frontend:
+    external: true
+  backend:
     external: true

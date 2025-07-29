@@ -1,0 +1,23 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# HTTP integration for reverse proxy support
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 172.19.0.0/16 # Docker network range for Traefik
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+hass_cozylife_local_pull:
+  lang: en
+  ip:
+    # Smart plug
+    - 10.0.0.6
+    - 10.0.0.200

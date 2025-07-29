@@ -1,0 +1,15 @@
+services:
+  orbi:
+    image: traefik/whoami
+    container_name: orbi
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.local.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.url=${EXTERNAL_URL}"
+      - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
+
+networks:
+  frontend:
+    external: true
