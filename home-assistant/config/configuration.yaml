@@ -15,6 +15,11 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
+input_boolean:
+  follow_up_mode:
+    name: Follow Up Mode
+    initial: off
+
 hass_cozylife_local_pull:
   lang: en
   ip:
