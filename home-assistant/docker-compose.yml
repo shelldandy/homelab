@@ -12,7 +12,8 @@ services:
     volumes:
       - ${CONFIG_PATH}/home-assistant/config:/config
       - ${CONFIG_PATH}/home-assistant/backups:/config/backups
-      - ./config:/config/includes
+      - ./includes:/config/includes
+      - ./configuration.yaml:/config/configuration.yaml
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
     #devices:
