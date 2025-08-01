@@ -1,7 +1,7 @@
 services:
   # Whisper - Speech-to-text (STT) engine with AMD ROCm GPU support
   whisper:
-    image: fyhertz/rocm-wyoming-whisper:latest
+    image: rhasspy/wyoming-whisper:latest
     container_name: whisper
     restart: unless-stopped
     environment:
@@ -37,30 +37,3 @@ services:
       - video
     networks:
       - backend
-
-  # # OpenWakeWord - Optional custom wake word detection service
-  # # NOT used by Home Assistant Voice Preview (PE) — that uses on-device microWakeWord instead. Included for possible future proofing.
-  # # Useful for ESP32-S3 voice satellites (like M5Stack ATOM Echo or S3-BOX-3) to stream wake word audio to HA.
-  # # You can train or download .tflite models and place them in ./wakeword-data to enable custom triggers.
-  # openwakeword:
-  #   image: rhasspy/wyoming-openwakeword
-  #   container_name: openwakeword
-  #   restart: unless-stopped
-  #   command: --custom-model-dir /data  # Loads custom .tflite wake word models
-  #   ports:
-  #     - "10400:10400"  # Exposes wake word detection API to HA
-  #   volumes:
-  #     - ./wakeword-data:/data  # Mount folder where your models live
-  #   environment:
-  #     - ENABLE_SPEEX_NOISE_SUPPRESSION=true  # Reduces ambient noise before detection
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #           - driver: nvidia
-  #             count: all
-  #             capabilities: ["gpu", "utility", "compute"]
-
-networks:
-  backend:
-    external: true
