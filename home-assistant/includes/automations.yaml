@@ -1,0 +1,138 @@
+# Vocal Daisy Chaining Automations for Home Assistant (Mexican Spanish)
+
+# 1. Initialize Follow-Up Mode at startup
+- alias: Initialize Follow-Up Mode at startup
+  trigger:
+    - platform: homeassistant
+      event: start
+  action:
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.follow_up_mode
+  mode: single
+
+# 2. Voice assistant follow-up
+- alias: Voice assistant follow-up
+  trigger:
+    - platform: state
+      entity_id: assist_satellite.home_assistant_voice_0a25c9_assist_satellite
+      from: responding
+      to: idle
+  condition:
+    - condition: state
+      entity_id: input_boolean.follow_up_mode
+      state: "on"
+  action:
+    - service: conversation.process
+      data:
+        text: Continue the conversation.
+        conversation_id: follow_up_conversation
+      response_variable: context_response
+    - service: assist_satellite.start_conversation
+      data:
+        start_message: ""
+        preannounce: false
+      target:
+        entity_id: "{{ trigger.entity_id }}"
+  mode: single
+
+# 3. Simple Follow-Up Timeout
+- alias: Simple Follow-Up Timeout
+  trigger:
+    - platform: state
+      entity_id: assist_satellite.home_assistant_voice_0a25c9_assist_satellite
+      to: listening
+  condition:
+    - condition: state
+      entity_id: input_boolean.follow_up_mode
+      state: "on"
+  action:
+    - delay: 00:00:05
+    - condition: template
+      value_template: >
+        {% set sat_id = trigger.entity_id %}
+        {{ states(sat_id) == 'listening' and states('input_boolean.follow_up_mode') == 'on' }}
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.follow_up_mode
+    - service: assist_satellite.announce
+      target:
+        entity_id: "{{ trigger.entity_id }}"
+      data:
+        message: ""
+        preannounce: false
+  mode: restart
+
+# 4. Voice: Stop Follow Up Mode (Mexican Spanish)
+- alias: "Voice: Stop Follow Up Mode"
+  trigger:
+    - platform: conversation
+      command:
+        - detener seguimiento
+        - parar seguimiento
+        - parar conversación
+        - detener conversación
+        - parar de escuchar
+        - detener de escuchar
+        - terminar conversación
+        - conversación terminada
+        - ignorar
+        - no importa
+        - cancelar conversación
+        - suficiente
+        - es suficiente
+        - eso es todo
+        - nada más
+        - no estoy bien
+        - estoy bien
+        - eso es todo
+        - no eso es todo
+        - no es todo
+        - no eso es
+        - no es
+        - ya no
+        - no necesito nada más
+        - no necesito más
+        - está bien
+        - perfecto
+        - listo
+  action:
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.follow_up_mode
+    - service: persistent_notification.create
+      data:
+        title: Modo de Seguimiento
+        message: El modo de seguimiento ha sido desactivado.
+    - set_conversation_response: Perfecto. Avísame si necesitas algo más.
+  mode: single
+
+# 5. Voice: Start Follow Up Mode (Mexican Spanish)
+- alias: "Voice: Start Follow Up Mode"
+  trigger:
+    - platform: conversation
+      command:
+        - iniciar seguimiento
+        - empezar seguimiento
+        - empezar conversación
+        - iniciar conversación
+        - vamos a platicar
+        - vamos a hablar
+        - hablemos
+        - platiquemos
+        - reanudar seguimiento
+        - activar seguimiento
+        - prender modo seguimiento
+        - activar modo seguimiento
+        - prender seguimiento otra vez
+        - activar seguimiento otra vez
+  action:
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.follow_up_mode
+    - service: persistent_notification.create
+      data:
+        title: Modo de Seguimiento
+        message: El modo de seguimiento ha sido activado.
+    - set_conversation_response: Perfecto. El modo de seguimiento está activado. ¿En qué te puedo ayudar?
+  mode: single
