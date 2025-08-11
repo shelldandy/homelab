@@ -53,6 +53,12 @@ services:
       disable: false
     networks:
       - immich
+    # Resource limits to prevent I/O overload
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2'
 
   redis:
     container_name: immich_redis
