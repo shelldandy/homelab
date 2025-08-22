@@ -84,25 +84,25 @@ services:
       - frontend
 
   #Lidarr - Used to download music
-  lidarr:
-    image: lscr.io/linuxserver/lidarr:latest
-    container_name: lidarr
-    user: 1000:1000
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${BASE_PATH}/lidarr/config:/config
-      - ${MEDIA_SHARE}:/share
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.lidarr.rule=Host(`lidarr.bowline.im`)"
-      - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
-    networks:
-      - frontend
-      - backend
+  #lidarr:
+  # image: lscr.io/linuxserver/lidarr:latest
+  # container_name: lidarr
+  # user: 1000:1000
+  # environment:
+  #   - PUID=${PUID}
+  #   - PGID=${PGID}
+  #   - TZ=${TZ}
+  # volumes:
+  #   - ${BASE_PATH}/lidarr/config:/config
+  #   - ${LIDAR_SHARE}:/share
+  # restart: unless-stopped
+  # labels:
+  #   - "traefik.enable=true"
+  #   - "traefik.http.routers.lidarr.rule=Host(`lidarr.bowline.im`)"
+  #   - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
+  # networks:
+  #   - frontend
+  #   - backend
 
   #Prowlarr - manages your Sonarr, Radarr and download client
   prowlarr:

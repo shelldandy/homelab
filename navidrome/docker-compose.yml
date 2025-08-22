@@ -9,7 +9,7 @@ services:
       ND_BASEURL: https://${SUBDOMAIN}.bowline.im
       TZ: ${TZ}
     volumes:
-      - ${BASE_PATH}/navidrome/data:/data
+      - ${BASE_PATH}/data:/data
       - ${MEDIA_SHARE}/media/music:/music:ro
     networks:
       - frontend
@@ -19,51 +19,51 @@ services:
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=4533"
 
-  soulmate:
-    image: banankungen/soulmate
-    container_name: soulmate
-    env_file:
-      - .env
-      - .env.soulmate
-    volumes:
-      - ${BASE_PATH}/soulmate:/config
-      - ${MEDIA_SHARE}:/share
-    environment:
-      - TZ=${TZ}
-    restart: unless-stopped
-    networks:
-      - frontend
-      - backend
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.rule=Host(`${SOULMATE_SUBDOMAIN}.bowline.im`)"
-      - "traefik.http.services.${SOULMATE_SUBDOMAIN}.loadbalancer.server.port=7373"
-      - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.middlewares=oidc-auth"
-
-  beets:
-    image: lscr.io/linuxserver/beets:latest
-    container_name: beets
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${BASE_PATH}/beets/config:/config
-      - ${MEDIA_SHARE}/media/music:/music
-      - ${MEDIA_SHARE}/downloads/music:/downloads
-      - ./beets.yaml:/config/config.yaml
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.beets.rule=Host(`beets.bowline.im`)"
-      - "traefik.http.services.beets.loadbalancer.server.port=8337"
-      - "traefik.http.routers.beets.middlewares=oidc-auth"
-    restart: unless-stopped
-    networks:
-      - frontend
-    ulimits:
-      nofile:
-        soft: 4096
-        hard: 8192
+  # soulmate:
+  #   image: banankungen/soulmate
+  #   container_name: soulmate
+  #   env_file:
+  #     - .env
+  #     - .env.soulmate
+  #   volumes:
+  #     - ${BASE_PATH}/soulmate:/config
+  #     - ${MEDIA_SHARE}:/share
+  #   environment:
+  #     - TZ=${TZ}
+  #   restart: unless-stopped
+  #   networks:
+  #     - frontend
+  #     - backend
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.rule=Host(`${SOULMATE_SUBDOMAIN}.bowline.im`)"
+  #     - "traefik.http.services.${SOULMATE_SUBDOMAIN}.loadbalancer.server.port=7373"
+  #     - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.middlewares=oidc-auth"
+  #
+  # # beets:
+  #   image: lscr.io/linuxserver/beets:latest
+  #   container_name: beets
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TZ}
+  #   volumes:
+  #     - ${BASE_PATH}/beets/config:/config
+  #     - ${MEDIA_SHARE}/media/music:/music
+  #     - ${MEDIA_SHARE}/downloads/music:/downloads
+  #     - ./beets.yaml:/config/config.yaml
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.beets.rule=Host(`beets.bowline.im`)"
+  #     - "traefik.http.services.beets.loadbalancer.server.port=8337"
+  #     - "traefik.http.routers.beets.middlewares=oidc-auth"
+  #   restart: unless-stopped
+  #   networks:
+  #     - frontend
+  #   ulimits:
+  #     nofile:
+  #       soft: 4096
+  #       hard: 8192
 
 networks:
   frontend:
