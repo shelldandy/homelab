@@ -2,6 +2,7 @@ services:
   pinchflat:
     container_name: pinchflat
     image: ghcr.io/kieraneglin/pinchflat:latest
+    init: true
     environment:
       TZ: ${TZ}
     volumes:
