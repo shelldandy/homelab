@@ -66,7 +66,7 @@ services:
     volumes:
       - ${BASE_PATH}/slskd/config:/app/data
       - ./data/slskd.yml:/app/slskd.yml
-      - ${MEDIA_SHARE}:/share
+      - ${MUSIC_SHARE}:/share
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
