@@ -16,10 +16,9 @@ services:
       - ./configuration.yaml:/config/configuration.yaml
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
-    #devices:
-    # Uncomment for USB devices (Zigbee/Z-Wave sticks)
-    # - /dev/ttyUSB0:/dev/ttyUSB0
-    # - /dev/ttyACM0:/dev/ttyACM0
+    devices:
+      # for USB devices (Zigbee/Z-Wave sticks)
+      - /dev/ttyUSB0:/dev/ttyUSB0
     ports:
       # Local access port for device discovery and setup
       - "8123:8123"
@@ -36,6 +35,24 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  # python-matter-server
+  matter-server:
+    image: ghcr.io/home-assistant-libs/python-matter-server:stable
+    container_name: matter-server
+    restart: unless-stopped
+    # Required for mDNS to work correctly
+    network_mode: host
+    security_opt:
+      # Needed for Bluetooth via dbus
+      - apparmor:unconfined
+    volumes:
+      # Create an .env file that sets the USERDIR environment variable.
+      - ${CONFIG_PATH}/matter-server/data:/data
+      # Required for Bluetooth via D-Bus
+      - /run/dbus:/run/dbus:ro
+    # If you adjust command line, make sure to pass the default CMD arguments too:
+    command: --storage-path /data --paa-root-cert-dir /data/credentials --bluetooth-adapter 0
 
 networks:
   frontend:
