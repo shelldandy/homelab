@@ -13,7 +13,7 @@ services:
       # - ${CONFIG_PATH}:/config
       # - ${DATA_PATH}:/home/${user}/iCloud
       - ./data/config/bowlinedandy:/config
-      - /mnt/cloud-backups/photos/bowlinedandy:/home/bowlinedandy/iCloud
+      - /mnt/immich/photos/bowlinedandy:/home/bowlinedandy/iCloud
 
   susifluna:
     container_name: susifluna
@@ -29,4 +29,4 @@ services:
       # - ${CONFIG_PATH}:/config
       # - ${DATA_PATH}:/home/${user}/iCloud
       - ./data/config/susifluna:/config
-      - /mnt/cloud-backups/photos/susifluna:/home/susifluna/iCloud
+      - /mnt/immich/photos/susifluna:/home/susifluna/iCloud
