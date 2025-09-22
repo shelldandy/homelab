@@ -6,7 +6,7 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
     restart: unless-stopped
     volumes:
-      - ./prometheus:/etc/prometheus
+      - ./data/prometheus:/etc/prometheus
       - ${PROMETHEUS_CONFIG}:/prometheus
     user: 1000:1000
     environment:

@@ -28,3 +28,13 @@ scrape_configs:
     static_configs:
       - targets:
           - navidrome:4533
+
+  - job_name: "homeassistant"
+    scrape_interval: 60s
+    metrics_path: /api/prometheus
+    # Long-Lived Access Token
+    # Generate one in profile > security
+    bearer_token: "CHANGE_ME"
+    scheme: http
+    static_configs:
+      - targets: ["homeassistant:8123"]
