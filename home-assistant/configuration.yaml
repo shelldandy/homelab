@@ -26,3 +26,5 @@ hass_cozylife_local_pull:
     # Smart plug
     - 10.0.0.6
     - 10.0.0.200
+
+prometheus:
