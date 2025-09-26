@@ -19,7 +19,7 @@ services:
       - frontend
 
   bookdl:
-    image: ghcr.io/calibrain/calibre-web-automated-book-downloader:20250322
+    image: ghcr.io/calibrain/calibre-web-automated-book-downloader:latest
     container_name: bookdl
     environment:
       FLASK_PORT: 8084
