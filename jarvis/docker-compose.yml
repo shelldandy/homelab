@@ -1,0 +1,39 @@
+services:
+  # Whisper - Speech-to-text (STT) engine with AMD ROCm GPU support
+  whisper:
+    image: rhasspy/wyoming-whisper:latest
+    container_name: whisper
+    restart: unless-stopped
+    command: --model=small-int8 --language=es --beam-size=5
+    ports:
+      - "10300:10300" # Exposes API for HA STT service
+    volumes:
+      - ${CONFIG_PATH}/whisper:/data # Stores model files and cache
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+    networks:
+      - backend
+
+  # Piper - Text-to-speech (TTS) engine with CPU support (Spanish)
+  piper:
+    image: rhasspy/wyoming-piper:latest
+    container_name: piper
+    restart: unless-stopped
+    command: --voice es_ES-davefx-medium # Spanish voice - change to your preferred voice within HA GUI
+    ports:
+      - "10200:10200" # Exposes API for HA TTS service
+    volumes:
+      - ${CONFIG_PATH}/piper:/data # Stores voice models and cache
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+    networks:
+      - backend
+networks:
+  backend:
+    external: true
