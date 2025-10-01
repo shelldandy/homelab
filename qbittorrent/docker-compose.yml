@@ -63,6 +63,7 @@ services:
       - SLSKD_API_KEY=${SLSKD_API_KEY}
       - SLSKD_DOWNLOADS_DIR=${SLSKD_DOWNLOADS_DIR}
       - SLSKD_INCOMPLETE_DIR=${SLSKD_INCOMPLETE_DIR}
+      - SLSKD_REMOTE_CONFIGURATION=true
     volumes:
       - ${BASE_PATH}/slskd/config:/app/data
       - ./data/slskd.yml:/app/slskd.yml

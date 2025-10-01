@@ -19,51 +19,44 @@ services:
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=4533"
 
-  # soulmate:
-  #   image: banankungen/soulmate
-  #   container_name: soulmate
-  #   env_file:
-  #     - .env
-  #     - .env.soulmate
-  #   volumes:
-  #     - ${BASE_PATH}/soulmate:/config
-  #     - ${MEDIA_SHARE}:/share
-  #   environment:
-  #     - TZ=${TZ}
-  #   restart: unless-stopped
-  #   networks:
-  #     - frontend
-  #     - backend
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.rule=Host(`${SOULMATE_SUBDOMAIN}.bowline.im`)"
-  #     - "traefik.http.services.${SOULMATE_SUBDOMAIN}.loadbalancer.server.port=7373"
-  #     - "traefik.http.routers.${SOULMATE_SUBDOMAIN}.middlewares=oidc-auth"
-
-  beets:
-    image: lscr.io/linuxserver/beets:latest
-    container_name: beets
+  #Lidarr - Used to download music
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    user: 1000:1000
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-      - ${BASE_PATH}/beets/config:/config
-      - ${MEDIA_SHARE}/media/music:/music
-      - ${MEDIA_SHARE}/downloads/music:/downloads
-      - ./beets.yaml:/config/config.yaml
+      - ${BASE_PATH}/lidarr/config:/config
+      - ${MEDIA_SHARE}:/share
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.beets.rule=Host(`beets.bowline.im`)"
-      - "traefik.http.services.beets.loadbalancer.server.port=8337"
-      - "traefik.http.routers.beets.middlewares=oidc-auth"
-    restart: unless-stopped
+      - "traefik.http.routers.lidarr.rule=Host(`lidarr.bowline.im`)"
+      - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
     networks:
       - frontend
-    ulimits:
-      nofile:
-        soft: 4096
-        hard: 8192
+      - backend
+
+  soularr:
+    container_name: soularr
+    image: mrusse08/soularr:latest
+    hostname: soularr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - SCRIPT_INTERVAL=300
+    volumes:
+      #"You can set /downloads to whatever you want but will then need to change the Slskd download dir in your config file"
+      - ${MEDIA_SHARE}:/share
+      #Select where you are storing your config file.
+      #Leave "/data" since thats where the script expects the config file to be
+      - ${BASE_PATH}/soularr:/data
+      - ./data/soularr.ini:/data/config.ini
 
 networks:
   frontend:
