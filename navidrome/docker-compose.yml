@@ -49,7 +49,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - SCRIPT_INTERVAL=300
+      - SCRIPT_INTERVAL=120
     volumes:
       #"You can set /downloads to whatever you want but will then need to change the Slskd download dir in your config file"
       - ${MEDIA_SHARE}:/share
