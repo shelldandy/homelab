@@ -1,6 +1,6 @@
 services:
   forgejo:
-    image: codeberg.org/forgejo/forgejo:11
+    image: codeberg.org/forgejo/forgejo:12
     container_name: forgejo
     environment:
       - USER_UID=1000
@@ -12,17 +12,16 @@ services:
       - FORGEJO__database__PASSWD=${DB_PWD}
       - FORGEJO__oauth2_client__ENABLE_AUTO_REGISTRATION=${ENABLE_AUTO_REGISTRATION}
       - FORGEJO__openid__ENABLE_OPENID_SIGNIN=${ENABLE_OPENID_SIGNIN}
+      - FORGEJO__server__DISABLE_SSH=${DISABLE_SSH}
       - FORGEJO__webhook__ALLOWED_HOST_LIST=${ALLOWED_HOST_LIST}
     restart: unless-stopped
     networks:
       - forgejo
       - frontend
     volumes:
-      - ${CONFIG_PATH}/app:/data
+      - ${CONFIG_PATH}/data/app:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "222:22"
     depends_on:
       - db
     labels:
@@ -57,7 +56,7 @@ services:
     networks:
       - forgejo
     volumes:
-      - ${CONFIG_PATH}/db:/var/lib/postgresql/data
+      - ${CONFIG_PATH}/data/db:/var/lib/postgresql/data
 
   # https://forgejo.org/docs/latest/admin/runner-installation/
   docker-in-docker:
