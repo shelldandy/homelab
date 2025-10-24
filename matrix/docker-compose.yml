@@ -1,0 +1,100 @@
+services:
+  synapse:
+    container_name: synapse
+    image: matrixdotorg/synapse:latest
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      SYNAPSE_SERVER_NAME: ${SERVER_NAME}
+      SYNAPSE_REPORT_STATS: "no"
+      UID: ${PUID:-991}
+      GID: ${PGID:-991}
+    command: run -m synapse.app.homeserver --config-path=/data/homeserver.yaml --config-path=/config/synapse-config.yaml
+    volumes:
+      - ${CONFIG_PATH}/matrix/synapse:/data
+      - ./synapse-config.yaml:/config/synapse-config.yaml:ro
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - matrix
+      - frontend
+    ports:
+      - "8008:8008"   # HTTP for local access
+      - "8448:8448"   # Federation
+    labels:
+      - "traefik.enable=true"
+      # Main Matrix server (client-server API)
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8008"
+      - "traefik.http.routers.${SUBDOMAIN}.tls=true"
+      - "traefik.http.routers.${SUBDOMAIN}.tls.certresolver=myresolver"
+      # Federation endpoint (server-server API)
+      - "traefik.http.routers.${SUBDOMAIN}-federation.rule=Host(`${SUBDOMAIN}.${DOMAIN}`) && PathPrefix(`/_matrix/federation`)"
+      - "traefik.http.services.${SUBDOMAIN}-federation.loadbalancer.server.port=8448"
+      - "traefik.http.routers.${SUBDOMAIN}-federation.tls=true"
+      - "traefik.http.routers.${SUBDOMAIN}-federation.tls.certresolver=myresolver"
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: matrix-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+      TZ: ${TZ}
+    volumes:
+      - ${CONFIG_PATH}/matrix/postgres:/var/lib/postgresql/data
+    networks:
+      - matrix
+
+  redis:
+    container_name: matrix-redis
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - ${CONFIG_PATH}/matrix/redis:/data
+    networks:
+      - matrix
+    environment:
+      TZ: ${TZ}
+
+  element-web:
+    container_name: element-web
+    image: vectorim/element-web:latest
+    restart: unless-stopped
+    volumes:
+      - ./element-config.json:/app/config.json:ro
+    networks:
+      - frontend
+    environment:
+      TZ: ${TZ}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${ELEMENT_SUBDOMAIN}.rule=Host(`${ELEMENT_SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${ELEMENT_SUBDOMAIN}.loadbalancer.server.port=80"
+      - "traefik.http.routers.${ELEMENT_SUBDOMAIN}.tls=true"
+      - "traefik.http.routers.${ELEMENT_SUBDOMAIN}.tls.certresolver=myresolver"
+
+  synapse-admin:
+    container_name: synapse-admin
+    image: awesometechnologies/synapse-admin:latest
+    restart: unless-stopped
+    networks:
+      - frontend
+    environment:
+      TZ: ${TZ}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${ADMIN_SUBDOMAIN}.rule=Host(`${ADMIN_SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${ADMIN_SUBDOMAIN}.loadbalancer.server.port=80"
+      - "traefik.http.routers.${ADMIN_SUBDOMAIN}.tls=true"
+      - "traefik.http.routers.${ADMIN_SUBDOMAIN}.tls.certresolver=myresolver"
+
+networks:
+  frontend:
+    external: true
+  matrix:

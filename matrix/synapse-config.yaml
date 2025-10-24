@@ -1,0 +1,193 @@
+# Additional Synapse Configuration
+# This file is mounted to override/extend the base configuration
+
+# Web client location
+web_client_location: https://element.bowline.im/
+
+# Additional listener for federation
+listeners:
+  # Client-Server API
+  - port: 8008
+    tls: false
+    type: http
+    x_forwarded: true
+    bind_addresses: ['::']
+    resources:
+      - names: [client, federation]
+        compress: false
+
+  # Federation API (separate port)
+  - port: 8448
+    tls: false
+    type: http
+    x_forwarded: true
+    bind_addresses: ['::']
+    resources:
+      - names: [federation]
+        compress: false
+
+# PostgreSQL Database
+database:
+  name: psycopg2
+  txn_limit: 10000
+  args:
+    user: synapse
+    password: "byYYSzu1vqBvtFWzGtHX/OWXy+bKSKjRkMcB5dz9mdc="  # Must match POSTGRES_PASSWORD in .env
+    database: synapse
+    host: postgres
+    port: 5432
+    cp_min: 5
+    cp_max: 10
+
+# Redis for caching and replication
+redis:
+  enabled: true
+  host: redis
+  port: 6379
+
+# Media Configuration
+max_upload_size: 50M
+max_image_pixels: 32M
+dynamic_thumbnails: false
+media_storage_providers: []
+
+# URL Previews
+url_preview_enabled: true
+url_preview_ip_range_blacklist:
+  - '127.0.0.0/8'
+  - '10.0.0.0/8'
+  - '172.16.0.0/12'
+  - '192.168.0.0/16'
+  - '100.64.0.0/10'
+  - '169.254.0.0/16'
+  - '::1/128'
+  - 'fe80::/64'
+  - 'fc00::/7'
+max_spider_size: 10M
+
+# Registration
+enable_registration: false
+enable_registration_without_verification: false
+# registration_shared_secret set in main homeserver.yaml
+
+# Captcha (optional - uncomment and configure if needed)
+# enable_registration_captcha: true
+# recaptcha_public_key: ""
+# recaptcha_private_key: ""
+
+# Federation
+federation_domain_whitelist: []
+allow_public_rooms_over_federation: true
+allow_public_rooms_without_auth: false
+
+# Rate Limiting
+rc_message:
+  per_second: 0.2
+  burst_count: 10
+
+rc_registration:
+  per_second: 0.17
+  burst_count: 3
+
+rc_login:
+  address:
+    per_second: 0.17
+    burst_count: 3
+  account:
+    per_second: 0.17
+    burst_count: 3
+  failed_attempts:
+    per_second: 0.17
+    burst_count: 3
+
+rc_admin_redaction:
+  per_second: 1
+  burst_count: 50
+
+rc_joins:
+  local:
+    per_second: 0.1
+    burst_count: 10
+  remote:
+    per_second: 0.01
+    burst_count: 10
+
+# Encryption and Privacy
+encryption_enabled_by_default_for_room_type: all
+enable_room_list_search: true
+use_presence: true
+
+# User Directory
+user_directory:
+  enabled: true
+  search_all_users: false
+  prefer_local_users: true
+
+# Allow rooms to be published
+allow_public_rooms_over_federation: true
+allow_public_rooms_without_auth: false
+
+# Metrics and Stats
+enable_metrics: false
+report_stats: false
+
+# Caching
+caches:
+  global_factor: 1.0
+  per_cache_factors: {}
+
+# Event cache size
+event_cache_size: 10K
+
+# Experimental features
+experimental_features:
+  spaces_enabled: true
+  msc3440_enabled: true  # Threading support
+  msc3026_enabled: true  # Busy presence state
+  msc2716_enabled: false # Importing historical messages
+
+# Retention
+# retention:
+#   enabled: true
+#   default_policy:
+#     min_lifetime: 1d
+#     max_lifetime: 1y
+
+# Push notifications
+push:
+  include_content: true
+  group_unread_count_by_room: true
+
+# Room settings
+forgotten_room_retention_period: 7d
+
+# Email notifications (configure if needed)
+# email:
+#   smtp_host: smtp.example.com
+#   smtp_port: 587
+#   smtp_user: ""
+#   smtp_pass: ""
+#   require_transport_security: true
+#   notif_from: "Matrix <noreply@bowline.im>"
+#   app_name: Matrix
+#   enable_notifs: true
+#   notif_for_new_users: false
+#   client_base_url: "https://element.bowline.im"
+
+# TURN/STUN servers for VoIP (configure if needed)
+# turn_uris:
+#   - "turn:turn.bowline.im:3478?transport=udp"
+#   - "turn:turn.bowline.im:3478?transport=tcp"
+# turn_shared_secret: ""
+# turn_user_lifetime: 86400000
+# turn_allow_guests: true
+
+# Room creation
+# auto_join_rooms:
+#   - "#general:bowline.im"
+
+# Server notices (optional)
+# server_notices:
+#   system_mxid_localpart: notices
+#   system_mxid_display_name: "Server Notices"
+#   room_name: "Server Notices"
