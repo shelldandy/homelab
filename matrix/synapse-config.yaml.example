@@ -200,6 +200,7 @@ experimental_features:
   msc3440_enabled: true  # Threading support
   msc3026_enabled: true  # Busy presence state
   msc2716_enabled: false # Importing historical messages
+  # Note: QR code login requires MAS deployment - See SETUP_MAS.md
 
 # Retention
 # retention:
