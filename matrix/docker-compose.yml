@@ -12,7 +12,7 @@ services:
     command: run -m synapse.app.homeserver --config-path=/data/homeserver.yaml --config-path=/config/synapse-config.yaml
     volumes:
       - ${CONFIG_PATH}/matrix/synapse:/data
-      - ./synapse-config.yaml:/config/synapse-config.yaml:ro
+      - ./data/synapse-config.yaml:/config/synapse-config.yaml:ro
     depends_on:
       - postgres
       - redis

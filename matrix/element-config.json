@@ -29,6 +29,11 @@
   "setting_defaults": {
     "breadcrumbs": true
   },
+  "sso_redirect_options": {
+    "immediate": false,
+    "on_welcome_page": true
+  },
+  "default_theme": "light",
   "jitsi": {
     "preferred_domain": "meet.jit.si"
   },

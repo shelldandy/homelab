@@ -1,8 +1,16 @@
 # Additional Synapse Configuration
 # This file is mounted to override/extend the base configuration
+#
+# IMPORTANT: Before starting the container, copy this file to ./data/synapse-config.yaml
+# and fill in the OIDC credentials from your Pocket ID setup.
+# See SETUP_OIDC.md for detailed instructions.
 
 # Web client location
 web_client_location: https://element.bowline.im/
+
+# Public base URL - REQUIRED for SSO, emails, and other external links
+# This is the URL where Synapse is actually accessible (not the server_name)
+public_baseurl: "https://matrix.bowline.im"
 
 # Additional listener for federation
 listeners:
@@ -74,6 +82,53 @@ enable_registration_without_verification: false
 # enable_registration_captcha: true
 # recaptcha_public_key: ""
 # recaptcha_private_key: ""
+
+# OIDC/SSO Configuration - Pocket ID Integration
+# To enable SSO:
+# 1. Copy this file to ./data/synapse-config.yaml
+# 2. Replace the placeholder values below with your actual Pocket ID OIDC credentials
+# 3. See SETUP_OIDC.md for full setup instructions
+oidc_providers:
+  - idp_id: pocketid
+    idp_name: "Pocket ID"
+    idp_brand: "org.matrix.pocketid"  # Custom brand identifier
+    discover: true  # Auto-discover endpoints from issuer
+    issuer: "https://auth.bowline.im"  # REPLACE: Your Pocket ID instance URL
+    client_id: "your-client-id-here"  # REPLACE: Client ID from Pocket ID
+    client_secret: "your-client-secret-here"  # REPLACE: Client Secret from Pocket ID
+
+    # Requested scopes
+    scopes:
+      - "openid"
+      - "profile"
+      - "email"
+
+    # How to authenticate with the token endpoint
+    client_auth_method: "client_secret_post"
+
+    # Enable PKCE for enhanced security
+    pkce_method: "auto"
+
+    # Allow existing Matrix users to link their OIDC accounts
+    allow_existing_users: true
+
+    # User attribute mapping
+    user_mapping_provider:
+      config:
+        # Use preferred_username as the Matrix localpart (username)
+        localpart_template: "{{ user.preferred_username }}"
+
+        # Display name from profile
+        display_name_template: "{{ user.name|default(user.preferred_username) }}"
+
+        # Email from OIDC claims
+        email_template: "{{ user.email }}"
+
+        # Unique subject identifier
+        subject_claim: "sub"
+
+        # Confirm user attributes on first login
+        confirm_localpart: false
 
 # Federation
 federation_domain_whitelist: []
