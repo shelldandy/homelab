@@ -26,11 +26,13 @@ services:
       - "traefik.enable=true"
       # Main Matrix server (client-server API)
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.routers.${SUBDOMAIN}.service=${SUBDOMAIN}"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8008"
       - "traefik.http.routers.${SUBDOMAIN}.tls=true"
       - "traefik.http.routers.${SUBDOMAIN}.tls.certresolver=myresolver"
       # Federation endpoint (server-server API)
       - "traefik.http.routers.${SUBDOMAIN}-federation.rule=Host(`${SUBDOMAIN}.${DOMAIN}`) && PathPrefix(`/_matrix/federation`)"
+      - "traefik.http.routers.${SUBDOMAIN}-federation.service=${SUBDOMAIN}-federation"
       - "traefik.http.services.${SUBDOMAIN}-federation.loadbalancer.server.port=8448"
       - "traefik.http.routers.${SUBDOMAIN}-federation.tls=true"
       - "traefik.http.routers.${SUBDOMAIN}-federation.tls.certresolver=myresolver"
