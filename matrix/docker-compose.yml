@@ -20,8 +20,8 @@ services:
       - matrix
       - frontend
     ports:
-      - "8008:8008"   # HTTP for local access
-      - "8448:8448"   # Federation
+      - "8008:8008" # HTTP for local access
+      - "8448:8448" # Federation
     labels:
       - "traefik.enable=true"
       # Main Matrix server (client-server API)
@@ -67,9 +67,10 @@ services:
     image: vectorim/element-web:latest
     restart: unless-stopped
     volumes:
-      - ./element-config.json:/app/config.json:ro
+      - ./data/element-config.json:/app/config.json:ro
     networks:
       - frontend
+      - matrix
     environment:
       TZ: ${TZ}
     labels:

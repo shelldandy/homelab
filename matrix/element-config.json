@@ -23,10 +23,7 @@
   "uisi_autorageshake_app": "element-auto-uisi",
   "show_labs_settings": true,
   "room_directory": {
-    "servers": [
-      "bowline.im",
-      "matrix.org"
-    ]
+    "servers": ["bowline.im", "matrix.org"]
   },
   "enable_presence_by_default": true,
   "setting_defaults": {
