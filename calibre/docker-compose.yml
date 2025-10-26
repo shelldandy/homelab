@@ -1,7 +1,7 @@
 services:
-  calibre-web:
+  calibre:
     image: crocodilestick/calibre-web-automated:latest
-    container_name: calibre-web
+    container_name: calibre
     environment:
       PUID: ${PUID}
       PGID: ${PGID}
@@ -49,25 +49,6 @@ services:
     container_name: cloudflarebypassforscraping
     image: ghcr.io/sarperavci/cloudflarebypassforscraping:latest
     restart: unless-stopped
-
-  calibre-wife:
-    image: lscr.io/linuxserver/calibre-web:latest
-    container_name: calibre-wife
-    environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
-      DOCKER_MODS: linuxserver/mods:universal-calibre #optional
-    volumes:
-      - ${CONFIG_PATH_WIFE}:/config
-      - ${MEDIA_SHARE}/media/books:/books
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.${CALIBRE_WEB_SUBDOMAIN_WIFE}.rule=Host(`${CALIBRE_WEB_SUBDOMAIN_WIFE}.bowline.im`)"
-      - "traefik.http.services.${CALIBRE_WEB_SUBDOMAIN_WIFE}.loadbalancer.server.port=8083"
-    networks:
-      - frontend
 
 networks:
   frontend:
