@@ -54,6 +54,38 @@ services:
     # If you adjust command line, make sure to pass the default CMD arguments too:
     command: --storage-path /data --paa-root-cert-dir /data/credentials --bluetooth-adapter 0
 
+  # Z-Wave JS UI - Web-based Z-Wave controller and gateway
+  zwave-js-ui:
+    container_name: zwave-js-ui
+    image: zwavejs/zwave-js-ui:latest
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    env_file:
+      - ./.env
+    devices:
+      # Map Connect ZWA-2 device to /dev/zwave inside container
+      - /dev/serial/by-id/usb-Nabu_Casa_ZWA-2_80B54EE5D780-if00:/dev/zwave
+    volumes:
+      # Persistent storage for Z-Wave network config, device database, and security keys
+      - ${CONFIG_PATH}/zwave-js-ui:/usr/src/app/store
+    ports:
+      - "8091:8091" # Z-Wave JS UI web interface
+      - "3000:3000" # WebSocket server for Home Assistant integration
+    networks:
+      - frontend
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zwave.rule=Host(`zwave.${DOMAIN}`)"
+      - "traefik.http.services.zwave.loadbalancer.server.port=8091"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
 networks:
   frontend:
     external: true

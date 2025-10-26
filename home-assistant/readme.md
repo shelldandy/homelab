@@ -35,7 +35,48 @@ Home Assistant is an open-source home automation platform that focuses on privac
 4. Configure location and units
 
 ### Device Integration
-- For USB devices (Zigbee/Z-Wave sticks), uncomment device mappings in docker-compose.yml
+
+#### Z-Wave (Connect ZWA-2)
+The Home Assistant Connect ZWA-2 Z-Wave controller is integrated via the Z-Wave JS UI service.
+
+**Setup Steps:**
+1. Z-Wave JS UI is already configured in docker-compose.yml and will start automatically
+2. Access Z-Wave JS UI web interface:
+   - Local: http://localhost:8091
+   - External: https://zwave.${DOMAIN}
+3. Configure Z-Wave JS UI:
+   - Go to **Settings → Z-Wave**
+   - Set **Serial Port** to `/dev/zwave`
+   - Click **Save**
+4. Generate Security Keys (Settings → Z-Wave → Security Keys):
+   - Click **Generate** for each key type (S0, S2 Access Control, S2 Authenticated, S2 Unauthenticated)
+   - **IMPORTANT**: Save these keys securely - you'll need them to re-pair devices if you rebuild the container
+5. Set RF Region (Settings → Z-Wave → RF Manager):
+   - Set **RF Region** to your location (USA, EU, ANZ, etc.)
+   - Click **Save**
+6. Verify controller status in dashboard shows **Ready** and **Active**
+7. Enable WebSocket Server (Settings → Home Assistant):
+   - Enable **WS Server**
+   - Note the URL: `ws://zwave-js-ui:3000`
+8. Add Z-Wave JS integration in Home Assistant:
+   - Go to **Settings → Devices & Services**
+   - Click **Add Integration**
+   - Search for and select **Z-Wave JS**
+   - Enter WebSocket URL: `ws://zwave-js-ui:3000`
+   - Click **Submit**
+
+**Pairing Z-Wave Devices:**
+1. In Z-Wave JS UI, click **Control Panel**
+2. Click **Add Node** (or **Include**)
+3. Follow your device's pairing instructions (usually triple-press a button)
+4. Device will appear in both Z-Wave JS UI and Home Assistant
+
+**Backup:**
+- Security keys and network config are stored in `${CONFIG_PATH}/zwave-js-ui`
+- Export security keys: Settings → Z-Wave → Security Keys (save as JSON)
+
+#### Other USB Devices
+- For Zigbee sticks or other USB devices, uncomment device mappings in docker-compose.yml
 - Restart container after device changes: `docker compose restart homeassistant`
 
 ### Authentication (Optional)
