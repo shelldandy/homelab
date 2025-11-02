@@ -1,0 +1,26 @@
+services:
+  bluebubbles-setup:
+    container_name: bluebubbles-setup
+    image: sickcodes/docker-osx:latest
+    restart: "no"
+    env_file:
+      - ./.env
+    environment:
+      - SHORTNAME=monterey
+      - IMAGE_PATH=/image
+      - EXTRA=-display none -vnc 0.0.0.0:99,password-secret=secvnc0 -object secret,id=secvnc0,data=${VNC_PASSWORD}
+      - DISPLAY=:99
+      - WIDTH=${WIDTH}
+      - HEIGHT=${HEIGHT}
+      - GENERATE_UNIQUE=true
+    dns:
+      - ${DNS_SERVER}
+    devices:
+      - /dev/kvm:/dev/kvm
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${CONFIG_PATH}/maindisk.qcow2:/image
+    networks:
+      - frontend
+    ports:
+      - 5999:5999
