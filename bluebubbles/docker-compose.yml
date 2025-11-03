@@ -1,7 +1,7 @@
 services:
   bluebubbles:
     container_name: bluebubbles
-    image: sickcodes/docker-osx:naked
+    image: dickhub/docker-osx:naked
     restart: unless-stopped
     env_file:
       - ./.env
@@ -23,16 +23,6 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ${CONFIG_PATH}/maindisk.qcow2:/image
       - ${CONFIG_PATH}/bootdisk.qcow2:/bootdisk
-    networks:
-      - frontend
-    labels:
-      - "traefik.enable=true"
-      # BlueBubbles server API (handles its own auth)
-      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
-      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=1234"
     ports:
       - 5999:5999
-
-networks:
-  frontend:
-    external: true
+      - 1234:1234
