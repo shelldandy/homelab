@@ -32,5 +32,5 @@ ln flux1-dev-fp8.safetensors /path/to/CONFIG_PATH/ComfyUI/models/checkpoints/flu
 Since I have a dedicated AI machine running on a different machine than the one for the other services there's a dummy/proxy service i can call on the main machine
 
 ```sh
-docker compose -f fronend.yml up -d
+docker compose -f frontend.yml up -d
 ```
