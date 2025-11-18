@@ -63,26 +63,6 @@ services:
       - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
     restart: unless-stopped
 
-  #Readarr - Used to download books
-  readarr:
-    image: lscr.io/linuxserver/readarr:develop
-    container_name: readarr
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${BASE_PATH}/readarr/config:/config
-      - ${MEDIA_SHARE}:/share
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.readarr.rule=Host(`readarr.bowline.im`)"
-      - "traefik.http.services.readarr.loadbalancer.server.port=8787"
-    networks:
-      - backend
-      - frontend
-
   #Prowlarr - manages your Sonarr, Radarr and download client
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
