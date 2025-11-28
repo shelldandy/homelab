@@ -7,86 +7,64 @@ services:
     environment:
       # Backup schedule - daily at 4:00 AM
       BACKUP_CRON_EXPRESSION: "0 4 * * *"
-
       # Backup filename with timestamp
       BACKUP_FILENAME: "backup-local-%Y-%m-%d_%H-%M-%S.tar.gz"
-
       # Retention - keep last 14 days
       BACKUP_RETENTION_DAYS: "14"
-
       # Pruning - run cleanup after each backup
       BACKUP_PRUNING_LEEWAY: "1m"
-
-      # GPG encryption
-      GPG_PASSPHRASE: "${GPG_PASSPHRASE}"
-
       # Exclude patterns (none for local - we backup everything)
       BACKUP_EXCLUDE_REGEXP: ""
-
       # Notification settings (optional - can be configured later)
-      # NOTIFICATION_URLS: "${NOTIFICATION_URLS:-}"
-
+      NOTIFICATION_URLS: "${NOTIFICATION_URLS:-}"
     volumes:
       # Data sources to backup
       - /mnt/docker-data:/backup/docker-data:ro
       - /mnt/navidrome:/backup/navidrome:ro
       - ${HOME}/homelab/immich/data/library:/backup/immich-library:ro
       - ${HOME}/homelab/immich/data/postgres:/backup/immich-postgres:ro
-
       # Local backup destination
       - ${LOCAL_BACKUP_PATH}:/archive
-
       # Docker socket for container management
       - /var/run/docker.sock:/var/run/docker.sock:ro
-
     networks:
       - backend
 
-  backup-backblaze:
-    image: offen/docker-volume-backup:latest
-    container_name: backup-backblaze
-    restart: unless-stopped
-    env_file: .env
-    environment:
-      # Backup schedule - daily at 4:00 AM (same as local)
-      BACKUP_CRON_EXPRESSION: "0 4 * * *"
-
-      # Backup filename with timestamp
-      BACKUP_FILENAME: "backup-b2-%Y-%m-%d_%H-%M-%S.tar.gz"
-
-      # Retention - keep last 14 days
-      BACKUP_RETENTION_DAYS: "14"
-
-      # Pruning - run cleanup after each backup
-      BACKUP_PRUNING_LEEWAY: "1m"
-
-      # GPG encryption
-      GPG_PASSPHRASE: "${GPG_PASSPHRASE}"
-
-      # Exclude Navidrome music files from cloud backup
-      BACKUP_EXCLUDE_REGEXP: "^/backup/navidrome/share/"
-
-      # Backblaze B2 S3-compatible configuration
-      AWS_S3_BUCKET_NAME: "${B2_BUCKET_NAME}"
-      AWS_ACCESS_KEY_ID: "${B2_KEY_ID}"
-      AWS_SECRET_ACCESS_KEY: "${B2_APPLICATION_KEY}"
-      AWS_ENDPOINT: "${B2_ENDPOINT}"
-
-      # Notification settings (optional - can be configured later)
-      # NOTIFICATION_URLS: "${NOTIFICATION_URLS:-}"
-
-    volumes:
-      # Data sources to backup (same as local)
-      - /mnt/docker-data:/backup/docker-data:ro
-      - /mnt/navidrome:/backup/navidrome:ro
-      - ${HOME}/homelab/immich/data/library:/backup/immich-library:ro
-      - ${HOME}/homelab/immich/data/postgres:/backup/immich-postgres:ro
-
-      # Docker socket for container management
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-
-    networks:
-      - backend
+  # backup-backblaze:
+  #   image: offen/docker-volume-backup:latest
+  #   container_name: backup-backblaze
+  #   restart: unless-stopped
+  #   env_file: .env
+  #   environment:
+  #     # Backup schedule - daily at 4:00 AM (same as local)
+  #     BACKUP_CRON_EXPRESSION: "0 4 * * *"
+  #     # Backup filename with timestamp
+  #     BACKUP_FILENAME: "backup-b2-%Y-%m-%d_%H-%M-%S.tar.gz"
+  #     # Retention - keep last 14 days
+  #     BACKUP_RETENTION_DAYS: "14"
+  #     # Pruning - run cleanup after each backup
+  #     BACKUP_PRUNING_LEEWAY: "1m"
+  #     # GPG encryption
+  #     GPG_PASSPHRASE: "${GPG_PASSPHRASE}"
+  #     # Exclude Navidrome music files from cloud backup
+  #     BACKUP_EXCLUDE_REGEXP: "^/backup/navidrome/share/"
+  #     # Backblaze B2 S3-compatible configuration
+  #     AWS_S3_BUCKET_NAME: "${B2_BUCKET_NAME}"
+  #     AWS_ACCESS_KEY_ID: "${B2_KEY_ID}"
+  #     AWS_SECRET_ACCESS_KEY: "${B2_APPLICATION_KEY}"
+  #     AWS_ENDPOINT: "${B2_ENDPOINT}"
+  #     # Notification settings (optional - can be configured later)
+  #     # NOTIFICATION_URLS: "${NOTIFICATION_URLS:-}"
+  #   volumes:
+  #     # Data sources to backup (same as local)
+  #     - /mnt/docker-data:/backup/docker-data:ro
+  #     - /mnt/navidrome:/backup/navidrome:ro
+  #     - ${HOME}/homelab/immich/data/library:/backup/immich-library:ro
+  #     - ${HOME}/homelab/immich/data/postgres:/backup/immich-postgres:ro
+  #     # Docker socket for container management
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   networks:
+  #     - backend
 
 networks:
   backend:
