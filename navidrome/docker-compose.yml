@@ -18,6 +18,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=4533"
+      - "docker-volume-backup.stop-during-backup=true"
 
   #Lidarr - Used to download music
   lidarr:

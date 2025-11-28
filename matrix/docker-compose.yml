@@ -36,6 +36,7 @@ services:
       - "traefik.http.services.${SUBDOMAIN}-federation.loadbalancer.server.port=8448"
       - "traefik.http.routers.${SUBDOMAIN}-federation.tls=true"
       - "traefik.http.routers.${SUBDOMAIN}-federation.tls.certresolver=myresolver"
+      - "docker-volume-backup.stop-during-backup=true"
 
   postgres:
     image: postgres:16-alpine

@@ -15,7 +15,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${CALIBRE_WEB_SUBDOMAIN}.rule=Host(`${CALIBRE_WEB_SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${CALIBRE_WEB_SUBDOMAIN}.loadbalancer.server.port=8083"
-    networks:
+      - "docker-volume-backup.stop-during-backup=true"
+
       - frontend
 
   bookdl:

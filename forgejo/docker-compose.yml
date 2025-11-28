@@ -44,6 +44,7 @@ services:
       # Apply middlewares
       - "traefik.http.routers.${SUBDOMAIN}.middlewares=${SUBDOMAIN}-headers,${SUBDOMAIN}-bodysize"
       - "traefik.http.routers.${SUBDOMAIN}-registry.middlewares=${SUBDOMAIN}-headers,${SUBDOMAIN}-bodysize"
+      - "docker-volume-backup.stop-during-backup=true"
 
   db:
     image: postgres:14

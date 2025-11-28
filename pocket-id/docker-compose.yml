@@ -19,6 +19,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)
       - traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=1411
+      - docker-volume-backup.stop-during-backup=true
     networks:
       - frontend
 

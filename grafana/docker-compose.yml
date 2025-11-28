@@ -30,7 +30,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
-    networks:
+      - "docker-volume-backup.stop-during-backup=true"
+
       - frontend
       - backend
 

@@ -19,6 +19,7 @@ services:
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
       - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
+      - "docker-volume-backup.stop-during-backup=true"
 
 networks:
   frontend:
