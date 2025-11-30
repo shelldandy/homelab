@@ -26,3 +26,5 @@ services:
     ports:
       - 5999:5999
       - 1234:1234
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"

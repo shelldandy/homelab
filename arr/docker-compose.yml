@@ -19,6 +19,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.radarr.rule=Host(`radarr.bowline.im`)"
       - "traefik.http.services.radarr.loadbalancer.server.port=7878"
+      - "docker-volume-backup.stop-during-backup=true"
     restart: unless-stopped
 
   # Another instance of radarr for mma content, lmao
@@ -39,6 +40,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.mmarr.rule=Host(`mmarr.bowline.im`)"
       - "traefik.http.services.mmarr.loadbalancer.server.port=7878"
+      - "docker-volume-backup.stop-during-backup=true"
     restart: unless-stopped
 
   #Sonarr - used to find tv shows automatically
@@ -61,6 +63,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.bowline.im`)"
       - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
+      - "docker-volume-backup.stop-during-backup=true"
     restart: unless-stopped
 
   #Prowlarr - manages your Sonarr, Radarr and download client
@@ -80,6 +83,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.bowline.im`)"
       - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
+      - "docker-volume-backup.stop-during-backup=true"
     restart: unless-stopped
     #
   #Flaresolerr - Used as a proxy server to bypass Cloudflare and DDoS-GUARD protection.
@@ -96,6 +100,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.flaresolverr.rule=Host(`flaresolverr.bowline.im`)"
       - "traefik.http.services.flaresolverr.loadbalancer.server.port=8191"
+      - "docker-volume-backup.stop-during-backup=true"
     restart: unless-stopped
     networks:
       - backend
@@ -117,6 +122,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.bazarr.rule=Host(`bazarr.bowline.im`)"
       - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
+      - "docker-volume-backup.stop-during-backup=true"
     networks:
       - frontend
       - backend

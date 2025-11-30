@@ -16,6 +16,8 @@ services:
       - video
     networks:
       - backend
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
 
   # Piper - Text-to-speech (TTS) engine with CPU support (Spanish)
   piper:
@@ -34,6 +36,8 @@ services:
       - video
     networks:
       - backend
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
 networks:
   backend:
     external: true

@@ -14,7 +14,8 @@ services:
       - "traefik.http.middlewares.${SUBDOMAIN}-websocket.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.${SUBDOMAIN}.middlewares=${SUBDOMAIN}-websocket"
       - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
-    networks:
+      - "docker-volume-backup.stop-during-backup=true"
+
       - frontend
 
 networks:

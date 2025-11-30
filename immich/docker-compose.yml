@@ -35,6 +35,7 @@ services:
       # - "traefik.http.middlewares.immich-timeouts.timeout.readTimeout=600s"
       # - "traefik.http.middlewares.immich-timeouts.timeout.idleTimeout=600s"
       # - "traefik.http.middlewares.immich-timeouts.timeout.writeTimeout=600s"
+      - "docker-volume-backup.stop-during-backup=true"
 
   immich-machine-learning:
     container_name: immich_machine_learning

@@ -30,6 +30,7 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=false"
+      - "docker-volume-backup.stop-during-backup=true"
 
 networks:
   frontend:

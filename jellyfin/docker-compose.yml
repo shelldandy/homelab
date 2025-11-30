@@ -29,6 +29,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8096"
+      - "docker-volume-backup.stop-during-backup=true"
 
   jellyseerr:
     image: fallenbagel/jellyseerr:preview-OIDC
@@ -48,6 +49,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${JELLYSEER_SUBDOMAIN}.rule=Host(`${JELLYSEER_SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${JELLYSEER_SUBDOMAIN}.loadbalancer.server.port=5055"
+      - "docker-volume-backup.stop-during-backup=true"
 
 networks:
   frontend:

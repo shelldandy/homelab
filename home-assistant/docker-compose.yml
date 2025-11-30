@@ -29,6 +29,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8123"
+      - "docker-volume-backup.stop-during-backup=true"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8123"]
       interval: 30s

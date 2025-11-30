@@ -9,6 +9,7 @@ services:
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.local.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.url=${EXTERNAL_URL}"
       - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
+      - "docker-volume-backup.stop-during-backup=true"
     restart: unless-stopped
 
 networks:
