@@ -52,6 +52,8 @@ services:
       - ${CONFIG_PATH}/matrix/postgres:/var/lib/postgresql/data
     networks:
       - matrix
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
 
   redis:
     container_name: matrix-redis
@@ -64,6 +66,8 @@ services:
       - matrix
     environment:
       TZ: ${TZ}
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
 
   element-web:
     container_name: element-web

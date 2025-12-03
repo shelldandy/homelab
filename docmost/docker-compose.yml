@@ -44,6 +44,8 @@ services:
       - ${CONFIG_PATH}/db:/var/lib/postgresql/data
     networks:
       - docmost
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
 
   redis:
     container_name: docmost-redis
@@ -55,6 +57,8 @@ services:
       - docmost
     environment:
       TZ: ${TZ}
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
 
 networks:
   frontend:

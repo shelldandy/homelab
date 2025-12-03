@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-development}
     volumes:
       - ${CONFIG_PATH}/db:/var/lib/postgresql/data
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
     healthcheck:
       test:
         [

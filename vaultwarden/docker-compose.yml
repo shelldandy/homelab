@@ -37,6 +37,8 @@ services:
       - ${CONFIG_PATH}/db:/var/lib/postgresql/data
     networks:
       - vaultwarden
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
 
 networks:
   frontend:

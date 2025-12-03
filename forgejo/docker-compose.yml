@@ -58,6 +58,8 @@ services:
       - forgejo
     volumes:
       - ${CONFIG_PATH}/data/db:/var/lib/postgresql/data
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
 
   # https://forgejo.org/docs/latest/admin/runner-installation/
   docker-in-docker:

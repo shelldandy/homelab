@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
+      TZ: "${TZ}"
       # Backup schedule - daily at 4:00 AM
       BACKUP_CRON_EXPRESSION: "0 4 * * *"
       # Backup filename with timestamp
@@ -36,6 +37,7 @@ services:
   #   restart: unless-stopped
   #   env_file: .env
   #   environment:
+  #     TZ: "${TZ}"
   #     # Backup schedule - daily at 4:00 AM (same as local)
   #     BACKUP_CRON_EXPRESSION: "0 4 * * *"
   #     # Backup filename with timestamp
