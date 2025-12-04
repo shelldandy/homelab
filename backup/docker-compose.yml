@@ -6,8 +6,8 @@ services:
     env_file: .env
     environment:
       TZ: "${TZ}"
-      # Backup schedule - daily at 4:00 AM
-      BACKUP_CRON_EXPRESSION: "0 4 * * *"
+      # Backup schedule - daily at 4:00 AM Mexico City (10:00 UTC)
+      BACKUP_CRON_EXPRESSION: "0 10 * * *"
       # Backup filename with timestamp
       BACKUP_FILENAME: "backup-local-%Y-%m-%d_%H-%M-%S.tar.gz"
       # Retention - keep last 14 days
@@ -18,7 +18,12 @@ services:
       BACKUP_EXCLUDE_REGEXP: ""
       # Notification settings (optional - can be configured later)
       NOTIFICATION_URLS: "${NOTIFICATION_URLS:-}"
+      # Use archive volume for scratch space (has more room than /tmp)
+      BACKUP_SCRATCH_DIR: "/archive"
     volumes:
+      # Timezone files for correct cron scheduling
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
       # Data sources to backup
       - /mnt/docker-data:/backup/docker-data:ro
       - /mnt/navidrome:/backup/navidrome:ro
