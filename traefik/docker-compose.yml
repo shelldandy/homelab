@@ -122,7 +122,7 @@ services:
       - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
       - "traefik.http.routers.whoami.middlewares=oidc-auth"
       - "docker-volume-backup.stop-during-backup=true"
-
+    networks:
       - frontend
     restart: unless-stopped
 

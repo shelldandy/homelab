@@ -1,6 +1,6 @@
 CORE_SERVICES = traefik pocket-id adguard vaultwarden home-assistant
 MEDIA_SERVICES = qbittorrent arr jellyfin navidrome icloud-photos-downloader metube grafana pinchflat # wedding-share
-UTILITIES_SERVICES = forgejo hoarder watchtower calibre searxng docmost open-webui orbi
+UTILITIES_SERVICES = forgejo hoarder calibre searxng docmost open-webui orbi
 
 ALL_SERVICES = $(CORE_SERVICES) $(MEDIA_SERVICES) $(UTILITIES_SERVICES)
 
