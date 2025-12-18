@@ -2,6 +2,28 @@
 
 Home Assistant is an open-source home automation platform that focuses on privacy and local control.
 
+## Services
+
+| Service | Description | Port | URL |
+|---------|-------------|------|-----|
+| **homeassistant** | Core home automation platform | 8123 | `ha.${DOMAIN}` |
+| **matter-server** | Matter/Thread device support | host network | - |
+| **mosquitto** | MQTT broker for IoT devices | 1883 | - |
+| **zigbee2mqtt** | Zigbee device management via SLZB-06 | 8124 | `zigbee2mqtt.${DOMAIN}` |
+
+## Files
+
+```
+home-assistant/
+├── docker-compose.yml              # Service definitions
+├── .env                            # Environment variables (not committed)
+├── .env.example                    # Example environment variables
+├── configuration.yaml              # Home Assistant config (version controlled)
+├── includes/                       # Additional HA config files
+├── mosquitto.conf                  # MQTT broker configuration
+└── zigbee2mqtt-configuration.yaml  # Zigbee2MQTT configuration
+```
+
 ## Setup
 
 1. Copy the environment file and configure it:
@@ -16,55 +38,55 @@ Home Assistant is an open-source home automation platform that focuses on privac
    docker network create backend
    ```
 
-3. Start the service:
+3. Start all services:
    ```bash
    docker compose up -d
    ```
 
 ## Access
 
-- **External**: https://homeassistant.${DOMAIN}
-- **Local**: http://localhost:8123
+| Service | External | Local |
+|---------|----------|-------|
+| Home Assistant | `https://ha.${DOMAIN}` | `http://localhost:8123` |
+| Zigbee2MQTT | `https://zigbee2mqtt.${DOMAIN}` | `http://localhost:8124` |
+| MQTT | - | `localhost:1883` |
 
-## Configuration
+## Zigbee Setup (SLZB-06)
 
-### Initial Setup
-1. Access Home Assistant via browser
-2. Complete the onboarding wizard
-3. Create admin account
-4. Configure location and units
+The Zigbee network uses an SLZB-06 network coordinator:
 
-### Device Integration
-- For USB devices (Zigbee/Z-Wave sticks), uncomment device mappings in docker-compose.yml
-- Restart container after device changes: `docker compose restart homeassistant`
+1. Configure the SLZB-06 at `http://<slzb-ip>/` and set it to **Coordinator mode**
+2. Update the IP address in `zigbee2mqtt-configuration.yaml`
+3. In Home Assistant, add the MQTT integration:
+   - Settings → Devices & Services → Add Integration → MQTT
+   - Broker: `mosquitto` (or `localhost` if accessing from host)
+   - Port: `1883`
 
-### Authentication (Optional)
-To enable OIDC authentication for external access:
-1. Configure a new application in Pocket ID
-2. Uncomment the OIDC middleware line in docker-compose.yml
-3. Restart the service
+Zigbee devices will auto-discover in Home Assistant via MQTT.
 
-### Backup
-Configuration is stored in `${CONFIG_PATH}/home-assistant/config`
-Backups are stored in `${CONFIG_PATH}/home-assistant/backups`
+## Data Storage
 
-## Networking
-
-- **Frontend Network**: Traefik reverse proxy access
-- **Backend Network**: Internal service communication for IoT devices
-- **Port 8123**: Direct local access for device discovery and mobile apps
-
-## Integrations
-
-Home Assistant can integrate with many services in your homelab:
-- **AdGuard**: DNS filtering and network monitoring
-- **Grafana**: System monitoring and dashboards
-- **MQTT**: IoT device communication
-- **Jellyfin**: Media control and status
+| Service | Path |
+|---------|------|
+| Home Assistant config | `${CONFIG_PATH}/home-assistant/config` |
+| Home Assistant backups | `${CONFIG_PATH}/home-assistant/backups` |
+| Matter server | `${CONFIG_PATH}/matter-server/data` |
+| Mosquitto data | `${CONFIG_PATH}/mosquitto/data` |
+| Zigbee2MQTT data | `${CONFIG_PATH}/zigbee2mqtt/data` |
 
 ## Troubleshooting
 
-- Check container logs: `docker compose logs -f homeassistant`
-- Verify network connectivity: `docker compose exec homeassistant ping google.com`
-- Check configuration: Configuration > Check Configuration in Home Assistant
-- Restart service: `docker compose restart homeassistant`
+```bash
+# Check all service logs
+docker compose logs -f
+
+# Check specific service
+docker compose logs -f zigbee2mqtt
+docker compose logs -f mosquitto
+
+# Restart a service
+docker compose restart zigbee2mqtt
+
+# Verify MQTT connectivity
+docker compose exec mosquitto mosquitto_sub -t '#' -v
+```

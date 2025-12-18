@@ -55,6 +55,47 @@ services:
     # If you adjust command line, make sure to pass the default CMD arguments too:
     command: --storage-path /data --paa-root-cert-dir /data/credentials --bluetooth-adapter 0
 
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ${CONFIG_PATH}/mosquitto/data:/mosquitto/data
+      - ${CONFIG_PATH}/mosquitto/log:/mosquitto/log
+    ports:
+      - "1883:1883"
+    networks:
+      - backend
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
+
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: ghcr.io/koenkk/zigbee2mqtt
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    env_file:
+      - ./.env
+    volumes:
+      - ${CONFIG_PATH}/zigbee2mqtt/data:/app/data
+      - ./zigbee2mqtt-configuration.yaml:/app/data/configuration.yaml
+      - /run/udev:/run/udev:ro
+    ports:
+      - "8124:8080"
+    networks:
+      - frontend
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zigbee2mqtt.rule=Host(`zigbee2mqtt.${DOMAIN}`)"
+      - "traefik.http.services.zigbee2mqtt.loadbalancer.server.port=8080"
+      - "traefik.http.routers.zigbee2mqtt.middlewares=oidc-auth"
+      - "docker-volume-backup.stop-during-backup=true"
+
 networks:
   frontend:
     external: true
