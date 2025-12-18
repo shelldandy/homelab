@@ -16,9 +16,9 @@ services:
       - ./configuration.yaml:/config/configuration.yaml
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
-    devices:
-      # for USB devices (Zigbee/Z-Wave sticks)
-      - /dev/ttyUSB0:/dev/ttyUSB0
+    # devices:
+    # for USB devices (Zigbee/Z-Wave sticks)
+    # - /dev/ttyUSB0:/dev/ttyUSB0
     ports:
       # Local access port for device discovery and setup
       - "8123:8123"

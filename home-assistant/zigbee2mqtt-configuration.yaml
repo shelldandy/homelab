@@ -27,3 +27,23 @@ devices:
     friendly_name: Higrometro Oficina
   '0xffffb40e060331ae':
     friendly_name: Control Rojo
+  '0xc4d7fdbbb1580000':
+    friendly_name: Foco Refrigerador
+  '0xc4d7fdbbfb0e0000':
+    friendly_name: Foco Fregadero
+  '0xc4d7fdbbea210000':
+    friendly_name: Foco Sillón Café
+  '0xc4d7fdbc27b40000':
+    friendly_name: Foco Desayunador
+  '0xc4d7fdbbc8670000':
+    friendly_name: Foco Escaleras
+  '0xc4d7fdbbcd8f0000':
+    friendly_name: Foco TV
+  '0xc4d7fdbc21b60000':
+    friendly_name: Foco Servidor
+  '0xc4d7fdbbfecb0000':
+    friendly_name: Foco Pasillo Arriba
+  '0xc890a81f021f0000':
+    friendly_name: Foco Baño Cris
+  '0xffffb40e06034997':
+    friendly_name: Control Azul
