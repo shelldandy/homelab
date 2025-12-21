@@ -6,6 +6,7 @@ services:
       - "8188:8188"
     volumes:
       - ${CONFIG_PATH}:/root
+      - ${PICTURES_PATH}:/root/ComfyUI/output
     restart: unless-stopped
     networks:
       - backend
