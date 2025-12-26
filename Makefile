@@ -41,6 +41,10 @@ stop-%:
 	@echo "Stopping $*..."; \
 	cd $*/ && docker compose down; \
 
+restart-%:
+	@echo "Restarting $*..."; \
+	cd $*/ && docker compose down && docker compose up -d; \
+
 start-all:
 	@for service in $(ALL_SERVICES); do \
 		$(MAKE) start-$$service; \
@@ -49,4 +53,9 @@ start-all:
 stop-all:
 	@for service in $(ALL_SERVICES); do \
 		$(MAKE) stop-$$service; \
+	done
+
+restart-all:
+	@for service in $(ALL_SERVICES); do \
+		$(MAKE) restart-$$service; \
 	done
