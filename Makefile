@@ -1,8 +1,9 @@
 CORE_SERVICES = traefik pocket-id adguard vaultwarden home-assistant
-MEDIA_SERVICES = qbittorrent arr jellyfin navidrome icloud-photos-downloader metube grafana pinchflat # wedding-share
-UTILITIES_SERVICES = forgejo hoarder calibre searxng docmost open-webui orbi
+MEDIA_SERVICES = qbittorrent arr jellyfin navidrome metube grafana pinchflat
+PHOTO_SERVICES = icloud-photos-downloader immich
+UTILITIES_SERVICES = forgejo hoarder booklore searxng docmost open-webui orbi
 
-ALL_SERVICES = $(CORE_SERVICES) $(MEDIA_SERVICES) $(UTILITIES_SERVICES)
+ALL_SERVICES = $(CORE_SERVICES) $(PHOTO_SERVICES) $(MEDIA_SERVICES) $(UTILITIES_SERVICES)
 
 check-missing-services:
 	@echo "Checking for service names without corresponding directories..."; \
