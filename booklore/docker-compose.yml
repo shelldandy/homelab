@@ -1,0 +1,86 @@
+services:
+  booklore:
+    image: booklore/booklore:latest
+    container_name: booklore
+    environment:
+      USER_ID: 0
+      GROUP_ID: 0
+      TZ: ${TZ}
+      DATABASE_URL: jdbc:mariadb://booklore-db:3306/booklore
+      DATABASE_USERNAME: ${BOOKLORE_DB_USER}
+      DATABASE_PASSWORD: ${BOOKLORE_DB_PASSWORD}
+    depends_on:
+      booklore-db:
+        condition: service_healthy
+    volumes:
+      - ${CONFIG_PATH}/booklore/data:/app/data
+      - ${MEDIA_SHARE}/media/books/booklore-library:/books
+      - ${MEDIA_SHARE}/media/books/booklore-bookdrop:/bookdrop
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${BOOKLORE_SUBDOMAIN}.rule=Host(`${BOOKLORE_SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${BOOKLORE_SUBDOMAIN}.loadbalancer.server.port=6060"
+      - "docker-volume-backup.stop-during-backup=true"
+    networks:
+      - frontend
+
+  booklore-db:
+    image: lscr.io/linuxserver/mariadb:11.4.5
+    container_name: booklore-db
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+      MYSQL_ROOT_PASSWORD: ${BOOKLORE_DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: booklore
+      MYSQL_USER: ${BOOKLORE_DB_USER}
+      MYSQL_PASSWORD: ${BOOKLORE_DB_PASSWORD}
+    volumes:
+      - ${CONFIG_PATH}/booklore/mariadb:/config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
+    networks:
+      - frontend
+
+  bookdl:
+    image: ghcr.io/calibrain/calibre-web-automated-book-downloader:latest
+    container_name: bookdl
+    environment:
+      FLASK_PORT: 8084
+      FLASK_DEBUG: false
+      CLOUDFLARE_PROXY_URL: http://cloudflarebypassforscraping:8000
+      INGEST_DIR: /bookdrop
+      BOOK_LANGUAGE: en
+      AA_DONATOR_KEY: ${AA_DONATOR_KEY}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/request/api/status"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    volumes:
+      - ${MEDIA_SHARE}/media/books/booklore-bookdrop:/bookdrop
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${CALIBRE_WEB_DL_SUBDOMAIN}.rule=Host(`${CALIBRE_WEB_DL_SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${CALIBRE_WEB_DL_SUBDOMAIN}.loadbalancer.server.port=8084"
+      - "traefik.http.routers.${CALIBRE_WEB_DL_SUBDOMAIN}.middlewares=oidc-auth"
+
+  cloudflarebypassforscraping:
+    container_name: cloudflarebypassforscraping
+    image: ghcr.io/sarperavci/cloudflarebypassforscraping:latest
+    restart: unless-stopped
+
+networks:
+  frontend:
+    external: true
