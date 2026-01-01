@@ -47,3 +47,13 @@ devices:
     friendly_name: Foco Baño Cris
   '0xffffb40e06034997':
     friendly_name: Control Azul
+  '0xc890a81e8bde0000':
+    friendly_name: Cris 3
+  '0xc890a81ef1cb0000':
+    friendly_name: Cris 4
+  '0x1c784ba0c8700000':
+    friendly_name: Cris 1
+  '0x1c784ba123890000':
+    friendly_name: Cris 2
+  '0x001788010874b255':
+    friendly_name: Control Cris

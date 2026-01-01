@@ -88,6 +88,36 @@ services:
       - frontend
       - backend
 
+  beets:
+    image: pspitzner/beets-flask:stable
+    container_name: beets
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - USER_ID=${PUID}
+      - GROUP_ID=${PGID}
+    volumes:
+      - ${BASE_PATH}/beets:/config
+      - ./data/beets/config.yaml:/config/beets/config.yaml
+      - ./data/beets-flask/config.yaml:/config/beets-flask/config.yaml
+      - ${MEDIA_SHARE}/media/music:${MEDIA_SHARE}/media/music:rw
+      - ${MEDIA_SHARE}/media/music-inbox:${MEDIA_SHARE}/media/music-inbox:rw
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.beets.rule=Host(`beets.bowline.im`)"
+      - "traefik.http.services.beets.loadbalancer.server.port=5001"
+    networks:
+      - frontend
+
+  lrclib:
+    image: leshicodes/lrclib-fetcher:0.0.2
+    container_name: lrclib
+    volumes:
+      - ${MEDIA_SHARE}/media/music:/music:rw
+    command: /music --recursive --batch-size 10 --delay 1000 --prefer-synced
+    profiles:
+      - lyrics
+
 networks:
   frontend:
     external: true
