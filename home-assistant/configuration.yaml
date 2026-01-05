@@ -11,20 +11,40 @@ http:
 frontend:
   themes: !include_dir_merge_named themes
 
-automation: !include automations.yaml
-script: !include scripts.yaml
-scene: !include scenes.yaml
+automation: !include includes/automations.yaml
+script: !include includes/scripts.yaml
+scene: !include includes/scenes.yaml
 
 input_boolean:
   follow_up_mode:
     name: Follow Up Mode
     initial: off
 
-hass_cozylife_local_pull:
-  lang: en
-  ip:
-    # Smart plug
-    - 10.0.0.6
-    - 10.0.0.200
+input_select:
+  focos_cocina_scene:
+    name: "Focos Cocina Scene"
+    options:
+      - "Rest"
+      - "Cozy"
+      - "Bright"
+      - "Relax"
+      - "Read"
+      - "Motown"
+    initial: "Rest"
+    icon: mdi:lightbulb-group
+
+  focos_oficina_scene:
+    name: "Focos Oficina Scene"
+    options:
+      - "Relax"
+      - "Motown"
+      - "Tokyo"
+      - "Energize"
+      - "Ruby glow"
+      - "Rio"
+      - "Soho"
+      - "Amethyst valley"
+    initial: "Relax"
+    icon: mdi:lightbulb-group
 
 prometheus:

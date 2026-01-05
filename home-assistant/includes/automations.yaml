@@ -136,3 +136,73 @@
         message: El modo de seguimiento ha sido activado.
     - set_conversation_response: Perfecto. El modo de seguimiento está activado. ¿En qué te puedo ayudar?
   mode: single
+
+# Scene Presets Automation for Focos Cris
+- alias: "Ciclar Focos Cocina"
+  trigger:
+    - platform: state
+      entity_id: input_select.focos_cocina_scene
+  action:
+    - variables:
+        preset_map:
+          Rest: "e03267e7-9914-4f47-97fe-63c0bd317fe7"
+          Cozy: "73b2c0b3-b4c5-4307-8873-eb231c83e996"
+          Bright: "84ebc26c-9d61-4d25-830c-41ea66f1c325"
+          Relax: "e71b2ef3-1b15-4c4b-b036-4b3d6efe58f8"
+          Read: "035b6ecf-414e-4781-abc7-3911556097cb"
+          Motown: "7dded6f8-a2aa-4726-b391-21e9a0f76eee"
+    - service: scene_presets.apply_preset
+      data:
+        preset_id: "{{ preset_map[trigger.to_state.state] }}"
+        targets:
+          entity_id: light.focos_cocina
+        brightness: 150
+        transition: 1
+  mode: single
+
+# Scene Presets Automation for Focos Oficina
+- alias: "Ciclar Focos Oficina"
+  trigger:
+    - platform: state
+      entity_id: input_select.focos_oficina_scene
+  action:
+    - variables:
+        preset_map:
+          "Relax": "e71b2ef3-1b15-4c4b-b036-4b3d6efe58f8"
+          "Motown": "7dded6f8-a2aa-4726-b391-21e9a0f76eee"
+          "Tokyo": "de7eda64-84bf-4ed6-a4fa-76e0ebdd1968"
+          "Energize": "0eeacfc5-2d81-4035-a23d-4a9bc02af965"
+          "Ruby glow": "454176dd-7d24-43de-86c4-ee73f8febbec"
+          "Rio": "94fc428e-2855-4f67-877e-3d1e1dd95b7d"
+          "Soho": "3580a7b2-ef38-4f34-bb5b-6416dde9df81"
+          "Amethyst valley": "297700b8-fcc6-4f35-88bb-900935d9da49"
+    - service: scene_presets.apply_preset
+      data:
+        preset_id: "{{ preset_map[states('input_select.focos_oficina_scene')] }}"
+        targets:
+          entity_id: light.focos_oficina
+        brightness: 150
+        transition: 1
+  mode: single
+
+# Button: Control Rojo triggers Focos Oficina scene cycle
+- alias: "Control Rojo - Ciclar Focos Oficina"
+  trigger:
+    - platform: mqtt
+      topic: "zigbee2mqtt/Control Rojo/action"
+      payload: "single"
+  action:
+    - service: script.cycle_focos_oficina_scene
+  mode: single
+
+# Button: Control Rojo hold toggles Focos Oficina on/off
+- alias: "Control Rojo - Toggle Focos Oficina"
+  trigger:
+    - platform: mqtt
+      topic: "zigbee2mqtt/Control Rojo/action"
+      payload: "hold"
+  action:
+    - service: light.toggle
+      target:
+        entity_id: light.focos_oficina
+  mode: single

@@ -57,3 +57,9 @@ devices:
     friendly_name: Cris 2
   '0x001788010874b255':
     friendly_name: Control Cris
+  '0xc4d7fdbbec5f0000':
+    friendly_name: Foco Mike 1
+  '0xc4d7fdbc14310000':
+    friendly_name: Foco Mike 3
+  '0xc4d7fdbc09f30000':
+    friendly_name: Foco Mike 2
