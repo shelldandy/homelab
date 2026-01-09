@@ -24,7 +24,6 @@ services:
   lidarr:
     image: lscr.io/linuxserver/lidarr:latest
     container_name: lidarr
-    user: 1000:1000
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -108,16 +107,6 @@ services:
       - "traefik.http.services.beets.loadbalancer.server.port=5001"
     networks:
       - frontend
-
-  lrclib:
-    image: leshicodes/lrclib-fetcher:0.0.2
-    container_name: lrclib
-    volumes:
-      - ${MEDIA_SHARE}/media/music:/music:rw
-    command: /music --recursive --batch-size 10 --delay 1000 --prefer-synced
-    profiles:
-      - lyrics
-
 networks:
   frontend:
     external: true
