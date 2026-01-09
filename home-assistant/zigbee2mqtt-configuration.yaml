@@ -64,8 +64,8 @@ devices:
   '0xc4d7fdbc09f30000':
     friendly_name: Foco Mike 2
   '0xffffb40e06055d93':
-    friendly_name: '0xffffb40e06055d93'
+    friendly_name: Servidor AI
   '0xffffb40e06053504':
-    friendly_name: '0xffffb40e06053504'
+    friendly_name: Refrigerador
   '0xffffb40e0605504b':
-    friendly_name: '0xffffb40e0605504b'
+    friendly_name: TV Arriba
