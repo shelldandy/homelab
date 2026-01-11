@@ -1,7 +1,7 @@
 CORE_SERVICES = traefik pocket-id adguard vaultwarden home-assistant
 MEDIA_SERVICES = qbittorrent arr jellyfin navidrome metube grafana pinchflat
 PHOTO_SERVICES = icloud-photos-downloader immich
-UTILITIES_SERVICES = forgejo hoarder booklore searxng docmost open-webui orbi
+UTILITIES_SERVICES = forgejo hoarder booklore searxng open-webui orbi
 
 ALL_SERVICES = $(CORE_SERVICES) $(PHOTO_SERVICES) $(MEDIA_SERVICES) $(UTILITIES_SERVICES)
 
