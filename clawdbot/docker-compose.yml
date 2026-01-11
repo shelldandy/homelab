@@ -1,0 +1,35 @@
+services:
+  clawdbot:
+    build:
+      context: https://github.com/clawdbot/clawdbot.git
+      dockerfile: Dockerfile
+    image: clawdbot:local
+    container_name: clawdbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TZ=${TZ}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - CLAWDBOT_GATEWAY_TOKEN=${CLAWDBOT_GATEWAY_TOKEN}
+      - ANTHROPIC_OAUTH_TOKEN=${ANTHROPIC_OAUTH_TOKEN}
+      - HOME=/home/node
+    user: "1000:1000"
+    command: ["node", "dist/index.js", "gateway", "--port", "18789", "--bind", "lan"]
+    volumes:
+      - ./config:/home/node/.clawdbot
+      - ./config/.claude:/home/node/.claude:ro
+      - ./config/.pi:/home/node/.pi:ro
+      - ./workspace:/home/node/clawd
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=18789"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
+      - "docker-volume-backup.stop-during-backup=true"
+
+networks:
+  frontend:
+    external: true
