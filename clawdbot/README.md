@@ -5,29 +5,35 @@ Telegram AI assistant powered by Claude, using [ClawdBot](https://docs.clawd.bot
 ## Setup
 
 1. **Create Telegram bot** via [@BotFather](https://t.me/BotFather):
+
    - Send `/newbot`, choose name and username (must end in `bot`)
    - Copy the token to `.env`
 
 2. **Copy `.env.example` to `.env`** and fill in values:
+
    ```bash
    cp .env.example .env
    ```
 
 3. **Set up Claude Code OAuth token**:
+
    - Run `claude` CLI and authenticate
    - Copy access token from `~/.claude/.credentials.json` to `ANTHROPIC_OAUTH_TOKEN` in `.env`
 
 4. **Create config directories**:
+
    ```bash
    mkdir -p config/.claude config/.pi/agent workspace
    ```
 
 5. **Start the service**:
+
    ```bash
    docker compose up -d
    ```
 
 6. **Approve Telegram pairing** - First message to bot returns a pairing code:
+
    ```bash
    docker exec clawdbot node dist/index.js pairing approve telegram <CODE>
    ```
@@ -36,11 +42,11 @@ Telegram AI assistant powered by Claude, using [ClawdBot](https://docs.clawd.bot
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `TELEGRAM_BOT_TOKEN` | Bot token from @BotFather |
-| `CLAWDBOT_GATEWAY_TOKEN` | Gateway auth token (generate with `openssl rand -hex 32`) |
-| `ANTHROPIC_OAUTH_TOKEN` | Claude OAuth access token from `~/.claude/.credentials.json` |
+| Variable                 | Description                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| `TELEGRAM_BOT_TOKEN`     | Bot token from @BotFather                                    |
+| `CLAWDBOT_GATEWAY_TOKEN` | Gateway auth token (generate with `openssl rand -hex 32`)    |
+| `ANTHROPIC_OAUTH_TOKEN`  | Claude OAuth access token from `~/.claude/.credentials.json` |
 
 ### Key Files
 
@@ -65,6 +71,7 @@ The `auth-profiles.json` and file-based auth are used by ClawdBot's gateway laye
 ### Token Refresh
 
 OAuth tokens expire (typically ~7 hours). When the token expires:
+
 1. Re-run `claude` CLI to refresh credentials
 2. Copy new `accessToken` from `~/.claude/.credentials.json` to `.env`
 3. Restart the container
@@ -72,6 +79,7 @@ OAuth tokens expire (typically ~7 hours). When the token expires:
 ### Model Configuration
 
 Set in `config/clawdbot.json`:
+
 ```json
 {
   "agents": {
@@ -88,12 +96,12 @@ Available models use `anthropic/` prefix (not `claudeAiOauth/`).
 
 ### Volume Mounts
 
-| Mount | Purpose |
-|-------|---------|
-| `./config:/home/node/.clawdbot` | ClawdBot config and state |
+| Mount                                    | Purpose                            |
+| ---------------------------------------- | ---------------------------------- |
+| `./config:/home/node/.clawdbot`          | ClawdBot config and state          |
 | `./config/.claude:/home/node/.claude:ro` | Claude Code credentials (for sync) |
-| `./config/.pi:/home/node/.pi:ro` | Legacy pi-agent auth |
-| `./workspace:/home/node/clawd` | Agent workspace |
+| `./config/.pi:/home/node/.pi:ro`         | Legacy pi-agent auth               |
+| `./workspace:/home/node/clawd`           | Agent workspace                    |
 
 ## Commands
 
