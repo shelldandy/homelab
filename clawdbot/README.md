@@ -15,15 +15,18 @@ Telegram AI assistant powered by Claude, using [ClawdBot](https://docs.clawd.bot
    cp .env.example .env
    ```
 
-3. **Set up Claude Code OAuth token**:
+3. **Ensure Claude Code is authenticated** on the host:
 
-   - Run `claude` CLI and authenticate
-   - Copy access token from `~/.claude/.credentials.json` to `ANTHROPIC_OAUTH_TOKEN` in `.env`
+   ```bash
+   claude  # This will prompt for auth if needed
+   ```
+
+   The container mounts `~/.claude` from the host and auto-reads the OAuth token on startup.
 
 4. **Create config directories**:
 
    ```bash
-   mkdir -p config/.claude config/.pi/agent workspace
+   mkdir -p config workspace
    ```
 
 5. **Start the service**:
@@ -42,39 +45,34 @@ Telegram AI assistant powered by Claude, using [ClawdBot](https://docs.clawd.bot
 
 ### Environment Variables
 
-| Variable                 | Description                                                  |
-| ------------------------ | ------------------------------------------------------------ |
-| `TELEGRAM_BOT_TOKEN`     | Bot token from @BotFather                                    |
-| `CLAWDBOT_GATEWAY_TOKEN` | Gateway auth token (generate with `openssl rand -hex 32`)    |
-| `ANTHROPIC_OAUTH_TOKEN`  | Claude OAuth access token from `~/.claude/.credentials.json` |
+| Variable                 | Description                                               |
+| ------------------------ | --------------------------------------------------------- |
+| `TELEGRAM_BOT_TOKEN`     | Bot token from @BotFather                                 |
+| `CLAWDBOT_GATEWAY_TOKEN` | Gateway auth token (generate with `openssl rand -hex 32`) |
 
 ### Key Files
 
 - `config/clawdbot.json` - Main ClawdBot configuration
 - `config/agents/main/agent/auth-profiles.json` - OAuth credentials store
-- `config/.claude/.credentials.json` - Claude Code credentials (for auto-sync)
-- `config/.pi/agent/auth.json` - Legacy pi-agent auth (optional)
+- `entrypoint.sh` - Reads OAuth token from host credentials on startup
 
 ## Important Notes
 
-### OAuth Token Setup
+### OAuth Token Auto-Sync
 
-The embedded pi-ai library reads `ANTHROPIC_OAUTH_TOKEN` environment variable, **not** auth files. This is the key to making Claude Code OAuth work:
+The host's `~/.claude` directory is mounted read-only into the container. On startup, `entrypoint.sh` reads the OAuth token from `~/.claude/.credentials.json` and exports it as `ANTHROPIC_OAUTH_TOKEN`.
 
-```yaml
-environment:
-  - ANTHROPIC_OAUTH_TOKEN=${ANTHROPIC_OAUTH_TOKEN}
-```
-
-The `auth-profiles.json` and file-based auth are used by ClawdBot's gateway layer but the underlying pi-ai library for actual API calls requires the env var.
+This means:
+- **No manual token copying** - tokens stay in sync with the host
+- **Token refresh** - just restart the container after Claude Code refreshes credentials
+- The underlying pi-ai library requires the `ANTHROPIC_OAUTH_TOKEN` env var (file-based auth alone doesn't work)
 
 ### Token Refresh
 
 OAuth tokens expire (typically ~7 hours). When the token expires:
 
-1. Re-run `claude` CLI to refresh credentials
-2. Copy new `accessToken` from `~/.claude/.credentials.json` to `.env`
-3. Restart the container
+1. Run any `claude` command on the host (this refreshes the token)
+2. Restart the container: `docker compose restart`
 
 ### Model Configuration
 
@@ -96,12 +94,12 @@ Available models use `anthropic/` prefix (not `claudeAiOauth/`).
 
 ### Volume Mounts
 
-| Mount                                    | Purpose                            |
-| ---------------------------------------- | ---------------------------------- |
-| `./config:/home/node/.clawdbot`          | ClawdBot config and state          |
-| `./config/.claude:/home/node/.claude:ro` | Claude Code credentials (for sync) |
-| `./config/.pi:/home/node/.pi:ro`         | Legacy pi-agent auth               |
-| `./workspace:/home/node/clawd`           | Agent workspace                    |
+| Mount                               | Purpose                                 |
+| ----------------------------------- | --------------------------------------- |
+| `./entrypoint.sh:/entrypoint.sh:ro` | Startup script to read OAuth token      |
+| `./config:/home/node/.clawdbot`     | ClawdBot config and state               |
+| `~/.claude:/home/node/.claude:ro`   | Host Claude credentials (for token sync)|
+| `./workspace:/home/node/clawd`      | Agent workspace                         |
 
 ## Commands
 
@@ -126,12 +124,16 @@ docker exec clawdbot node dist/index.js pairing approve telegram <CODE>
 
 ### "No API key found for anthropic"
 
-The pi-ai library needs `ANTHROPIC_OAUTH_TOKEN` env var set. File-based auth alone is not sufficient.
+The pi-ai library needs `ANTHROPIC_OAUTH_TOKEN` env var set. Ensure:
+1. Host has valid credentials in `~/.claude/.credentials.json`
+2. Container was restarted after token refresh
 
 ### "Unknown model: claudeaioauth/..."
 
 Use `anthropic/` prefix for models, not `claudeAiOauth/`.
 
-### Token expiration
+### Token expiration (401 error)
 
-Run `docker exec clawdbot node dist/index.js doctor` - it will show auth status and expiration times.
+1. Run any `claude` command on the host to refresh the token
+2. Restart: `docker compose restart`
+3. Verify with: `docker exec clawdbot node dist/index.js doctor`

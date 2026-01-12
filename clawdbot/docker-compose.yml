@@ -12,17 +12,19 @@ services:
       - TZ=${TZ}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - CLAWDBOT_GATEWAY_TOKEN=${CLAWDBOT_GATEWAY_TOKEN}
-      - ANTHROPIC_OAUTH_TOKEN=${ANTHROPIC_OAUTH_TOKEN}
       - HOME=/home/node
+      - CLAWDBOT_LOAD_SHELL_ENV=0
     user: "1000:1000"
+    entrypoint: ["/entrypoint.sh"]
     command: ["node", "dist/index.js", "gateway", "--port", "18789", "--bind", "lan"]
     volumes:
+      - ./entrypoint.sh:/entrypoint.sh:ro
       - ./config:/home/node/.clawdbot
-      - ./config/.claude:/home/node/.claude:ro
-      - ./config/.pi:/home/node/.pi:ro
+      - ~/.claude:/home/node/.claude:ro
       - ./workspace:/home/node/clawd
     networks:
       - frontend
+      - backend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
@@ -32,4 +34,6 @@ services:
 
 networks:
   frontend:
+    external: true
+  backend:
     external: true
