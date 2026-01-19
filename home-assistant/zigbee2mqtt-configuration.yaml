@@ -71,3 +71,5 @@ devices:
     friendly_name: TV Arriba
   '0xa49e69fffec7f45e':
     friendly_name: Higrómetro Sonoff
+  '0xffffb40e0605506d':
+    friendly_name: Enchufe Germinadora
