@@ -69,3 +69,5 @@ devices:
     friendly_name: Refrigerador
   '0xffffb40e0605504b':
     friendly_name: TV Arriba
+  '0xa49e69fffec7f45e':
+    friendly_name: Higrómetro Sonoff
