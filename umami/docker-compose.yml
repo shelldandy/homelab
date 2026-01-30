@@ -1,0 +1,50 @@
+services:
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    container_name: umami
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@umami-db:5432/${POSTGRES_DB}
+      DATABASE_TYPE: postgresql
+      APP_SECRET: ${APP_SECRET}
+      TZ: America/Mexico_City
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    networks:
+      - frontend
+      - umami
+    labels:
+      - "traefik.enable=true"
+      # Public router for tracking endpoints (no auth)
+      - "traefik.http.routers.${SUBDOMAIN}-public.rule=Host(`${SUBDOMAIN}.bowline.im`) && (Path(`/script.js`) || PathPrefix(`/api/send`))"
+      - "traefik.http.routers.${SUBDOMAIN}-public.service=${SUBDOMAIN}"
+      # Protected router for dashboard (with auth)
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
+      - "docker-volume-backup.stop-during-backup=true"
+    restart: unless-stopped
+
+  umami-db:
+    image: postgres:16-alpine
+    container_name: umami-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ${CONFIG_PATH}/postgres:/var/lib/postgresql/data
+    networks:
+      - umami
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+networks:
+  frontend:
+    external: true
+  umami:
+    internal: true
