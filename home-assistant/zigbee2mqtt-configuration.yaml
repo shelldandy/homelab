@@ -13,7 +13,7 @@ advanced:
 frontend:
   enabled: true
   port: 8080
-version: 4
+version: 5
 devices:
   '0xa81710b7eae30000':
     friendly_name: Foco Carpas
