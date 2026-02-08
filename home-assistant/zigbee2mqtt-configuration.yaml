@@ -73,3 +73,5 @@ devices:
     friendly_name: Higrómetro Sonoff
   '0xffffb40e0605506d':
     friendly_name: Enchufe Germinadora
+  '0xffffb40e0605006d':
+    friendly_name: Enchufe Carpa Chica
