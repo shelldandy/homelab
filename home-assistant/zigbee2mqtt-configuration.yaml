@@ -75,3 +75,5 @@ devices:
     friendly_name: Enchufe Germinadora
   '0xffffb40e0605006d':
     friendly_name: Enchufe Carpa Chica
+  '0xffffb40e0604bb02':
+    friendly_name: Enchufe Caminadora
