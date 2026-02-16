@@ -1,0 +1,23 @@
+services:
+  kiwix:
+    container_name: kiwix
+    image: ghcr.io/kiwix/kiwix-serve:latest
+    restart: unless-stopped
+    command: "*.zim"
+    environment:
+      TZ: ${TZ}
+    env_file:
+      - .env
+    volumes:
+      - ${ZIM_PATH}:/data
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
+      - "docker-volume-backup.stop-during-backup=true"
+
+networks:
+  frontend:
+    external: true
