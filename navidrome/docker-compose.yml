@@ -3,6 +3,7 @@ services:
     container_name: navidrome
     image: deluan/navidrome:latest
     restart: unless-stopped
+    user: "1000:1000"
     env_file:
       - .env
     environment:
@@ -45,6 +46,7 @@ services:
     image: mrusse08/soularr:latest
     hostname: soularr
     restart: unless-stopped
+    user: "1000:1000"
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -91,6 +93,7 @@ services:
     image: pspitzner/beets-flask:stable
     container_name: beets
     restart: unless-stopped
+    user: "1000:1000"
     environment:
       - TZ=${TZ}
       - USER_ID=${PUID}
