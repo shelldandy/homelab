@@ -9,6 +9,13 @@ services:
       DATABASE_URL: jdbc:mariadb://booklore-db:3306/booklore
       DATABASE_USERNAME: ${BOOKLORE_DB_USER}
       DATABASE_PASSWORD: ${BOOKLORE_DB_PASSWORD}
+      JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:6060/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
     depends_on:
       booklore-db:
         condition: service_healthy
