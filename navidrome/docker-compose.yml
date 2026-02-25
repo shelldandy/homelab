@@ -89,6 +89,32 @@ services:
       - frontend
       - backend
 
+  discoverylastfm:
+    image: mrrobotogit/discoverylastfm:latest
+    container_name: discoverylastfm
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TZ=${TZ}
+      - LASTFM_USERNAME=${LASTFM_USERNAME}
+      - LASTFM_API_KEY=${ND_LASTFM_APIKEY}
+      - MUSIC_SERVICE=lidarr
+      - LIDARR_API_KEY=${LIDARR_API_KEY}
+      - LIDARR_ENDPOINT=http://lidarr:8686
+      - LIDARR_ROOT_FOLDER=/share/media/music
+      - LIDARR_QUALITY_PROFILE_ID=${LIDARR_QUALITY_PROFILE_ID}
+      - LIDARR_METADATA_PROFILE_ID=${LIDARR_METADATA_PROFILE_ID}
+      - LIDARR_MONITOR_MODE=all
+      - LIDARR_SEARCH_ON_ADD=true
+      - RECENT_MONTHS=3
+      - MIN_PLAYS=20
+      - CRON_SCHEDULE=0 3 * * *
+    volumes:
+      - ${BASE_PATH}/discoverylastfm/config.py:/app/config.py
+    networks:
+      - backend
+
   beets:
     image: pspitzner/beets-flask:stable
     container_name: beets
