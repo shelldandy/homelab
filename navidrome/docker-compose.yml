@@ -136,11 +136,30 @@ services:
     networks:
       - backend
 
+  discoverylastfm-slskd-fallback:
+    image: python:3.12-alpine
+    container_name: discoverylastfm-slskd-fallback
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - SLSKD_API_KEY=${SLSKD_API_KEY}
+      - SLSKD_ENDPOINT=http://slskd:5030
+      - DOWNLOAD_DIR=/share/media/music-inbox
+      - STATE_FILE=/data/processed.json
+      - SEARCH_TIMEOUT=30
+    volumes:
+      - ./discoverylastfm-slskd-fallback:/app
+      - ${BASE_PATH}/discoverylastfm-slskd-fallback:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${MEDIA_SHARE}:/share
+    command: sh -c "pip install -r /app/requirements.txt -q && python /app/main.py"
+    networks:
+      - backend
+
   beets:
     image: pspitzner/beets-flask:stable
     container_name: beets
     restart: unless-stopped
-    user: "1000:1000"
     environment:
       - TZ=${TZ}
       - USER_ID=${PUID}
