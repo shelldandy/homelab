@@ -10,7 +10,7 @@ services:
       ND_BASEURL: https://${SUBDOMAIN}.bowline.im
       TZ: ${TZ}
       ND_DEVEXTERNALSCANNER: "false"
-      ND_SCANSCHEDULE: "@every 15m"
+      ND_SCANNER_SCHEDULE: "@every 15m"
     volumes:
       - ${BASE_PATH}/data:/data
       - ${MEDIA_SHARE}/media/music:/music:ro
