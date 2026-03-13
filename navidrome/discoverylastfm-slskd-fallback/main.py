@@ -23,7 +23,7 @@ ALLOWED_EXTENSIONS = {".flac", ".mp3"}
 
 # Regex patterns for log lines
 RE_ARTIST = re.compile(r"Processo artista simile:\s+(.+?)\s+\(([0-9a-f-]+)\)", re.IGNORECASE)
-RE_FAILED = re.compile(r"Failed to add album\s+(.+)", re.IGNORECASE)
+RE_FAILED = re.compile(r"Failed to add album\s+(.+?)(?::\s*\[lidarr\]|$)", re.IGNORECASE)
 
 
 def normalize(s):
@@ -117,27 +117,26 @@ def pick_best_response(responses, album_title):
 
 
 def enqueue_downloads(username, files):
-    """POST each file to slskd transfers API."""
+    """POST all files to slskd transfers API in a single batch request."""
     headers = {"X-API-Key": SLSKD_API_KEY, "Content-Type": "application/json"}
-    queued = 0
-    for f in files:
-        payload = {
-            "filename": f["filename"],
-            "size": f.get("size", 0),
-            "token": f.get("token"),
-        }
-        try:
-            r = requests.post(
-                f"{SLSKD_ENDPOINT}/api/v0/transfers/downloads/{username}",
-                headers=headers,
-                json=payload,
-                timeout=15,
-            )
-            r.raise_for_status()
-            queued += 1
-        except requests.HTTPError as e:
-            log.warning(f"Failed to queue {f['filename']}: {e}")
-    return queued
+    payload = [{"filename": f["filename"], "size": f.get("size", 0)} for f in files]
+    try:
+        r = requests.post(
+            f"{SLSKD_ENDPOINT}/api/v0/transfers/downloads/{username}",
+            headers=headers,
+            json=payload,
+            timeout=15,
+        )
+        r.raise_for_status()
+        result = r.json()
+        queued = len(result.get("enqueued", []))
+        failed = result.get("failed", [])
+        if failed:
+            log.warning(f"{len(failed)} file(s) failed to enqueue for {username}")
+        return queued
+    except requests.HTTPError as e:
+        log.warning(f"Failed to enqueue batch for {username}: {e} — {e.response.text[:200]}")
+        return 0
 
 
 def handle_failed_album(artist, album, processed):
