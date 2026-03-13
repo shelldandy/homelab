@@ -12,7 +12,7 @@ services:
       ND_DEVEXTERNALSCANNER: "false"
       ND_SCANNER_SCHEDULE: "@every 15m"
     volumes:
-      - ${BASE_PATH}/data:/data
+      - ${NAVIDROME_DATA}/data:/data
       - ${MEDIA_SHARE}/media/music:/music:ro
     networks:
       - frontend
@@ -132,7 +132,7 @@ services:
       - STATE_FILE=/data/processed_artists.json
       - SCRIPT_INTERVAL=3600
     volumes:
-      - ./lastfm-album-selector:/app
+      - ./data/lastfm-album-selector:/app
       - ${BASE_PATH}/lastfm-album-selector:/data
     command: sh -c "pip install requests -q && python /app/main.py"
     networks:
