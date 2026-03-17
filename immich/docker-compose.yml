@@ -87,6 +87,36 @@ services:
     networks:
       - immich
 
+  icloudpd-bowlinedandy:
+    container_name: bowlinedandy
+    env_file:
+      - .env.ignore.bowlinedandy
+    image: boredazfcuk/icloudpd:latest
+    healthcheck:
+      test: /usr/local/bin/healthcheck.sh
+      start_period: 30s
+    restart: unless-stopped
+    volumes:
+      - ./data/icloudpd/config/bowlinedandy:/config
+      - /mnt/immich/photos/bowlinedandy:/home/bowlinedandy/iCloud
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
+
+  icloudpd-susifluna:
+    container_name: susifluna
+    env_file:
+      - .env.ignore.susy
+    image: boredazfcuk/icloudpd:latest
+    healthcheck:
+      test: /usr/local/bin/healthcheck.sh
+      start_period: 30s
+    restart: unless-stopped
+    volumes:
+      - ./data/icloudpd/config/susifluna:/config
+      - /mnt/immich/photos/susifluna:/home/susifluna/iCloud
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
+
 networks:
   frontend:
     external: true
