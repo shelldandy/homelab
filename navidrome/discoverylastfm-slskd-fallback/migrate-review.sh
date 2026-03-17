@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
-# Migration review script: list slskd downloads that match processed.json entries
-# and output proposed mv commands for manual review.
+# Interactive migration script: move slskd downloads to music-inbox.
+# Uses fzf for multi-select. Tab to select, Enter to confirm.
 #
-# Usage: bash migrate-review.sh [processed.json] [slskd_downloads_dir] [music_inbox_dir]
+# Usage: bash migrate-review.sh [slskd_downloads_dir] [music_inbox_dir]
 #
 # Delete this script after migration is complete.
 
 set -euo pipefail
 
-PROCESSED_JSON="${1:-/mnt/docker-data/discoverylastfm-slskd-fallback/processed.json}"
-SLSKD_DL_DIR="${2:-/mnt/media/downloads/slskd/downloads}"
-MUSIC_INBOX="${3:-/mnt/media/media/music-inbox}"
+SLSKD_DL_DIR="${1:-/mnt/navidrome/share/downloads/slskd/downloads}"
+MUSIC_INBOX="${2:-/mnt/navidrome/share/media/music-inbox}"
 
-if [[ ! -f "$PROCESSED_JSON" ]]; then
-    echo "Error: processed.json not found at $PROCESSED_JSON"
+if ! command -v fzf &>/dev/null; then
+    echo "Error: fzf is not installed"
     exit 1
 fi
 
@@ -22,29 +21,52 @@ if [[ ! -d "$SLSKD_DL_DIR" ]]; then
     exit 1
 fi
 
-echo "# Migration review: slskd downloads -> music-inbox"
-echo "# Source: $SLSKD_DL_DIR"
-echo "# Destination: $MUSIC_INBOX"
-echo "# Processed entries from: $PROCESSED_JSON"
-echo "#"
-echo "# Review the commands below, uncomment the ones you want to run,"
-echo "# then execute this script output through bash."
+mkdir -p "$MUSIC_INBOX"
+
+# Build list of album dirs with audio file counts
+entries=()
+while IFS= read -r album_dir; do
+    audio_count=$(find "$album_dir" -maxdepth 1 -type f \( -iname '*.flac' -o -iname '*.mp3' \) 2>/dev/null | wc -l)
+    if [[ "$audio_count" -gt 0 ]]; then
+        parent=$(basename "$(dirname "$album_dir")")
+        dirname=$(basename "$album_dir")
+        entries+=("$(printf '%s/%s\t(%d files)\t%s' "$parent" "$dirname" "$audio_count" "$album_dir")")
+    fi
+done < <(find "$SLSKD_DL_DIR" -mindepth 2 -maxdepth 3 -type d)
+
+if [[ ${#entries[@]} -eq 0 ]]; then
+    echo "No album directories with audio files found in $SLSKD_DL_DIR"
+    exit 0
+fi
+
+selected=$(printf '%s\n' "${entries[@]}" | fzf --multi --delimiter='\t' --with-nth=1,2 \
+    --header="Tab=select  Enter=move  Esc=cancel" \
+    --prompt="Select albums to move> " \
+    --bind="ctrl-a:select-all" \
+    || true)
+
+if [[ -z "$selected" ]]; then
+    echo "Nothing selected."
+    exit 0
+fi
+
+moved=0
+skipped=0
+
+while IFS= read -r line; do
+    album_dir=$(echo "$line" | awk -F'\t' '{print $NF}')
+    dirname=$(basename "$album_dir")
+    dest="$MUSIC_INBOX/$dirname"
+
+    if [[ -d "$dest" ]]; then
+        echo "  skip (exists): $dirname"
+        ((skipped++))
+    else
+        mv "$album_dir" "$dest"
+        echo "  moved: $dirname"
+        ((moved++))
+    fi
+done <<< "$selected"
+
 echo ""
-
-# Iterate over each user directory in slskd downloads
-for user_dir in "$SLSKD_DL_DIR"/*/; do
-    [[ -d "$user_dir" ]] || continue
-    # Check album subdirectories
-    find "$user_dir" -mindepth 1 -maxdepth 2 -type d | while read -r album_dir; do
-        # Only consider dirs that contain audio files
-        audio_count=$(find "$album_dir" -maxdepth 1 -type f \( -iname '*.flac' -o -iname '*.mp3' \) 2>/dev/null | wc -l)
-        if [[ "$audio_count" -gt 0 ]]; then
-            dirname=$(basename "$album_dir")
-            echo "# Found: $album_dir ($audio_count audio files)"
-            echo "# mv \"$album_dir\" \"$MUSIC_INBOX/$dirname\""
-            echo ""
-        fi
-    done
-done
-
-echo "# Done. Review above commands, uncomment desired ones, and run."
+echo "Done. Moved $moved, skipped $skipped."
