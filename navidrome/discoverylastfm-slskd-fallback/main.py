@@ -3,7 +3,8 @@
 Watches discoverylastfm container logs for failed album additions,
 then searches slskd for those albums and enqueues downloads to music-inbox.
 """
-import json, os, re, time, logging
+import json, os, re, time, logging, shutil, threading
+from pathlib import Path
 import requests
 import docker
 
@@ -14,8 +15,10 @@ log = logging.getLogger(__name__)
 SLSKD_ENDPOINT       = os.environ.get("SLSKD_ENDPOINT", "http://slskd:5030")
 SLSKD_API_KEY        = os.environ["SLSKD_API_KEY"]
 DOWNLOAD_DIR         = os.environ.get("DOWNLOAD_DIR", "/share/media/music-inbox")
+SLSKD_DOWNLOADS_DIR  = os.environ.get("SLSKD_DOWNLOADS_DIR", "/share/downloads/slskd/downloads")
 STATE_FILE           = os.environ.get("STATE_FILE", "/data/processed.json")
 SEARCH_TIMEOUT       = int(os.environ.get("SEARCH_TIMEOUT", "30"))
+MOVE_TIMEOUT         = int(os.environ.get("MOVE_TIMEOUT", "1800"))
 MIN_FILE_MATCH_RATIO = float(os.environ.get("MIN_FILE_MATCH_RATIO", "0.8"))
 CONTAINER_NAME       = os.environ.get("DISCOVERYLASTFM_CONTAINER", "discoverylastfm")
 
@@ -139,6 +142,71 @@ def enqueue_downloads(username, files):
         return 0
 
 
+def wait_and_move(username, files, artist, album):
+    """Poll slskd transfers until all files complete, then move to DOWNLOAD_DIR."""
+    headers = {"X-API-Key": SLSKD_API_KEY}
+    filenames = {f["filename"] for f in files}
+    deadline = time.time() + MOVE_TIMEOUT
+    label = f"[{artist} / {album}]"
+
+    while time.time() < deadline:
+        time.sleep(30)
+        try:
+            r = requests.get(
+                f"{SLSKD_ENDPOINT}/api/v0/transfers/downloads/{username}",
+                headers=headers,
+                timeout=15,
+            )
+            r.raise_for_status()
+            transfers = r.json()
+        except Exception as e:
+            log.warning(f"{label} transfer poll error: {e}")
+            continue
+
+        matched = [t for t in transfers if t.get("filename") in filenames]
+        if not matched:
+            log.debug(f"{label} no matching transfers found yet")
+            continue
+
+        states = {t.get("state") for t in matched}
+        completed = all(s == "Completed" for s in states)
+
+        if not completed:
+            log.debug(f"{label} transfer states: {states}")
+            continue
+
+        # Find the common parent directory under SLSKD_DOWNLOADS_DIR
+        local_paths = []
+        for t in matched:
+            # slskd stores files relative to downloads dir using the remote path structure
+            remote = t.get("filename", "")
+            # The local file is under SLSKD_DOWNLOADS_DIR/<username>/<remote_path_structure>
+            parts = Path(remote.replace("\\", "/")).parts
+            if len(parts) > 1:
+                local_paths.append(Path(SLSKD_DOWNLOADS_DIR) / username / Path(*parts[:-1]))
+
+        if not local_paths:
+            log.warning(f"{label} could not determine download directory from transfer paths")
+            return
+
+        # Use the most common parent (should all be the same album dir)
+        src_dir = min(local_paths, key=lambda p: len(p.parts))
+        if not src_dir.exists():
+            log.warning(f"{label} expected directory not found: {src_dir}")
+            return
+
+        dest = Path(DOWNLOAD_DIR) / src_dir.name
+        log.info(f"{label} moving {src_dir} -> {dest}")
+        try:
+            shutil.move(str(src_dir), str(dest))
+            log.info(f"{label} move complete")
+        except Exception as e:
+            log.error(f"{label} move failed: {e}")
+        return
+
+    log.warning(f"{label} timed out waiting for downloads after {MOVE_TIMEOUT}s")
+
+
 def handle_failed_album(artist, album, processed):
     key = (normalize(artist), normalize(album))
     if key in processed:
@@ -169,6 +237,14 @@ def handle_failed_album(artist, album, processed):
 
     queued = enqueue_downloads(username, files)
     log.info(f"[{artist} / {album}] queued {queued} files from {username}")
+
+    if queued > 0:
+        t = threading.Thread(
+            target=wait_and_move,
+            args=(username, files, artist, album),
+            daemon=True,
+        )
+        t.start()
 
     processed.add(key)
     save_state(processed)

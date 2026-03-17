@@ -147,6 +147,7 @@ services:
       - SLSKD_API_KEY=${SLSKD_API_KEY}
       - SLSKD_ENDPOINT=http://slskd:5030
       - DOWNLOAD_DIR=/share/media/music-inbox
+      - SLSKD_DOWNLOADS_DIR=/share/downloads/slskd/downloads
       - STATE_FILE=/data/processed.json
       - SEARCH_TIMEOUT=30
     volumes:
