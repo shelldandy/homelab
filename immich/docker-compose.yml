@@ -117,6 +117,40 @@ services:
     labels:
       - "docker-volume-backup.stop-during-backup=true"
 
+  immich-library-scan:
+    container_name: immich_library_scan
+    image: curlimages/curl:latest
+    restart: unless-stopped
+    depends_on:
+      immich-server:
+        condition: service_healthy
+    networks:
+      - immich
+    environment:
+      IMMICH_API_KEY: ${IMMICH_API_KEY}
+      LIBRARY_ID_BOWLINE: ${IMMICH_LIBRARY_ID_BOWLINE}
+      LIBRARY_ID_WIFE: ${IMMICH_LIBRARY_ID_WIFE}
+      SCAN_INTERVAL: ${SCAN_INTERVAL:-86400}
+      INITIAL_DELAY: ${INITIAL_DELAY:-3600}
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        echo "Waiting $${INITIAL_DELAY}s before first scan..."
+        sleep $${INITIAL_DELAY}
+        while true; do
+          echo "[$(date)] Triggering library scan for bowline..."
+          curl -s -X POST "http://immich-server:2283/api/libraries/$${LIBRARY_ID_BOWLINE}/scan" \
+            -H "x-api-key: $${IMMICH_API_KEY}"
+          echo ""
+          echo "[$(date)] Triggering library scan for wife..."
+          curl -s -X POST "http://immich-server:2283/api/libraries/$${LIBRARY_ID_WIFE}/scan" \
+            -H "x-api-key: $${IMMICH_API_KEY}"
+          echo ""
+          echo "[$(date)] Scans triggered. Sleeping $${SCAN_INTERVAL}s..."
+          sleep $${SCAN_INTERVAL}
+        done
+
 networks:
   frontend:
     external: true
