@@ -59,7 +59,7 @@ services:
       resources:
         limits:
           memory: 4G
-          cpus: '2'
+          cpus: "2"
 
   redis:
     container_name: immich_redis
@@ -87,7 +87,7 @@ services:
     networks:
       - immich
 
-  icloudpd-bowlinedandy:
+  bowlinedandy:
     container_name: bowlinedandy
     env_file:
       - .env.ignore.bowlinedandy
@@ -102,7 +102,7 @@ services:
     labels:
       - "docker-volume-backup.stop-during-backup=true"
 
-  icloudpd-susifluna:
+  susifluna:
     container_name: susifluna
     env_file:
       - .env.ignore.susy
