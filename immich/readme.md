@@ -15,6 +15,16 @@ docker exec -it bowlinedandy sync-icloud.sh --Initialise
 docker exec -it susifluna sync-icloud.sh --Initialise
 ```
 
+### Updating Telegram Bot Token
+
+The `boredazfcuk/icloudpd` container reads its runtime config from `icloudpd.conf` (persisted in the config bind mount), **not** from the env file after initial setup. If you rotate the Telegram bot token:
+
+1. Update the token in the env files (`.env.ignore.bowlinedandy`, `.env.ignore.susy`)
+2. Update the token in **both** conf files:
+   - `data/icloudpd/config/bowlinedandy/icloudpd.conf`
+   - `data/icloudpd/config/susifluna/icloudpd.conf`
+3. Restart the containers: `docker compose restart bowlinedandy susifluna`
+
 ### Failsafe
 
 Make sure to create a `.mounted` file inside of the `download_path` directory used in the env file.
