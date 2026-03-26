@@ -1,4 +1,4 @@
-CORE_SERVICES = traefik pocket-id adguard vaultwarden home-assistant
+CORE_SERVICES = traefik pocket-id adguard vaultwarden home-assistant tailscale
 MEDIA_SERVICES = qbittorrent arr jellyfin navidrome metube grafana pinchflat
 PHOTO_SERVICES = icloud-photos-downloader immich
 UTILITIES_SERVICES = forgejo karakeep booklore searxng open-webui orbi umami

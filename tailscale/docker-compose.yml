@@ -3,6 +3,7 @@ services:
     image: tailscale/tailscale:latest
     container_name: tailscale
     hostname: ${HOSTNAME:-homelab-tailscale}
+    env_file: .env
     environment:
       - TS_AUTHKEY=${TS_AUTHKEY}
       - TS_ROUTES=${TS_ROUTES}
@@ -13,7 +14,6 @@ services:
       - TS_HOSTNAME=${HOSTNAME:-homelab-tailscale}
     volumes:
       - ${CONFIG_PATH}/tailscale/state:/var/lib/tailscale
-      - /dev/net/tun:/dev/net/tun
     networks:
       - frontend
       - backend
@@ -28,6 +28,11 @@ services:
       - net.ipv6.conf.all.forwarding=1
     privileged: ${TS_PRIVILEGED:-false}
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "tailscale", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     labels:
       - "traefik.enable=false"
       - "docker-volume-backup.stop-during-backup=true"
