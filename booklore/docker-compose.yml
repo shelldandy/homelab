@@ -1,6 +1,6 @@
 services:
   booklore:
-    image: booklore/booklore:latest
+    image: grimmory/grimmory:latest
     container_name: booklore
     environment:
       USER_ID: 0
