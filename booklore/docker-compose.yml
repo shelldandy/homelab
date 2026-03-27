@@ -69,6 +69,7 @@ services:
       BOOK_LANGUAGE: en,es
       SUPPORTED_FORMATS: epub,mobi,azw3,fb2,djvu,cbz,cbr,pdf
       AA_DONATOR_KEY: ${AA_DONATOR_KEY}
+      SEARCH_MODE: direct
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8084/request/api/status"]
       interval: 30s
