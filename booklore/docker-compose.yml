@@ -58,7 +58,9 @@ services:
 
   bookdl:
     image: ghcr.io/calibrain/calibre-web-automated-book-downloader:latest
+    #image: ghcr.io/calibrain/shelfmark:latest
     container_name: bookdl
+    # https://github.com/calibrain/shelfmark/blob/main/docs/environment-variables.md
     environment:
       PUID: ${PUID}
       PGID: ${PGID}
@@ -70,6 +72,18 @@ services:
       SUPPORTED_FORMATS: epub,mobi,azw3,fb2,djvu,cbz,cbr,pdf
       AA_DONATOR_KEY: ${AA_DONATOR_KEY}
       SEARCH_MODE: direct
+      AUTH_METHOD: oidc
+      HIDE_LOCAL_AUTH: true
+      OIDC_DISCOVERY_URL: https://auth.bowline.im/.well-known/openid-configuration
+      OIDC_CLIENT_ID: ${BOOKDL_OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${BOOKDL_OIDC_CLIENT_SECRET}
+      OIDC_SCOPES: openid profile email groups
+      OIDC_GROUP_CLAIM: groups
+      OIDC_ADMIN_GROUP: admins
+      OIDC_USE_ADMIN_GROUP: true
+      OIDC_AUTO_PROVISION: true
+      OIDC_BUTTON_LABEL: "Pocket ID"
+      ONBOARDING: false
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8084/request/api/status"]
       interval: 30s
@@ -85,12 +99,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${CALIBRE_WEB_DL_SUBDOMAIN}.rule=Host(`${CALIBRE_WEB_DL_SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${CALIBRE_WEB_DL_SUBDOMAIN}.loadbalancer.server.port=8084"
-      - "traefik.http.routers.${CALIBRE_WEB_DL_SUBDOMAIN}.middlewares=oidc-auth"
-
-  cloudflarebypassforscraping:
-    container_name: cloudflarebypassforscraping
-    image: ghcr.io/sarperavci/cloudflarebypassforscraping:latest
-    restart: unless-stopped
 
 networks:
   frontend:
