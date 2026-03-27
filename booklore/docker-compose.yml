@@ -60,11 +60,14 @@ services:
     image: ghcr.io/calibrain/calibre-web-automated-book-downloader:latest
     container_name: bookdl
     environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
       FLASK_PORT: 8084
       FLASK_DEBUG: false
       CLOUDFLARE_PROXY_URL: http://cloudflarebypassforscraping:8000
       INGEST_DIR: /bookdrop
-      BOOK_LANGUAGE: en
+      BOOK_LANGUAGE: en,es
+      SUPPORTED_FORMATS: epub,mobi,azw3,fb2,djvu,cbz,cbr,pdf
       AA_DONATOR_KEY: ${AA_DONATOR_KEY}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8084/request/api/status"]
