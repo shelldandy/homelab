@@ -44,7 +44,7 @@ sp = spotipy.Spotify(
 )
 
 
-SERVICES = os.environ.get("SERVICES", "tidal,qobuz,apple-music,amazon,deezer").split(",")
+SERVICES = os.environ.get("SERVICES", "tidal,qobuz,apple-music,amazon").split(",")
 
 
 def apple_music_to_spotify(url: str) -> tuple[str | None, str]:
