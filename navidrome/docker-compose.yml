@@ -194,6 +194,7 @@ services:
       - SPOTIFY_CLIENT_ID=${SPOTIFLAC_SPOTIFY_CLIENT_ID}
       - SPOTIFY_CLIENT_SECRET=${SPOTIFLAC_SPOTIFY_CLIENT_SECRET}
       - OUTPUT_DIR=/share/media/music-inbox
+      - ALLOWED_USER_IDS=${SPOTIFLAC_ALLOWED_USER_IDS}
       - PYTHONUSERBASE=/app/.local
     volumes:
       - ./spotiflac:/app

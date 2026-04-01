@@ -30,6 +30,8 @@ SPOTIFY_CLIENT_ID = os.environ["SPOTIFY_CLIENT_ID"]
 SPOTIFY_CLIENT_SECRET = os.environ["SPOTIFY_CLIENT_SECRET"]
 OUTPUT_DIR = os.environ.get("OUTPUT_DIR", "/share/media/music-inbox")
 
+ALLOWED_USERS = {int(uid) for uid in os.environ.get("ALLOWED_USER_IDS", "").split(",") if uid.strip()}
+
 SPOTIFY_URL_RE = re.compile(r"https?://open\.spotify\.com/(track|album|playlist)/\S+")
 APPLE_MUSIC_URL_RE = re.compile(r"https?://music\.apple\.com/.+/(album|playlist)/[^\s]+")
 APPLE_MUSIC_TRACK_RE = re.compile(r"\?i=(\d+)")
@@ -96,7 +98,15 @@ def download(url: str) -> str:
         return f"Download failed: {e}"
 
 
+def is_allowed(update: Update) -> bool:
+    if not ALLOWED_USERS:
+        return True
+    return update.effective_user and update.effective_user.id in ALLOWED_USERS
+
+
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_allowed(update):
+        return
     await update.message.reply_text(
         "Send me a Spotify or Apple Music URL to download as FLAC, or search by typing a song/album name."
     )
@@ -118,6 +128,8 @@ async def resolve_and_download(url: str, msg) -> None:
 
 
 async def cmd_dl(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_allowed(update):
+        return
     if not context.args:
         await update.message.reply_text("Usage: /dl <url>")
         return
@@ -130,6 +142,8 @@ async def cmd_dl(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_allowed(update):
+        return
     text = update.message.text.strip()
 
     if SPOTIFY_URL_RE.match(text) or APPLE_MUSIC_URL_RE.match(text):
@@ -168,6 +182,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not is_allowed(update):
+        return
     query = update.callback_query
     await query.answer()
     url = query.data
