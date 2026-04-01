@@ -11,8 +11,11 @@ services:
       TZ: ${TZ}
       ND_DEVEXTERNALSCANNER: "false"
       ND_SCANNER_SCHEDULE: "@every 15m"
+      ND_PLUGINS_ENABLED: "true"
+      ND_AGENTS: apple-music,lastfm
     volumes:
       - ${NAVIDROME_DATA}/data:/data
+      - ${NAVIDROME_DATA}/plugins:/data/plugins
       - ${MEDIA_SHARE}/media/music:/music:ro
     networks:
       - frontend
