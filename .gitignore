@@ -6,3 +6,4 @@
 
 .env
 .env.ignore.*
+navidrome/spotiflac/.local
