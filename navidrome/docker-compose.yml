@@ -203,6 +203,26 @@ services:
       - frontend
       - backend
 
+  spotiflac:
+    image: python:3.12-alpine
+    container_name: spotiflac
+    restart: unless-stopped
+    user: "1000:1000"
+    environment:
+      - TZ=${TZ}
+      - TELEGRAM_BOT_TOKEN=${SPOTIFLAC_TELEGRAM_TOKEN}
+      - SPOTIFY_CLIENT_ID=${SPOTIFLAC_SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFLAC_SPOTIFY_CLIENT_SECRET}
+      - OUTPUT_DIR=/share/media/music-inbox
+      - ALLOWED_USER_IDS=${SPOTIFLAC_ALLOWED_USER_IDS}
+      - PYTHONUSERBASE=/app/.local
+    volumes:
+      - ./spotiflac:/app
+      - ${MEDIA_SHARE}:/share
+    command: sh -c "pip install --user -r /app/requirements.txt -q && python /app/main.py"
+    networks:
+      - backend
+
 networks:
   frontend:
     external: true
