@@ -407,6 +407,51 @@ def print_report(consumption_stats, generation_stats, system, args):
     print("=" * 55)
 
 
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
+DATA_FILE = os.path.join(DATA_DIR, "energy_analysis.json")
+
+
+def save_results(consumption_stats, generation_stats, system, args):
+    """Save analysis results to data/energy_analysis.json."""
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+    # Load existing runs
+    history = []
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE) as f:
+            try:
+                history = json.load(f)
+            except json.JSONDecodeError:
+                history = []
+
+    # Convert hourly_profile keys to strings for JSON
+    cs = dict(consumption_stats)
+    cs["hourly_profile"] = {str(k): v for k, v in cs["hourly_profile"].items()}
+
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "period_days": args.days,
+        "sunlight_hours": args.sunlight_hours,
+        "autonomy_hours": args.autonomy_hours,
+        "safety_margin": args.safety_margin,
+        "consumption": cs,
+        "generation": dict(generation_stats) if generation_stats else None,
+        "system": system,
+    }
+
+    if entry.get("generation") and "hourly_profile" in entry["generation"]:
+        entry["generation"]["hourly_profile"] = {
+            str(k): v for k, v in entry["generation"]["hourly_profile"].items()
+        }
+
+    history.append(entry)
+
+    with open(DATA_FILE, "w") as f:
+        json.dump(history, f, indent=2)
+
+    print(f"\nResults saved to {os.path.relpath(DATA_FILE)}")
+
+
 def select_entity(entities, category, override=None):
     """Select the best entity for a category, or use override."""
     if override:
@@ -559,6 +604,9 @@ def main():
 
     # Print report
     print_report(consumption_stats, generation_stats, system, args)
+
+    # Save results
+    save_results(consumption_stats, generation_stats, system, args)
 
 
 if __name__ == "__main__":
