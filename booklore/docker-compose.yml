@@ -3,15 +3,15 @@ services:
     image: grimmory/grimmory:latest
     container_name: booklore
     environment:
-      USER_ID: 0
-      GROUP_ID: 0
+      USER_ID: ${PUID}
+      GROUP_ID: ${PGID}
       TZ: ${TZ}
       DATABASE_URL: jdbc:mariadb://booklore-db:3306/booklore
       DATABASE_USERNAME: ${BOOKLORE_DB_USER}
       DATABASE_PASSWORD: ${BOOKLORE_DB_PASSWORD}
       JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:6060/ || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:6060/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
