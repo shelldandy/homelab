@@ -11,7 +11,11 @@ services:
       DATABASE_PASSWORD: ${BOOKLORE_DB_PASSWORD}
       JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://localhost:6060/api/v1/healthcheck || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O - http://localhost:6060/api/v1/healthcheck || exit 1",
+        ]
       interval: 60s
       timeout: 10s
       retries: 5
@@ -23,10 +27,13 @@ services:
       - ${CONFIG_PATH}/booklore/data:/app/data
       - ${MEDIA_SHARE}/media/books/booklore-library:/books
       - ${MEDIA_SHARE}/media/books/booklore-bookdrop:/bookdrop
+    ports:
+      - "6060:6060"
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${BOOKLORE_SUBDOMAIN}.rule=Host(`${BOOKLORE_SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.routers.${BOOKLORE_SUBDOMAIN}.middlewares=https-redirect,security-headers"
       - "traefik.http.services.${BOOKLORE_SUBDOMAIN}.loadbalancer.server.port=6060"
       - "docker-volume-backup.stop-during-backup=true"
     networks:
@@ -95,6 +102,8 @@ services:
       - ${MEDIA_SHARE}/media/books/booklore-bookdrop:/bookdrop
     networks:
       - frontend
+    ports:
+      - 8084:8084
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${CALIBRE_WEB_DL_SUBDOMAIN}.rule=Host(`${CALIBRE_WEB_DL_SUBDOMAIN}.bowline.im`)"
