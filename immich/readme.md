@@ -11,9 +11,13 @@ Configuration for icloudpd is in `.env.example.icloudpd`. Each user has their ow
 If your Apple ID has multifactor authentication enabled, you need to initialize the cookie for each container:
 
 ```shell
-docker exec -it bowlinedandy sync-icloud.sh --Initialise
-docker exec -it susifluna sync-icloud.sh --Initialise
+make init-bowlinedandy
+make init-susifluna
+# or both:
+make init-all
 ```
+
+> **2FA code not arriving on device?** On iOS 18+ Apple removed the manual "Get Verification Code" option. Turn on **Airplane Mode**, then go to **Settings > [your name] > Sign-In & Security** to generate a verification code locally. See [boredazfcuk/docker-icloudpd#933](https://github.com/boredazfcuk/docker-icloudpd/issues/933).
 
 ### Updating Telegram Bot Token
 
