@@ -1,0 +1,3 @@
+SpotiFLAC
+spotipy
+python-telegram-bot

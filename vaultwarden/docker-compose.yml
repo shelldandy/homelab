@@ -14,7 +14,7 @@ services:
     volumes:
       - ${CONFIG_PATH}/data:/data
     networks:
-      - vaultwarden
+      - backend
       - frontend
     depends_on:
       - db
@@ -36,11 +36,12 @@ services:
     volumes:
       - ${CONFIG_PATH}/db:/var/lib/postgresql/data
     networks:
-      - vaultwarden
+      - backend
     labels:
       - "docker-volume-backup.stop-during-backup=true"
 
 networks:
   frontend:
     external: true
-  vaultwarden:
+  backend:
+    external: true

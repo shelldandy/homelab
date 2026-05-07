@@ -3,13 +3,19 @@ services:
     container_name: navidrome
     image: deluan/navidrome:latest
     restart: unless-stopped
+    user: "1000:1000"
     env_file:
       - .env
     environment:
       ND_BASEURL: https://${SUBDOMAIN}.bowline.im
       TZ: ${TZ}
+      ND_DEVEXTERNALSCANNER: "false"
+      ND_SCANNER_SCHEDULE: "@every 15m"
+      ND_PLUGINS_ENABLED: "true"
+      ND_AGENTS: apple-music,lastfm
     volumes:
-      - ${BASE_PATH}/data:/data
+      - ${NAVIDROME_DATA}/data:/data
+      - ${NAVIDROME_DATA}/plugins:/data/plugins
       - ${MEDIA_SHARE}/media/music:/music:ro
     networks:
       - frontend
@@ -45,6 +51,7 @@ services:
     image: mrusse08/soularr:latest
     hostname: soularr
     restart: unless-stopped
+    user: "1000:1000"
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -57,6 +64,8 @@ services:
       #Leave "/data" since thats where the script expects the config file to be
       - ${BASE_PATH}/soularr:/data
       - ./data/soularr.ini:/data/config.ini
+    networks:
+      - backend
 
   slskd:
     image: slskd/slskd:latest
@@ -87,6 +96,72 @@ services:
       - frontend
       - backend
 
+  discoverylastfm:
+    image: mrrobotogit/discoverylastfm:latest
+    container_name: discoverylastfm
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TZ=${TZ}
+      - LASTFM_USERNAME=${LASTFM_USERNAME}
+      - LASTFM_API_KEY=${ND_LASTFM_APIKEY}
+      - MUSIC_SERVICE=lidarr
+      - LIDARR_API_KEY=${LIDARR_API_KEY}
+      - LIDARR_ENDPOINT=http://lidarr:8686
+      - LIDARR_ROOT_FOLDER=/share/media/music
+      - LIDARR_QUALITY_PROFILE_ID=${LIDARR_QUALITY_PROFILE_ID}
+      - LIDARR_METADATA_PROFILE_ID=${LIDARR_METADATA_PROFILE_ID}
+      - LIDARR_MONITOR_MODE=none
+      - LIDARR_SEARCH_ON_ADD=false
+      - RECENT_MONTHS=3
+      - MIN_PLAYS=20
+      - CRON_SCHEDULE=0 2 * * 0
+    volumes:
+      - ${BASE_PATH}/discoverylastfm/config.py:/app/config.py
+    networks:
+      - backend
+
+  lastfm-album-selector:
+    image: python:3.12-alpine
+    container_name: lastfm-album-selector
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - LASTFM_API_KEY=${ND_LASTFM_APIKEY}
+      - LIDARR_API_KEY=${LIDARR_API_KEY}
+      - LIDARR_ENDPOINT=http://lidarr:8686
+      - TOP_ALBUMS_COUNT=2
+      - STATE_FILE=/data/processed_artists.json
+      - SCRIPT_INTERVAL=3600
+    volumes:
+      - ./data/lastfm-album-selector:/app
+      - ${BASE_PATH}/lastfm-album-selector:/data
+    command: sh -c "pip install requests -q && python /app/main.py"
+    networks:
+      - backend
+
+  discoverylastfm-slskd-fallback:
+    image: python:3.12-alpine
+    container_name: discoverylastfm-slskd-fallback
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - SLSKD_API_KEY=${SLSKD_API_KEY}
+      - SLSKD_ENDPOINT=http://slskd:5030
+      - DOWNLOAD_DIR=/share/media/music-inbox
+      - SLSKD_DOWNLOADS_DIR=/share/downloads/slskd/downloads
+      - STATE_FILE=/data/processed.json
+      - SEARCH_TIMEOUT=30
+    volumes:
+      - ./discoverylastfm-slskd-fallback:/app
+      - ${BASE_PATH}/discoverylastfm-slskd-fallback:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${MEDIA_SHARE}:/share
+    command: sh -c "pip install -r /app/requirements.txt -q && python /app/main.py"
+    networks:
+      - backend
+
   beets:
     image: pspitzner/beets-flask:stable
     container_name: beets
@@ -107,6 +182,47 @@ services:
       - "traefik.http.services.beets.loadbalancer.server.port=5001"
     networks:
       - frontend
+
+  spotiflac-server:
+    build: https://github.com/ACRZeuss/spotiflac-server.git
+    container_name: spotiflac-server
+    restart: unless-stopped
+    user: "1000:1000"
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${MEDIA_SHARE}/media/music-inbox:/downloads
+    tmpfs:
+      - /.gunicorn
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SPOTIFLAC_SUBDOMAIN}.rule=Host(`${SPOTIFLAC_SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SPOTIFLAC_SUBDOMAIN}.loadbalancer.server.port=5000"
+      - "traefik.http.routers.${SPOTIFLAC_SUBDOMAIN}.middlewares=oidc-auth"
+    networks:
+      - frontend
+      - backend
+
+  spotiflac:
+    image: python:3.12-alpine
+    container_name: spotiflac
+    restart: unless-stopped
+    user: "1000:1000"
+    environment:
+      - TZ=${TZ}
+      - TELEGRAM_BOT_TOKEN=${SPOTIFLAC_TELEGRAM_TOKEN}
+      - SPOTIFY_CLIENT_ID=${SPOTIFLAC_SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFLAC_SPOTIFY_CLIENT_SECRET}
+      - OUTPUT_DIR=/share/media/music-inbox
+      - ALLOWED_USER_IDS=${SPOTIFLAC_ALLOWED_USER_IDS}
+      - PYTHONUSERBASE=/app/.local
+    volumes:
+      - ./spotiflac:/app
+      - ${MEDIA_SHARE}:/share
+    command: sh -c "pip install --user -r /app/requirements.txt -q && python /app/main.py"
+    networks:
+      - backend
+
 networks:
   frontend:
     external: true

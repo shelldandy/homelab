@@ -5,6 +5,15 @@ Navidrome is a self-hosted, open source music server and streamer. It gives you 
 ## Architecture
 
 ```
+┌──────────────────────────────────────────────────────────────────────────┐
+│                             Music Discovery                              │
+├───────────────────────┬──────────────────────────────────────────────────┤
+│   discoverylastfm     │            lastfm-album-selector                 │
+│ (add new artists from │  (monitor top Last.fm albums for existing Lidarr │
+│  Last.fm listening)   │   artists; MusicBrainz-pinned disambiguation)    │
+└──────────┬────────────┴────────────────────┬─────────────────────────────┘
+           │                                 │
+           ▼                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Music Sources                            │
 ├─────────────────────────────┬───────────────────────────────────┤
@@ -42,8 +51,11 @@ Navidrome is a self-hosted, open source music server and streamer. It gives you 
 |---------|-------------|------|
 | Navidrome | Music streaming server | 4533 |
 | Lidarr | Music collection manager | 8686 |
+| Soularr | Lidarr → Slskd bridge | - |
 | Beets | Music tagger and organizer | 5001 |
 | Slskd | Soulseek client | 5030 |
+| discoverylastfm | Add new artists from Last.fm listening history | - |
+| lastfm-album-selector | Monitor top Last.fm albums for existing Lidarr artists | - |
 
 ## Music Workflows
 
@@ -61,3 +73,18 @@ Beets-flask GUI available for manual review if needed.
 ## Soularr
 
 Soularr bridges Lidarr and Slskd, searching Soulseek for music missing in Lidarr and triggering downloads.
+
+## Last.fm Integration
+
+Two services handle Last.fm-driven music discovery:
+
+### discoverylastfm
+Runs weekly (cron). Scans your Last.fm listening history and adds artists with recent plays to Lidarr.
+
+### lastfm-album-selector
+Runs hourly. For each artist already in Lidarr with no monitored albums, queries Last.fm for their top albums and monitors the top N in Lidarr, then triggers a search. Uses MusicBrainz IDs to pin the Last.fm lookup to the exact artist (avoids wrong-artist disambiguation like "Ye" → Yes). After 3 failed matches, falls back to the most recently released album in Lidarr.
+
+Configure via environment variables:
+- `TOP_ALBUMS_COUNT` — number of albums to monitor per artist (default: 2)
+- `MAX_RETRIES` — failed match attempts before fallback (default: 3)
+- `LOG_LEVEL` — set to `DEBUG` to log Last.fm/Lidarr title comparisons

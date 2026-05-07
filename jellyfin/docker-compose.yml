@@ -1,7 +1,7 @@
 services:
   jellyfin:
     container_name: jellyfin
-    image: lscr.io/linuxserver/jellyfin:10.11.6
+    image: lscr.io/linuxserver/jellyfin:10.11.8
     restart: unless-stopped
     environment:
       TZ: ${TZ}
@@ -45,6 +45,9 @@ services:
       - frontend
       - backend
     restart: unless-stopped
+    # Needed for in-home watching (100% local)
+    ports:
+      - "5055:5055"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${JELLYSEER_SUBDOMAIN}.rule=Host(`${JELLYSEER_SUBDOMAIN}.bowline.im`)"
