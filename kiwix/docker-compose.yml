@@ -10,12 +10,15 @@ services:
       - .env
     volumes:
       - ${ZIM_PATH}:/data
+    ports:
+      - "9999:8080"
     networks:
       - frontend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=8080"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
       - "docker-volume-backup.stop-during-backup=true"
 
 networks:
