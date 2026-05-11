@@ -21,6 +21,14 @@ services:
       - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
       - "docker-volume-backup.stop-during-backup=true"
 
+  zim-downloader:
+    image: alpine:latest
+    profiles: ["download"]
+    volumes:
+      - ${ZIM_PATH}:/data
+    working_dir: /data
+    entrypoint: ["sh", "-c", "apk add --no-cache aria2 su-exec > /dev/null 2>&1 && su-exec 1000:1000 aria2c -x 16 -s 16 --file-allocation=none --auto-file-renaming=false \"$@\" && rm -f /data/*.aria2 /data/*.meta4", "--"]
+
 networks:
   frontend:
     external: true
