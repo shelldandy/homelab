@@ -72,8 +72,6 @@ services:
     container_name: slskd
     user: 1000:1000
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
       - TZ=${TZ}
       - SLSKD_SLSK_USERNAME=${SLSKD_SLSK_USERNAME}
       - SLSKD_SLSK_PASSWORD=${SLSKD_SLSK_PASSWORD}
