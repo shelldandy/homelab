@@ -27,6 +27,7 @@ services:
       - ${CONFIG_PATH}/booklore/data:/app/data
       - ${MEDIA_SHARE}/media/books/booklore-library:/books
       - ${MEDIA_SHARE}/media/books/booklore-bookdrop:/bookdrop
+      - ${MEDIA_SHARE}/media/books/comics:/comics
     ports:
       - "6060:6060"
     restart: unless-stopped
