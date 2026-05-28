@@ -1,0 +1,32 @@
+services:
+  llama-cpp:
+    image: ghcr.io/ggml-org/llama.cpp:server-rocm
+    container_name: llama-cpp
+    restart: unless-stopped
+    command: >
+      -hf unsloth/Qwen3-4B-Instruct-2507-GGUF:Q4_K_M
+      --host 0.0.0.0 --port 8080
+      -np 2 -c 32768 -fa on --swa-full
+      -ngl 999 --jinja
+      --alias qwen3-4b-instruct
+    environment:
+      HSA_OVERRIDE_GFX_VERSION: "11.0.0"
+    ports:
+      - "4545:8080"
+    healthcheck:
+      disable: true
+    volumes:
+      - ${CONFIG_PATH}/cache:/root/.cache
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+    networks:
+      - backend
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
+
+networks:
+  backend:
+    external: true
