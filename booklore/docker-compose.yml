@@ -65,8 +65,8 @@ services:
       - frontend
 
   bookdl:
-    image: ghcr.io/calibrain/calibre-web-automated-book-downloader:latest
-    #image: ghcr.io/calibrain/shelfmark:latest
+    #image: ghcr.io/calibrain/calibre-web-automated-book-downloader:latest
+    image: ghcr.io/calibrain/shelfmark:latest
     container_name: bookdl
     # https://github.com/calibrain/shelfmark/blob/main/docs/environment-variables.md
     environment:
@@ -76,10 +76,22 @@ services:
       FLASK_DEBUG: false
       CLOUDFLARE_PROXY_URL: http://cloudflarebypassforscraping:8000
       INGEST_DIR: /bookdrop
+      AA_MIRROR_URLS: ${AA_MIRROR_URLS}
       BOOK_LANGUAGE: en,es
       SUPPORTED_FORMATS: epub,mobi,azw3,fb2,djvu,cbz,cbr,pdf
       AA_DONATOR_KEY: ${AA_DONATOR_KEY}
       SEARCH_MODE: direct
+      DIRECT_DOWNLOAD_ENABLED: true
+      # Grimmory integration
+      CALIBRE_WEB_URL: "https://${BOOKLORE_SUBDOMAIN}.bowline.im"
+      BOOKLORE_HOST: http://booklore:6060
+      BOOKLORE_USERNAME: ${BOOKLORE_USERNAME}
+      BOOKLORE_PASSWORD: ${BOOKLORE_PASSWORD}
+      BOOKS_OUTPUT_MODE: booklore
+      BOOKLORE_LIBRARY_ID: "1"
+      BOOKLORE_PATH_ID: "1"
+      BOOKLORE_DESTINATION: bookdrop
+      # OIDC
       AUTH_METHOD: oidc
       HIDE_LOCAL_AUTH: true
       OIDC_DISCOVERY_URL: https://auth.bowline.im/.well-known/openid-configuration
