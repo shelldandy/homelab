@@ -1,16 +1,14 @@
 services:
   jellyfin:
     container_name: jellyfin
-    image: lscr.io/linuxserver/jellyfin:10.11.8
+    image: lscr.io/linuxserver/jellyfin:10.11.11
     restart: unless-stopped
     environment:
       TZ: ${TZ}
       PUID: ${PUID}
       PGID: ${PGID}
       JELLYFIN_PublishedServerUrl: https://${SUBDOMAIN}.bowline.im
-      LIBVA_DRIVER_NAME: iHD
-      LIBVA_DRIVERS_PATH: /usr/lib/x86_64-linux-gnu/dri
-      DOCKER_MODS: linuxserver/mods:jellyfin-opencl-intel
+      DOCKER_MODS: linuxserver/mods:jellyfin-amd
     env_file:
       - ./.env
     volumes:
@@ -18,8 +16,10 @@ services:
       - ${CONFIG_PATH}/jellyfin/cache:/cache
       - ${MEDIA_SHARE}/media:/share/media
     devices:
-      - /dev/dri:/dev/dri
-      - /dev/bus/usb:/dev/bus/usb
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
     networks:
       - frontend
     # Needed for in-home watching (100% local)
