@@ -5,7 +5,7 @@ default_config:
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 172.19.0.0/16 # Docker network range for Traefik
+    - 172.18.0.0/16 # Docker network range for Traefik
 
 # Load frontend themes from the themes folder
 frontend:
