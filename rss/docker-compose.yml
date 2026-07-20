@@ -1,0 +1,67 @@
+services:
+  miniflux:
+    image: miniflux/miniflux:latest
+    container_name: miniflux
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@miniflux-db/${POSTGRES_DB}?sslmode=disable
+      RUN_MIGRATIONS: 1
+      BASE_URL: https://${MINIFLUX_SUBDOMAIN}.bowline.im/
+      OAUTH2_PROVIDER: oidc
+      OAUTH2_CLIENT_ID: ${MINIFLUX_OIDC_CLIENT_ID}
+      OAUTH2_CLIENT_SECRET: ${MINIFLUX_OIDC_CLIENT_SECRET}
+      OAUTH2_OIDC_DISCOVERY_ENDPOINT: https://auth.bowline.im
+      OAUTH2_REDIRECT_URL: https://${MINIFLUX_SUBDOMAIN}.bowline.im/oauth2/oidc/callback
+      OAUTH2_OIDC_PROVIDER_NAME: Pocket ID
+      OAUTH2_USER_CREATION: 1
+    healthcheck:
+      test: ["CMD", "/usr/bin/miniflux", "-healthcheck", "auto"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      miniflux-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - frontend
+      - rss
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${MINIFLUX_SUBDOMAIN}.rule=Host(`${MINIFLUX_SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${MINIFLUX_SUBDOMAIN}.loadbalancer.server.port=8080"
+      - "docker-volume-backup.stop-during-backup=true"
+
+  miniflux-db:
+    image: postgres:16-alpine
+    container_name: miniflux-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ${CONFIG_PATH}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - rss
+
+  reactflux:
+    image: electh/reactflux:latest
+    container_name: reactflux
+    restart: unless-stopped
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=2000"
+
+networks:
+  frontend:
+    external: true
+  rss:
+    internal: true
