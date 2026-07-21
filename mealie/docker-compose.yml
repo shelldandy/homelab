@@ -27,7 +27,7 @@ services:
       OIDC_AUTO_REDIRECT: "true"
       OIDC_REMEMBER_ME: "true"
       OIDC_ADMIN_GROUP: ${MEALIE_OIDC_ADMIN_GROUP}
-      ALLOW_PASSWORD_LOGIN: "true"
+      ALLOW_PASSWORD_LOGIN: "false"
       # Email
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
