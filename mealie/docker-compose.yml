@@ -1,0 +1,77 @@
+services:
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie:latest
+    container_name: mealie
+    environment:
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+      BASE_URL: https://${SUBDOMAIN}.bowline.im
+      # Database
+      DB_ENGINE: postgres
+      POSTGRES_SERVER: mealie-db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # Native Pocket ID OIDC (mirrors miniflux)
+      OIDC_AUTH_ENABLED: "true"
+      OIDC_CONFIGURATION_URL: https://auth.bowline.im/.well-known/openid-configuration
+      OIDC_CLIENT_ID: ${MEALIE_OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${MEALIE_OIDC_CLIENT_SECRET}
+      # Pocket ID's example uses OAUTH_PROVIDER_NAME; Mealie's docs say
+      # OIDC_PROVIDER_NAME. Set both so the SSO button reads "Pocket ID".
+      OAUTH_PROVIDER_NAME: Pocket ID
+      OIDC_PROVIDER_NAME: Pocket ID
+      OIDC_SIGNUP_ENABLED: "true"
+      OIDC_AUTO_REDIRECT: "true"
+      OIDC_REMEMBER_ME: "true"
+      OIDC_ADMIN_GROUP: ${MEALIE_OIDC_ADMIN_GROUP}
+      ALLOW_PASSWORD_LOGIN: "true"
+      # Email
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+
+    volumes:
+      - ${CONFIG_PATH}/data:/app/data
+    depends_on:
+      mealie-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - frontend
+      - mealie
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=9000"
+      - "docker-volume-backup.stop-during-backup=true"
+
+  mealie-db:
+    image: postgres:16-alpine
+    container_name: mealie-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ${CONFIG_PATH}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - mealie
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
+
+networks:
+  frontend:
+    external: true
+  mealie:
+    internal: true
