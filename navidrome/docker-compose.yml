@@ -82,7 +82,7 @@ services:
       - SLSKD_INCOMPLETE_DIR=${SLSKD_INCOMPLETE_DIR}
       - SLSKD_REMOTE_CONFIGURATION=true
     volumes:
-      - ${BASE_PATH}/slskd/config:/app/data
+      - ${BASE_PATH}/slskd/config:/app
       - ./data/slskd.yml:/app/slskd.yml
       - ${MEDIA_SHARE}:/share
     restart: unless-stopped

@@ -122,6 +122,68 @@ services:
       - "traefik.http.routers.${CALIBRE_WEB_DL_SUBDOMAIN}.rule=Host(`${CALIBRE_WEB_DL_SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${CALIBRE_WEB_DL_SUBDOMAIN}.loadbalancer.server.port=8084"
 
+  crossbill:
+    image: tumetsu/crossbill:latest
+    container_name: crossbill
+    environment:
+      # Prevents libxml2 parsing memory "leak" on epub file processing
+      MALLOC_ARENA_MAX: 2
+      ENVIRONMENT: production
+      PORT: 8000
+      DATABASE_URL: postgresql://${CROSSBILL_DB_USER}:${CROSSBILL_DB_PASSWORD}@crossbill-db:5432/crossbill
+      # Production rejects wildcard and empty origins at startup
+      CORS_ORIGINS: '["https://${CROSSBILL_SUBDOMAIN}.bowline.im"]'
+      # Traefik appends to X-Forwarded-For, so exactly one hop in front.
+      # Left at 0, per-IP rate limiting keys on Traefik instead of the client.
+      TRUSTED_PROXY_HOPS: 1
+      LOG_PROXY_CHAIN: ${CROSSBILL_LOG_PROXY_CHAIN:-false}
+      # JWT secrets, both required and must differ from each other
+      SECRET_KEY: ${CROSSBILL_SECRET_KEY}
+      REFRESH_TOKEN_SECRET_KEY: ${CROSSBILL_REFRESH_TOKEN_SECRET_KEY}
+      # Consumed only on first startup to provision the admin user
+      ADMIN_USERNAME: ${CROSSBILL_ADMIN_USERNAME}
+      ADMIN_PASSWORD: ${CROSSBILL_ADMIN_PASSWORD}
+      COOKIE_SECURE: true
+      # Crossbill has no OIDC support, so its own login is the security
+      # boundary - keep registrations closed. See readme.
+      ALLOW_USER_REGISTRATIONS: false
+    volumes:
+      - ${CONFIG_PATH}/crossbill/book-files:/app/book-files
+    depends_on:
+      crossbill-db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${CROSSBILL_SUBDOMAIN}.rule=Host(`${CROSSBILL_SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${CROSSBILL_SUBDOMAIN}.loadbalancer.server.port=8000"
+      - "docker-volume-backup.stop-during-backup=true"
+
+  crossbill-db:
+    # pgvector/pgvector:pgNN is the official Postgres image plus the `vector`
+    # extension, required by the semantic-search embeddings table.
+    image: pgvector/pgvector:pg18
+    container_name: crossbill-db
+    environment:
+      POSTGRES_DB: crossbill
+      POSTGRES_USER: ${CROSSBILL_DB_USER}
+      POSTGRES_PASSWORD: ${CROSSBILL_DB_PASSWORD}
+    volumes:
+      - ${CONFIG_PATH}/crossbill/postgres:/var/lib/postgresql/18/docker
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -U ${CROSSBILL_DB_USER} -d crossbill"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - frontend
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
+
 networks:
   frontend:
     external: true
