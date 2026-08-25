@@ -9,7 +9,8 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.web.http.redirections.entrypoint.permanent=true
       - --entrypoints.websecure.address=:443
-      - --entrypoints.websecure.forwardedHeaders.trustedIPs=172.18.0.0/12,172.16.0.0/12
+      - --entrypoints.web.forwardedHeaders.trustedIPs=172.16.0.0/12,173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32
+      - --entrypoints.websecure.forwardedHeaders.trustedIPs=172.16.0.0/12,173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32
       - --entrypoints.websecure.transport.lifeCycle.requestAcceptGraceTimeout=10s
       - --entrypoints.websecure.transport.lifeCycle.graceTimeOut=30s
       - --entrypoints.websecure.http.tls.certresolver=myresolver
@@ -85,8 +86,11 @@ services:
       - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
       - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
 
-      - "traefik.http.middlewares.rate-limit.ratelimit.average=10"
-      - "traefik.http.middlewares.rate-limit.ratelimit.burst=20"
+      - "traefik.http.middlewares.rate-limit.ratelimit.average=100"
+      - "traefik.http.middlewares.rate-limit.ratelimit.burst=200"
+      # Bucket per real visitor, not per Cloudflare edge IP.
+      # Safe only because the CF ranges are in forwardedHeaders.trustedIPs above.
+      - "traefik.http.middlewares.rate-limit.ratelimit.sourceCriterion.requestHeaderName=CF-Connecting-IP"
 
       - "traefik.http.middlewares.oidc-auth.plugin.traefik-oidc-auth.secret=${OIDC_SECRET}"
       - "traefik.http.middlewares.oidc-auth.plugin.traefik-oidc-auth.provider.url=https://${OIDC_SUBDOMAIN}.${DOMAIN}/"
