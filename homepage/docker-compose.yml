@@ -1,0 +1,26 @@
+services:
+  homepage:
+    container_name: homepage
+    image: ghcr.io/gethomepage/homepage:v2.1.2
+    environment:
+      TZ: ${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+      # Required since v1.0 for any non-localhost access. Must match the
+      # Host rule below or every request 400s.
+      HOMEPAGE_ALLOWED_HOSTS: ${SUBDOMAIN}.bowline.im
+    volumes:
+      - ${CONFIG_PATH}:/app/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
+      - "docker-volume-backup.stop-during-backup=true"
+    networks:
+      - frontend
+    restart: unless-stopped
+
+networks:
+  frontend:
+    external: true

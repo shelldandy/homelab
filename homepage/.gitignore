@@ -1,0 +1,10 @@
+# The repo-wide **/data/** rule ignores this whole dir, but data/ is this
+# service's CONFIG_PATH and holds hand-written config that belongs in git.
+# Allowlist only the files we author; the container generates others
+# (kubernetes.yaml, proxmox.yaml, custom.css/js, logs/) on startup.
+!data/
+!data/services.yaml
+!data/settings.yaml
+!data/bookmarks.yaml
+!data/widgets.yaml
+!data/docker.yaml
