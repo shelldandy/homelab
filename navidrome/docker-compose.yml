@@ -13,6 +13,8 @@ services:
       ND_SCANNER_SCHEDULE: "@every 15m"
       ND_PLUGINS_ENABLED: "true"
       ND_AGENTS: apple-music,lastfm
+      # Make auto-imported M3U playlists (e.g. yubal's _Playlists/) visible to all users
+      ND_DEFAULTPLAYLISTPUBLICVISIBILITY: "true"
     volumes:
       - ${NAVIDROME_DATA}/data:/data
       - ${NAVIDROME_DATA}/plugins:/data/plugins
@@ -220,6 +222,48 @@ services:
     command: sh -c "pip install --user -r /app/requirements.txt -q && python /app/main.py"
     networks:
       - backend
+
+  # Yubal - Download tracks/albums/playlists from YouTube & YouTube Music.
+  # Writes tagged files (cover art, synced lyrics, ReplayGain) straight into
+  # the Navidrome library, bypassing beets - it does its own tagging.
+  yubal:
+    image: ghcr.io/guillevc/yubal:latest
+    container_name: yubal
+    restart: unless-stopped
+    # NOTE: PUID/PGID, not `user:`. The entrypoint needs to start as root to
+    # create /app/config/{yubal,ytdlp}, chown it, run the ensure_writable
+    # preflight, then gosu-drop to PUID:PGID. Setting `user:` takes the
+    # untested non-root branch and skips that guard. /app/data is chowned
+    # NON-recursively upstream, so the existing library is never walked.
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - YUBAL_TZ=${TZ}
+      # Dockerfile already sets 0.0.0.0; pinned here since the code default
+      # is 127.0.0.1, which would be unreachable from Traefik.
+      - YUBAL_HOST=0.0.0.0
+      - YUBAL_AUDIO_FORMAT=opus
+      - YUBAL_AUDIO_QUALITY=0
+      - YUBAL_DOWNLOAD_UGC=true
+      - YUBAL_FETCH_LYRICS=true
+      - YUBAL_YTMUSIC_LYRICS_FALLBACK=true
+      - YUBAL_REPLAYGAIN=true
+      - YUBAL_SCHEDULER_ENABLED=true
+      - YUBAL_SCHEDULER_CRON=${YUBAL_SCHEDULER_CRON}
+      - YUBAL_JOB_TIMEOUT_SECONDS=1800
+      - YUBAL_LOG_LEVEL=INFO
+    volumes:
+      - ${MEDIA_SHARE}/media/music:/app/data
+      - ${BASE_PATH}/yubal/config:/app/config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${YUBAL_SUBDOMAIN}.rule=Host(`${YUBAL_SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${YUBAL_SUBDOMAIN}.loadbalancer.server.port=8000"
+      - "traefik.http.routers.${YUBAL_SUBDOMAIN}.middlewares=oidc-auth"
+      - "docker-volume-backup.stop-during-backup=true"
+    networks:
+      - frontend
 
 networks:
   frontend:

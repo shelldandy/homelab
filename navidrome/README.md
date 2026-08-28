@@ -14,35 +14,35 @@ Navidrome is a self-hosted, open source music server and streamer. It gives you 
 └──────────┬────────────┴────────────────────┬─────────────────────────────┘
            │                                 │
            ▼                                 ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        Music Sources                            │
-├─────────────────────────────┬───────────────────────────────────┤
-│         Lidarr              │           Manual/Slskd            │
-│    (automated downloads)    │        (manual downloads)         │
-└──────────────┬──────────────┴─────────────────┬─────────────────┘
-               │                                │
-               ▼                                ▼
-┌──────────────────────────┐    ┌──────────────────────────────────┐
-│   /share/media/music     │    │   /share/media/music-inbox       │
-│   (final library)        │    │   (beets inbox)                  │
-└──────────────────────────┘    └─────────────────┬────────────────┘
-               │                                  │
-               │                                  ▼
-               │                    ┌──────────────────────────────┐
-               │                    │   Beets (auto-tag & move)    │
-               │                    └─────────────────┬────────────┘
-               │                                      │
-               ▼                                      ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    /share/media/music                           │
-│                    (Navidrome library)                          │
-└─────────────────────────────────────────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                         Navidrome                               │
-│                    (music streaming)                            │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                             Music Sources                                │
+├──────────────────┬─────────────────────────┬─────────────────────────────┤
+│      Lidarr      │      Manual/Slskd       │            Yubal            │
+│   (automated)    │   (manual downloads)    │  (YouTube / YT Music; self- │
+│                  │                         │   tagging, bypasses beets)  │
+└─────────┬────────┴───────────┬─────────────┴──────────────┬──────────────┘
+          │                    │                            │
+          ▼                    ▼                            │
+┌──────────────────────┐  ┌──────────────────────────┐      │
+│ /share/media/music   │  │ /share/media/music-inbox │      │
+│   (final library)    │  │      (beets inbox)       │      │
+└──────────┬───────────┘  └────────────┬─────────────┘      │
+           │                           ▼                    │
+           │             ┌──────────────────────────────┐   │
+           │             │   Beets (auto-tag & move)    │   │
+           │             └────────────┬─────────────────┘   │
+           │                          │                     │
+           ▼                          ▼                     ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                          /share/media/music                              │
+│                          (Navidrome library)                             │
+│      Yubal also writes _Playlists/ (M3U) and _Unofficial/ (UGC)          │
+└─────────────────────────────────┬────────────────────────────────────────┘
+                                  ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                              Navidrome                                   │
+│                          (music streaming)                               │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Services
@@ -54,8 +54,12 @@ Navidrome is a self-hosted, open source music server and streamer. It gives you 
 | Soularr | Lidarr → Slskd bridge | - |
 | Beets | Music tagger and organizer | 5001 |
 | Slskd | Soulseek client | 5030 |
+| Yubal | YouTube / YT Music downloader (writes directly to library) | 8000 |
+| SpotiFLAC server | Spotify/Apple Music → FLAC web UI | 5000 |
+| SpotiFLAC bot | Same, via Telegram | - |
 | discoverylastfm | Add new artists from Last.fm listening history | - |
 | lastfm-album-selector | Monitor top Last.fm albums for existing Lidarr artists | - |
+| discoverylastfm-slskd-fallback | Retry discoverylastfm misses via Slskd | - |
 
 ## Music Workflows
 
@@ -69,6 +73,36 @@ Music added to `/share/media/music-inbox` (e.g., via Slskd or manual copy) is au
 - Album art fetched and embedded
 
 Beets-flask GUI available for manual review if needed.
+
+### Yubal (YouTube / YouTube Music)
+
+Yubal downloads tracks, albums and playlists from YouTube and YouTube Music
+straight into `/share/media/music`, **bypassing beets** — it does its own
+tagging, cover art, synced lyrics (`.lrc`) and ReplayGain.
+
+- Web UI at `https://ytmdl.bowline.im` (behind `oidc-auth`)
+- Output layout: `Artist/YYYY - Album/NN - Track.opus`
+- Playlists land in `_Playlists/*.m3u` and are auto-imported by Navidrome
+- UGC is enabled, so plain `youtube.com` links work; those go to `_Unofficial/`
+- Playlists can be subscribed to and re-sync nightly (`YUBAL_SCHEDULER_CRON`)
+- A [browser extension](https://addons.mozilla.org/firefox/addon/yubal/) adds a
+  download button directly on YouTube / YT Music pages
+
+**Premium quality (optional).** For 256kbps, private playlists and Liked Music,
+place a Netscape-format `cookies.txt` at
+`/mnt/docker-data/yubal/config/ytdlp/cookies.txt`, or upload it via the web UI.
+Treat it as a credential — it bypasses 2FA, so prefer a secondary Google
+account, and note that cookie use can trigger stricter rate limiting.
+
+**Why `PUID`/`PGID` and not `user:`.** Yubal's entrypoint must start as root to
+create `/app/config/{yubal,ytdlp}`, fix its ownership, run the `ensure_writable`
+preflight, then drop to `PUID:PGID` via `gosu`. Setting `user:` takes the
+untested non-root branch and silently skips that guard. The entrypoint chowns
+`/app/data` **non-recursively**, so the existing library is never walked.
+
+**Duplicate albums.** Yubal's `YYYY - Album` folder naming differs from the
+existing `Album` convention, so an album you already own may appear twice.
+Yubal never overwrites an existing file — it skips it.
 
 ## Soularr
 
