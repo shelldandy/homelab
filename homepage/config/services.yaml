@@ -1,0 +1,153 @@
+---
+# Icon names are verified against homarr-labs/dashboard-icons (svg/).
+# Services with no dashboard-icon fall back to an mdi- glyph.
+
+- Media:
+    - Jellyfin:
+        icon: jellyfin.svg
+        href: https://flix.bowline.im
+        description: Movies & TV
+    - Jellyseerr:
+        icon: jellyseerr.svg
+        href: https://jellyseerr.bowline.im
+        description: Request media
+    - Navidrome:
+        icon: navidrome.svg
+        href: https://music.bowline.im
+        description: Music streaming
+    - Immich:
+        icon: immich.svg
+        href: https://photos.bowline.im
+        description: Photos
+    - BookLore:
+        icon: booklore.svg
+        href: https://books.bowline.im
+        description: Ebook library
+    - Calibre-Web:
+        icon: calibre-web.svg
+        href: https://read.bowline.im
+        description: Ebook reader
+    - Kiwix:
+        icon: kiwix.svg
+        href: https://kiwix.bowline.im
+        description: Offline wikipedia
+
+- Arr:
+    - Sonarr:
+        icon: sonarr.svg
+        href: https://sonarr.bowline.im
+        description: TV shows
+    - Radarr:
+        icon: radarr.svg
+        href: https://radarr.bowline.im
+        description: Movies
+    - MMArr:
+        icon: radarr.svg
+        href: https://mmarr.bowline.im
+        description: MMA events
+    - Lidarr:
+        icon: lidarr.svg
+        href: https://lidarr.bowline.im
+        description: Music
+    - Prowlarr:
+        icon: prowlarr.svg
+        href: https://prowlarr.bowline.im
+        description: Indexers
+    - Bazarr:
+        icon: bazarr.svg
+        href: https://bazarr.bowline.im
+        description: Subtitles
+
+- Downloads:
+    - qBittorrent:
+        icon: qbittorrent.svg
+        href: https://qbt.bowline.im
+        description: Torrents
+    - slskd:
+        icon: slskd.svg
+        href: https://slskd.bowline.im
+        description: Soulseek
+    - SpotiFLAC:
+        icon: mdi-music-note-plus
+        href: https://musicdl.bowline.im
+        description: Music downloader
+    - Beets:
+        icon: mdi-music-note-plus
+        href: https://beets.bowline.im
+        description: Music tagger
+    - MeTube:
+        icon: metube.svg
+        href: https://mmadl.bowline.im
+        description: MMA downloader
+    - Pinchflat:
+        icon: mdi-youtube
+        href: https://ytdl.bowline.im
+        description: YouTube archiver
+    - Shelfmark:
+        icon: mdi-download-box
+        href: https://bookdl.bowline.im
+        description: Book downloader
+
+- Productivity:
+    - Forgejo:
+        icon: forgejo.svg
+        href: https://code.bowline.im
+        description: Git hosting
+    - Vaultwarden:
+        icon: vaultwarden.svg
+        href: https://vault.bowline.im
+        description: Passwords
+    - Mealie:
+        icon: mealie.svg
+        href: https://mealie.bowline.im
+        description: Recipes
+    - Karakeep:
+        icon: karakeep.svg
+        href: https://hoard.bowline.im
+        description: Bookmarks
+    - Miniflux:
+        icon: miniflux.svg
+        href: https://miniflux.bowline.im
+        description: RSS reader
+    - ReactFlux:
+        icon: mdi-rss
+        href: https://rss.bowline.im
+        description: RSS frontend
+    - Crossbill:
+        icon: mdi-rocket-launch
+        href: https://crossbill.bowline.im
+        description: Crossbill
+    - Grow Buddy:
+        icon: mdi-sprout
+        href: https://grow.bowline.im
+        description: Plant tracker
+
+- Infrastructure:
+    - Home Assistant:
+        icon: home-assistant.svg
+        href: https://ha.bowline.im
+        description: Home automation
+    - Zigbee2MQTT:
+        icon: zigbee2mqtt.svg
+        href: https://zigbee2mqtt.bowline.im
+        description: Zigbee bridge
+    - AdGuard Home:
+        icon: adguard-home.svg
+        href: https://adguard.bowline.im
+        description: DNS filtering
+    - Traefik:
+        icon: traefik.svg
+        href: https://traefik.bowline.im
+        description: Reverse proxy
+    - Grafana:
+        icon: grafana.svg
+        href: https://grafana.bowline.im
+        description: Metrics
+    - Umami:
+        icon: umami.svg
+        href: https://stats.bowline.im
+        description: Web analytics
+    - Pocket ID:
+        icon: pocket-id.svg
+        href: https://auth.bowline.im
+        description: SSO provider

@@ -1,0 +1,27 @@
+title: bowline
+description: Homelab services
+
+theme: dark
+color: slate
+headerStyle: boxed
+statusStyle: dot
+
+layout:
+  Media:
+    style: row
+    columns: 4
+  Arr:
+    style: row
+    columns: 4
+  Downloads:
+    style: row
+    columns: 4
+  Productivity:
+    style: row
+    columns: 4
+  Infrastructure:
+    style: row
+    columns: 4
+
+# Traefik's oidc-auth plugin is the single auth gate; homepage's own
+# auth stays off to avoid a second redirect for the same identity.

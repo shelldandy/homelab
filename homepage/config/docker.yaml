@@ -1,0 +1,2 @@
+---
+# No Docker socket integration; services are declared statically.
