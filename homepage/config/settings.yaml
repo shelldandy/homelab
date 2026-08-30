@@ -1,10 +1,18 @@
-title: bowline
+title: BowlineLabs
 description: Homelab services
 
 theme: dark
 color: slate
-headerStyle: boxed
+headerStyle: clean
 statusStyle: dot
+startUrl: https://www.bowline.im
+
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: true
+  showSearchSuggestions: true
+  hideVisitURL: true
+  provider: duckduckgo
 
 layout:
   Media:

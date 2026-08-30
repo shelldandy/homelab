@@ -15,6 +15,10 @@
         icon: navidrome.svg
         href: https://music.bowline.im
         description: Music streaming
+    - Yubal:
+        icon: sh-yubal
+        href: https://ytmdl.bowline.im
+        description: Youtube Music Download
     - Immich:
         icon: immich.svg
         href: https://photos.bowline.im
@@ -67,12 +71,8 @@
         icon: slskd.svg
         href: https://slskd.bowline.im
         description: Soulseek
-    - SpotiFLAC:
-        icon: mdi-music-note-plus
-        href: https://musicdl.bowline.im
-        description: Music downloader
     - Beets:
-        icon: mdi-music-note-plus
+        icon: sh-beets
         href: https://beets.bowline.im
         description: Music tagger
     - MeTube:
@@ -80,11 +80,11 @@
         href: https://mmadl.bowline.im
         description: MMA downloader
     - Pinchflat:
-        icon: mdi-youtube
+        icon: pinchflat
         href: https://ytdl.bowline.im
         description: YouTube archiver
     - Shelfmark:
-        icon: mdi-download-box
+        icon: sh-shelfmark
         href: https://bookdl.bowline.im
         description: Book downloader
 
@@ -110,7 +110,7 @@
         href: https://miniflux.bowline.im
         description: RSS reader
     - ReactFlux:
-        icon: mdi-rss
+        icon: sh-reactflux
         href: https://rss.bowline.im
         description: RSS frontend
     - Crossbill:
