@@ -1,6 +1,6 @@
 services:
   vaultwarden:
-    image: vaultwarden/server:latest
+    image: vaultwarden/server:1.37.2
     container_name: vaultwarden
     restart: unless-stopped
     environment:
@@ -22,6 +22,36 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
       - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=80"
+      - "docker-volume-backup.stop-during-backup=true"
+
+  vaultwarden-cli:
+    image: node:22-alpine
+    container_name: vaultwarden-cli
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      BITWARDENCLI_APPDATA_DIR: /config
+      # Reach the server directly over the backend network, bypassing Traefik
+      # and public DNS. Port 80 matches the loadbalancer port above.
+      BW_SERVER_URL: "http://vaultwarden:80"
+    volumes:
+      - ${CONFIG_PATH}/cli:/config
+      - ${CONFIG_PATH}/cli/export:/export
+    working_dir: /export
+    networks:
+      - backend
+    depends_on:
+      - vaultwarden
+    entrypoint:
+      - sh
+      - -c
+      - |
+        npm install -g @bitwarden/cli --silent
+        if [ "$$(bw status | sed -n 's/.*"status": *"\([^"]*\)".*/\1/p')" = "unauthenticated" ]; then
+          bw config server "$$BW_SERVER_URL"
+        fi
+        exec tail -f /dev/null
+    labels:
       - "docker-volume-backup.stop-during-backup=true"
 
   db:
