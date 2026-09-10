@@ -1,10 +1,15 @@
 services:
   miniflux:
-    image: miniflux/miniflux:latest
+    image: miniflux/miniflux:2.3.3
     container_name: miniflux
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@miniflux-db/${POSTGRES_DB}?sslmode=disable
       RUN_MIGRATIONS: 1
+      POLLING_SCHEDULER: round_robin
+      POLLING_FREQUENCY: 30
+      BATCH_SIZE: 100
+      SCHEDULER_ROUND_ROBIN_MIN_INTERVAL: 30
+      SCHEDULER_ROUND_ROBIN_MAX_INTERVAL: 180
       BASE_URL: https://${MINIFLUX_SUBDOMAIN}.bowline.im/
       OAUTH2_PROVIDER: oidc
       OAUTH2_CLIENT_ID: ${MINIFLUX_OIDC_CLIENT_ID}
