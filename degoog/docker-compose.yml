@@ -1,0 +1,46 @@
+services:
+  degoog:
+    container_name: degoog
+    image: ghcr.io/degoog-org/degoog:latest
+    environment:
+      TZ: ${TZ}
+      # The admin/store panel installs extensions, which execute code on the
+      # server. oidc-auth is the outer gate; this password is the inner one.
+      # Do NOT set DEGOOG_PUBLIC_INSTANCE=true here: that is "public visitor"
+      # mode, which hides the Store tab and makes every mutation API return
+      # Unauthorized, rather than adding a second lock.
+      DEGOOG_SETTINGS_PASSWORDS: ${DEGOOG_SETTINGS_PASSWORD}
+    volumes:
+      - ${CONFIG_PATH}:/app/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=4444"
+
+      # Main UI router: everything behind Pocket ID SSO.
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
+
+      # The AI Summary panel opens an SSE stream with a background POST after
+      # the page has loaded. oidc-auth does not carry the session on that
+      # request and answers 302 to Pocket ID, so the browser gets a redirect
+      # instead of an event stream and the summary silently stays empty.
+      # This router exempts only that one plugin's routes from SSO. It is a
+      # read-only summarisation endpoint (the settings/store surface stays
+      # password-gated), but it does reach a paid API, so it gets a much
+      # tighter rate limit than the global chain's 100/s.
+      - "traefik.http.routers.${SUBDOMAIN}-aisummary.rule=Host(`${SUBDOMAIN}.bowline.im`) && PathPrefix(`/api/plugin/degoog-org-official-extensions-ai-summary/`)"
+      - "traefik.http.routers.${SUBDOMAIN}-aisummary.service=${SUBDOMAIN}"
+      - "traefik.http.routers.${SUBDOMAIN}-aisummary.middlewares=${SUBDOMAIN}-aisummary-ratelimit"
+      - "traefik.http.middlewares.${SUBDOMAIN}-aisummary-ratelimit.ratelimit.average=6"
+      - "traefik.http.middlewares.${SUBDOMAIN}-aisummary-ratelimit.ratelimit.burst=12"
+      - "traefik.http.middlewares.${SUBDOMAIN}-aisummary-ratelimit.ratelimit.period=1m"
+      - "traefik.http.middlewares.${SUBDOMAIN}-aisummary-ratelimit.ratelimit.sourceCriterion.requestHeaderName=CF-Connecting-IP"
+
+      - "docker-volume-backup.stop-during-backup=true"
+    networks:
+      - frontend
+    restart: unless-stopped
+
+networks:
+  frontend:
+    external: true

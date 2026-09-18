@@ -121,6 +121,10 @@
         icon: mdi-sprout
         href: https://grow.bowline.im
         description: Plant tracker
+    - Degoog:
+        icon: mdi-magnify
+        href: https://search.bowline.im
+        description: Search aggregator
 
 - Infrastructure:
     - Home Assistant:

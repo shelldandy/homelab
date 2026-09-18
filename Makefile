@@ -1,7 +1,7 @@
 CORE_SERVICES = traefik pocket-id adguard vaultwarden home-assistant tailscale
 MEDIA_SERVICES = qbittorrent arr jellyfin navidrome metube grafana pinchflat
 PHOTO_SERVICES = immich
-UTILITIES_SERVICES = forgejo karakeep booklore umami rss mealie homepage
+UTILITIES_SERVICES = forgejo karakeep booklore umami rss mealie homepage degoog
 
 ALL_SERVICES = $(CORE_SERVICES) $(PHOTO_SERVICES) $(MEDIA_SERVICES) $(UTILITIES_SERVICES)
 
