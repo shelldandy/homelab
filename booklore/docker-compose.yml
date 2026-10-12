@@ -149,11 +149,12 @@ services:
       # Crossbill has no OIDC support, so its own login is the security
       # boundary - keep registrations closed. See readme.
       ALLOW_USER_REGISTRATIONS: false
-      # Local AI via Ollama (backend network). Summaries use the chat model,
-      # semantic search uses bge-m3 (the embeddings column is fixed at 1024 dims).
+      # Local AI via Ollama (backend network). Summaries need a tool-capable
+      # model (gemma3 is not). Semantic search uses bge-m3 (the embeddings
+      # column is fixed at 1024 dims).
       AI_PROVIDER: ollama
       OPENAI_BASE_URL: http://ollama:11434/v1
-      AI_MODEL_NAME: gemma3:4b
+      AI_MODEL_NAME: qwen3:4b-instruct
       EMBEDDING_PROVIDER: ollama
       EMBEDDING_BASE_URL: http://ollama:11434/v1
       EMBEDDING_MODEL_NAME: bge-m3
