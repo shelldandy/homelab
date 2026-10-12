@@ -13,6 +13,7 @@ services:
       DATA_DIR: /data
     networks:
       - frontend
+      - backend
       - hoarder
     labels:
       - "traefik.enable=true"
@@ -48,6 +49,8 @@ services:
 
 networks:
   frontend:
+    external: true
+  backend:
     external: true
   hoarder:
     name: hoarder_network

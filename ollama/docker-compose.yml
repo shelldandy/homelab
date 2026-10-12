@@ -1,0 +1,31 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_KEEP_ALIVE: 5m
+      OLLAMA_MAX_LOADED_MODELS: 1
+      OLLAMA_NUM_PARALLEL: 1
+    volumes:
+      - ${CONFIG_PATH}:/root/.ollama
+    # Bound to the LAN IP only. No Traefik labels: not exposed outside the LAN.
+    # Ollama has no auth, and published ports bypass host firewall rules.
+    ports:
+      - "${LAN_IP:-10.0.0.99}:11434:11434"
+    mem_limit: 6g
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
+    networks:
+      - backend
+
+networks:
+  backend:
+    external: true
