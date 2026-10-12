@@ -131,6 +131,8 @@ services:
       ENVIRONMENT: production
       PORT: 8000
       DATABASE_URL: postgresql://${CROSSBILL_DB_USER}:${CROSSBILL_DB_PASSWORD}@crossbill-db:5432/crossbill
+      # Production refuses to start without the public origin (used for generated links)
+      PUBLIC_BASE_URL: https://${CROSSBILL_SUBDOMAIN}.bowline.im
       # Production rejects wildcard and empty origins at startup
       CORS_ORIGINS: '["https://${CROSSBILL_SUBDOMAIN}.bowline.im"]'
       # Traefik appends to X-Forwarded-For, so exactly one hop in front.
@@ -147,6 +149,14 @@ services:
       # Crossbill has no OIDC support, so its own login is the security
       # boundary - keep registrations closed. See readme.
       ALLOW_USER_REGISTRATIONS: false
+      # Local AI via Ollama (backend network). Summaries use the chat model,
+      # semantic search uses bge-m3 (the embeddings column is fixed at 1024 dims).
+      AI_PROVIDER: ollama
+      OPENAI_BASE_URL: http://ollama:11434/v1
+      AI_MODEL_NAME: gemma3:4b
+      EMBEDDING_PROVIDER: ollama
+      EMBEDDING_BASE_URL: http://ollama:11434/v1
+      EMBEDDING_MODEL_NAME: bge-m3
     volumes:
       - ${CONFIG_PATH}/crossbill/book-files:/app/book-files
     depends_on:
@@ -155,6 +165,7 @@ services:
     restart: unless-stopped
     networks:
       - frontend
+      - backend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${CROSSBILL_SUBDOMAIN}.rule=Host(`${CROSSBILL_SUBDOMAIN}.bowline.im`)"
@@ -186,4 +197,6 @@ services:
 
 networks:
   frontend:
+    external: true
+  backend:
     external: true
