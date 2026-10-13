@@ -54,6 +54,23 @@ services:
     networks:
       - rss
 
+  # Summarizes new entries with the shared Ollama (backend network) and writes
+  # them back via the Miniflux API. Config (incl. API key) lives in config.yml.
+  miniflux-ai:
+    image: ghcr.io/qetesh/miniflux-ai:latest
+    container_name: miniflux-ai
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    depends_on:
+      miniflux:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - rss
+      - backend
+
   reactflux:
     image: electh/reactflux:latest
     container_name: reactflux
@@ -67,6 +84,8 @@ services:
 
 networks:
   frontend:
+    external: true
+  backend:
     external: true
   rss:
     internal: true

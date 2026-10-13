@@ -1,0 +1,29 @@
+# Copy to config.yml and fill in the Miniflux API key (config.yml is gitignored).
+# https://github.com/Qetesh/miniflux-ai
+log_level: "INFO"
+
+miniflux:
+  base_url: http://miniflux:8080
+  # Miniflux > Settings > API Keys
+  api_key: Miniflux_API_key_here
+  # Poll interval in minutes (no webhook configured)
+  schedule_interval: 15
+
+llm:
+  # Shared CPU-only Ollama on the backend network
+  base_url: http://ollama:11434/v1
+  api_key: ollama
+  model: qwen3:4b-instruct
+  max_length: 10000
+  # CPU inference is slow; keep a single worker and a long timeout
+  timeout: 300
+  max_workers: 1
+
+agents:
+  summary:
+    title: '֎ AI summary:'
+    prompt:
+      '${content} \n---\nSummarize the above content in three sentences, less than 60 characters. Do not answer the questions within the content.'
+    style_block: true
+    deny_list:
+    allow_list:
