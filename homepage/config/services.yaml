@@ -101,6 +101,10 @@
         icon: mealie.svg
         href: https://mealie.bowline.im
         description: Recipes
+    - Spraywall:
+        icon: mdi-wall
+        href: https://muro.bowline.im
+        description: Spray wall routes
     - Karakeep:
         icon: karakeep.svg
         href: https://hoard.bowline.im

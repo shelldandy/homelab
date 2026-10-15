@@ -1,0 +1,127 @@
+# Spraywall — https://github.com/shelldandy/spraywall (adapted from deploy/docker-compose.yml)
+
+# Credentials go through libpq env vars rather than the URI, so passwords need no URL-escaping.
+x-db-env: &db-env
+  DATABASE_URL: postgres://postgres:5432/${POSTGRES_DB}?sslmode=disable
+  PGUSER: ${POSTGRES_USER}
+  PGPASSWORD: ${POSTGRES_PASSWORD}
+
+x-storage-env: &storage-env
+  MINIO_ENDPOINT: minio:9000
+  MINIO_BUCKET: ${MINIO_BUCKET}
+  MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+  MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+
+# Native Pocket ID OIDC (mirrors mealie)
+x-auth-env: &auth-env
+  OIDC_ISSUER_URL: https://auth.bowline.im
+  OIDC_CLIENT_ID: ${SPRAYWALL_OIDC_CLIENT_ID}
+  OIDC_CLIENT_SECRET: ${SPRAYWALL_OIDC_CLIENT_SECRET}
+  OIDC_REDIRECT_URL: https://${SUBDOMAIN}.bowline.im/api/auth/oidc/callback
+  OIDC_PROVIDER_NAME: Pocket ID
+  OIDC_SCOPES: openid email profile groups
+  OIDC_GROUPS_CLAIM: groups
+  OIDC_ADMIN_GROUP: ${SPRAYWALL_OIDC_ADMIN_GROUP}
+  OIDC_ADMIN_MAX_AGE: 24h
+  PASSWORD_LOGIN_ENABLED: ${PASSWORD_LOGIN_ENABLED:-true}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: spraywall-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ${CONFIG_PATH}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - spraywall
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
+
+  minio:
+    # Community fork: upstream stopped publishing minio/minio images.
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    container_name: spraywall-minio
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - ${CONFIG_PATH}/minio:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - spraywall
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
+
+  server:
+    image: ghcr.io/shelldandy/spraywall-server:${SPRAYWALL_VERSION:-edge}
+    container_name: spraywall-server
+    environment:
+      <<: [*storage-env, *db-env, *auth-env]
+      PORT: 8080
+      JWT_SECRET: ${JWT_SECRET}
+    healthcheck:
+      # Healthy once migrations have run and the API is listening.
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - spraywall
+
+  worker:
+    # CPU-only; no GPU on this host.
+    image: ghcr.io/shelldandy/spraywall-worker:${SPRAYWALL_VERSION:-edge}
+    container_name: spraywall-worker
+    environment:
+      <<: [*storage-env, *db-env]
+      POLL_INTERVAL_SECONDS: 5
+      INFERENCE_BACKEND: local
+    depends_on:
+      postgres:
+        condition: service_healthy
+      server:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - spraywall
+
+  web:
+    image: ghcr.io/shelldandy/spraywall-web:${SPRAYWALL_VERSION:-edge}
+    container_name: spraywall-web
+    depends_on:
+      - server
+    restart: unless-stopped
+    networks:
+      - frontend
+      - spraywall
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=80"
+
+networks:
+  frontend:
+    external: true
+  spraywall:
+    internal: true
