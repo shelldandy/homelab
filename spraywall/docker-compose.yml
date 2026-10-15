@@ -87,6 +87,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
+      - frontend # outbound access for OIDC discovery (spraywall net is internal)
       - spraywall
 
   worker:
