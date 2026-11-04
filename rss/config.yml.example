@@ -7,14 +7,14 @@ miniflux:
   # Miniflux > Settings > API Keys
   api_key: Miniflux_API_key_here
   # Poll interval in minutes (no webhook configured)
-  schedule_interval: 15
+  schedule_interval: 5
 
 llm:
   # Shared CPU-only Ollama on the backend network
   base_url: http://ollama:11434/v1
   api_key: ollama
   model: qwen3:4b-instruct
-  max_length: 10000
+  max_length: 4000
   # CPU inference is slow; keep a single worker and a long timeout
   timeout: 300
   max_workers: 1
