@@ -74,6 +74,7 @@ services:
       <<: [*storage-env, *db-env, *auth-env]
       PORT: 8080
       JWT_SECRET: ${JWT_SECRET}
+      IMMICH_ALLOWED_HOSTS: ${IMMICH_ALLOWED_HOSTS}
     healthcheck:
       # Healthy once migrations have run and the API is listening.
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
