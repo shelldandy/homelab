@@ -1,9 +1,26 @@
 # Jellyfin 10.11.11 → 12.0 Upgrade: Research & Blockers
 
 **Date:** September 8, 2026
-**Status:** Deferred — waiting for a 12.0.x point release and stable plugin builds
-**Severity:** N/A — planned maintenance, no outage
-**Current version:** `lscr.io/linuxserver/jellyfin:10.11.11`
+**Status:** ✅ Done 2026-11-04 — upgraded to `lscr.io/linuxserver/jellyfin:12.0ubu2604-ls48`
+**Severity:** N/A — planned maintenance, short outage
+**Previous version:** `lscr.io/linuxserver/jellyfin:10.11.11`
+
+## Outcome (2026-11-04)
+
+> **Correction:** the analysis below was written from the wrong directory. The live plugin dir is `config/data/plugins/`, **not** `config/plugins/` (which is a stale Dec 2024 leftover). The live plugin was `SSO Authentication_4.0.0.4` (9p4, 10.11 build), and `config/data/plugins/configurations/SSO-Auth.xml` was **already on Pocket ID**, so SSO was not broken. The only blocker was that the 10.11 plugin cannot load on Jellyfin 12.
+
+What was done:
+1. Reset passwords for the 4 SSO-provider users and verified local login.
+2. Stopped Jellyfin and took a cold copy: `config.bak-10.11.11` (15 GB, DB size verified identical).
+3. Removed `SSO Authentication_4.0.0.4`, bumped the image, started. Migrations applied cleanly in ~49 s (675 stale linked-child items dropped, mostly `mma` extras; a full library scan restores them).
+4. Installed [`MaxRink/jellyfin-plugin-sso`](https://github.com/MaxRink/jellyfin-plugin-sso) **6.1.0.0** (stable, Jellyfin 12) via `https://raw.githubusercontent.com/MaxRink/jellyfin-plugin-sso/manifest-release/manifest.json`. The existing `SSO-Auth.xml` carried over (provider name `pocket-id`).
+5. Verified Pocket ID login: group claim granted admin, legacy username-keyed links were migrated to the new format. The fork has only been tested upstream with authentik, so Pocket ID support is confirmed by this login alone.
+
+Keep `config.bak-10.11.11` until Jellyfin 12 has been stable for several days.
+
+---
+
+*The sections below are the original pre-upgrade research, kept for reference.*
 
 ## Summary
 

@@ -1,7 +1,7 @@
 services:
   jellyfin:
     container_name: jellyfin
-    image: lscr.io/linuxserver/jellyfin:10.11.11
+    image: lscr.io/linuxserver/jellyfin:12.0ubu2604-ls48
     restart: unless-stopped
     environment:
       TZ: ${TZ}
