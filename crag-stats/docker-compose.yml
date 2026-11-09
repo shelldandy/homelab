@@ -1,0 +1,45 @@
+services:
+  app:
+    image: ghcr.io/luen/crag-stats:${CRAG_STATS_IMAGE_TAG:-latest}
+    container_name: crag-stats
+    env_file:
+      - .env
+    environment:
+      DATABASE_PATH: /data/crag-stats.sqlite
+      MIGRATIONS_DIR: /app/migrations
+      HOST: 0.0.0.0
+      PORT: 3000
+    volumes:
+      - ${CONFIG_PATH}:/data
+    restart: unless-stopped
+    networks:
+      - default
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.bowline.im`)"
+      - "traefik.http.routers.${SUBDOMAIN}.middlewares=oidc-auth"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=3000"
+      - "docker-volume-backup.stop-during-backup=true"
+
+  worker:
+    image: ghcr.io/luen/crag-stats:${CRAG_STATS_IMAGE_TAG:-latest}
+    container_name: crag-stats-worker
+    command: ["node", "scripts/worker.mjs"]
+    env_file:
+      - .env
+    environment:
+      DATABASE_PATH: /data/crag-stats.sqlite
+      MIGRATIONS_DIR: /app/migrations
+      APP_INTERNAL_URL: http://app:3000
+    volumes:
+      - ${CONFIG_PATH}:/data
+    restart: unless-stopped
+    depends_on:
+      - app
+    labels:
+      - "docker-volume-backup.stop-during-backup=true"
+
+networks:
+  frontend:
+    external: true
